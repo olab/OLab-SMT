@@ -7,9 +7,6 @@ import {
   Typography,
   Container,
 } from "@mui/material";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useAuth } from "../hooks/useAuth";
 import OLabLogoIcon from "../shared/olab4_logo.svg";
 import styled from "styled-components";
@@ -68,7 +65,7 @@ export const LoginPage = () => {
             required
             fullWidth
             id="email"
-            label="Email Address"
+            label="User Name"
             name="email"
             autoComplete="email"
             autoFocus

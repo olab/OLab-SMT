@@ -5,6 +5,7 @@ import {
   defer
 } from "react-router-dom";
 import { LoginPage } from "./pages/Login";
+import { UserPage } from "./pages/Users";
 import { HomePage } from "./pages/Home";
 import { ProfilePage } from "./pages/Profile";
 import { SettingsPage } from "./pages/Settings";
@@ -42,6 +43,8 @@ export const router = createBrowserRouter(
       </Route>
 
       <Route path="/dashboard" element={<ProtectedLayout />}>
+        <Route path="users" element={<UserPage />} />
+        <Route path="home" element={<HomePage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
