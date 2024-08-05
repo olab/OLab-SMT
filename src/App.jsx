@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 
 import { LoginPage } from "./pages/Login";
-import { UserPage } from "./pages/Users";
+import { UserPage } from "./pages/Users/Users";
 import { HomePage } from "./pages/Home";
 import { ProfilePage } from "./pages/Profile";
 import { SettingsPage } from "./pages/Settings";
