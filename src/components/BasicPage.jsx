@@ -11,7 +11,7 @@ export const BasicPage = ({ title, icon }) => {
           marginTop: 8,
           display: "flex",
           flexDirection: "column",
-          alignItems: "center"
+          alignItems: "center",
         }}
       >
         <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>{icon}</Avatar>

@@ -31,11 +31,12 @@ export const AppBar = ({ pages }) => {
   };
 
   return (
-    <MuiAppBar position="static">
+    <MuiAppBar color="primary" position="static" enableColorOnDark>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Typography
             variant="h6"
+            color="success.main"
             noWrap
             component="div"
             sx={{ mr: 2, display: { xs: "none", md: "flex" } }}
@@ -59,17 +60,17 @@ export const AppBar = ({ pages }) => {
               anchorEl={anchorElNav}
               anchorOrigin={{
                 vertical: "bottom",
-                horizontal: "left"
+                horizontal: "left",
               }}
               keepMounted
               transformOrigin={{
                 vertical: "top",
-                horizontal: "left"
+                horizontal: "left",
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
               sx={{
-                display: { xs: "block", md: "none" }
+                display: { xs: "block", md: "none" },
               }}
             >
               {pages?.map((page) => (
@@ -82,7 +83,9 @@ export const AppBar = ({ pages }) => {
               ))}
               {!!user && (
                 <MenuItem key={"logout"} onClick={logout}>
-                  <Typography textAlign="center">Logout</Typography>
+                  <Typography textAlign="center">
+                    Logout
+                  </Typography>
                 </MenuItem>
               )}
             </Menu>
@@ -90,6 +93,7 @@ export const AppBar = ({ pages }) => {
           <Typography
             variant="h6"
             noWrap
+            color="white.main"
             component="div"
             sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}
           >
@@ -100,7 +104,7 @@ export const AppBar = ({ pages }) => {
               <Button
                 key={page.label}
                 onClick={() => handleCloseNavMenu(page.path)}
-                sx={{ my: 2, color: "white", display: "block" }}
+                sx={{ my: 2, color: "white.main", display: "block" }}
               >
                 {page.label}
               </Button>
@@ -109,7 +113,7 @@ export const AppBar = ({ pages }) => {
               <Button
                 key={"logout"}
                 onClick={logout}
-                sx={{ my: 2, color: "white", display: "block" }}
+                sx={{ my: 2, color: "white.main", display: "block" }}
               >
                 {"logout"}
               </Button>
