@@ -19,7 +19,7 @@ import PropTypes from "prop-types";
 // Material Dashboard 2 PRO React components
 import MDBox from "@/components/MDBox";
 
-function DataTableBodyCell({ noBorder, align, children }) {
+function DataTableBodyCell({ noBorder = false, align = "left", children }) {
   return (
     <MDBox
       component="td"
@@ -44,10 +44,10 @@ function DataTableBodyCell({ noBorder, align, children }) {
 }
 
 // Setting default values for the props of DataTableBodyCell
-DataTableBodyCell.defaultProps = {
-  noBorder: false,
-  align: "left",
-};
+// DataTableBodyCell.defaultProps = {
+//   noBorder: false,
+//   align: "left",
+// };
 
 // Typechecking props for the DataTableBodyCell
 DataTableBodyCell.propTypes = {
