@@ -53,6 +53,7 @@ function DataTable({
   pagination = { variant: "gradient", color: "info" },
   isSorted = true,
   noEndBorder = false,
+  onClickRow,
 }) {
   const defaultValue = entriesPerPage.defaultValue
     ? entriesPerPage.defaultValue
@@ -145,11 +146,6 @@ function DataTable({
   // Setting the entries starting point
   const entriesStart =
     pageIndex === 0 ? pageIndex + 1 : pageIndex * pageSize + 1;
-
-  const onClickRow = (a, b, c, d ) =>
-  {
-    alert('hi!');
-  }
 
   // Setting the entries ending point
   let entriesEnd;
