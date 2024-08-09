@@ -1,6 +1,6 @@
 import * as React from "react";
 import {
-  Avatar,
+  Alert,
   Button,
   TextField,
   Box,
@@ -10,6 +10,7 @@ import {
 import { useAuth } from "../hooks/useAuth";
 import OLabLogoIcon from "../shared/olab4_logo.svg";
 import styled from "styled-components";
+import { useMemo, useEffect, useState } from "react";
 
 export const Logo = styled.div`
   text-decoration: none;
@@ -29,13 +30,20 @@ export const Logo = styled.div`
 export const LoginPage = () => {
   const { login } = useAuth();
 
-  const handleSubmit = (event) => {
+  // Search input value state
+  const [error, setError] = useState(null);
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    login({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    try {
+      let loginResult = await login({
+        email: data.get("email"),
+        password: data.get("password"),
+      });
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   return (
@@ -51,13 +59,14 @@ export const LoginPage = () => {
         <Logo>
           <img src={OLabLogoIcon} />
         </Logo>
-        <Typography 
-          component="h1" 
-          variant="h5" 
-          color="rgb(0, 137, 236)" 
-          fontWeight="bolder" 
-          fontSize="18pt">
-            OLab4
+        <Typography
+          component="h1"
+          variant="h5"
+          color="rgb(0, 137, 236)"
+          fontWeight="bolder"
+          fontSize="18pt"
+        >
+          OLab4
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
@@ -89,6 +98,14 @@ export const LoginPage = () => {
             Sign In
           </Button>
         </Box>
+
+        {error != null && (
+          <Alert 
+            variant="filled" 
+            severity="error"
+            onClose={() => { setError(null); }}>{error}</Alert>
+        )}
+
       </Box>
     </Container>
   );

@@ -16,16 +16,21 @@ Coded by www.creative-tim.com
 // prop-types is a library for typechecking of props
 import PropTypes from "prop-types";
 
-// @mui material components
-import Icon from "@mui/material/Icon";
-
 // Material Dashboard 2 PRO React components
-import MDBox from "components/MDBox";
+import MDBox from "@/components/MDBox";
 
 // Material Dashboard 2 PRO React contexts
-import { useMaterialUIController } from "context";
+import { useMaterialUIController } from "@/context";
+import ArrowDropUp from "@mui/icons-material/ArrowDropUp";
+import ArrowDropDown from "@mui/icons-material/ArrowDropDown";
 
-function DataTableHeadCell({ width = "auto", children, sorted = "none", align = "left", ...rest }) {
+function DataTableHeadCell({
+  width = "auto",
+  children,
+  sorted = "none",
+  align = "left",
+  ...rest
+}) {
   const [controller] = useMaterialUIController();
   const { darkMode } = controller;
 
@@ -66,11 +71,11 @@ function DataTableHeadCell({ width = "auto", children, sorted = "none", align = 
           >
             <MDBox
               position="absolute"
-              top={-6}
+              top={-12}
               color={sorted === "asce" ? "text" : "secondary"}
               opacity={sorted === "asce" ? 1 : 0.5}
             >
-              <Icon>arrow_drop_up</Icon>
+              <ArrowDropUp fontSize="large"/>
             </MDBox>
             <MDBox
               position="absolute"
@@ -78,7 +83,7 @@ function DataTableHeadCell({ width = "auto", children, sorted = "none", align = 
               color={sorted === "desc" ? "text" : "secondary"}
               opacity={sorted === "desc" ? 1 : 0.5}
             >
-              <Icon>arrow_drop_down</Icon>
+              <ArrowDropDown fontSize="large"/>
             </MDBox>
           </MDBox>
         )}

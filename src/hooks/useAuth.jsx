@@ -16,8 +16,12 @@ export const AuthProvider = ({ children, userData }) => {
       password: data.password,
     });
 
-    if (!data) {
-      throw new Error("Unable to Login");
+    if (loginResult.error_code == 401) {
+      throw new Error("Invalid userid/password");
+    }
+
+    if (loginResult.error_code != 200) {
+      throw new Error("Unable to login");
     }
 
     setUser(data);

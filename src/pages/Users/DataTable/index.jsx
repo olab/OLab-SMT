@@ -42,7 +42,7 @@ import MDInput from "@/components/MDInput";
 import MDPagination from "@/components/MDPagination";
 
 // Material Dashboard 2 PRO React examples
-import DataTableHeadCell from "./DataTableBodyCell";
+import DataTableHeadCell from "./DataTableHeadCell";
 import DataTableBodyCell from "./DataTableBodyCell";
 
 function DataTable({
@@ -146,6 +146,11 @@ function DataTable({
   const entriesStart =
     pageIndex === 0 ? pageIndex + 1 : pageIndex * pageSize + 1;
 
+  const onClickRow = (a, b, c, d ) =>
+  {
+    alert('hi!');
+  }
+
   // Setting the entries ending point
   let entriesEnd;
 
@@ -207,7 +212,10 @@ function DataTable({
               headerGroup.getHeaderGroupProps();
 
             return (
-              <TableRow key={headerGroupKey} {...headerGroupRest}>
+              <TableRow 
+                key={key} 
+                {...headerGroupRest}
+              >
                 {headerGroup.headers.map((column, idx) => {
 
                   const { key: headerKey, ...headerRest } = column.getHeaderProps(
@@ -236,7 +244,11 @@ function DataTable({
             const { key: rowKey, ...rowRest } = row.getRowProps();
 
             return (
-              <TableRow key={rowKey} {...rowRest}>
+              <TableRow 
+                onClick={onClickRow}
+                key={rowKey} 
+                {...rowRest}
+              >
                 {row.cells.map((cell, idx) => {
                   const { key: cellKey, ...cellRest } = cell.getCellProps();
                   return (
