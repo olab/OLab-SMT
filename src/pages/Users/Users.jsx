@@ -33,11 +33,25 @@ import defaultUser from "./defaultUser";
 import log from "loglevel";
 
 export const UserPage = () => {
-  const [user, setUser] = useState(defaultUser);
+  const [user, setUser] = useState({...defaultUser, verifypassword: defaultUser.password});
+
+  const onFieldChange = (ev) => {
+    setUser(user => ({
+      ...user,
+      [ev.target.id] : ev.target.value,
+    }))
+  }
+
+  const onAddClicked = () => {
+    setUser(defaultUser);
+  }
 
   const onClickRow = (a, b, c, d) => {
     log.debug(`rowindex: ${a.currentTarget.rowIndex}`);
-    setUser({ ...dataTableData.rows[a.currentTarget.rowIndex - 1], password: "*******" });
+    setUser({ 
+      ...dataTableData.rows[a.currentTarget.rowIndex - 1], 
+      password: "*******", 
+      verifypassword: "*******" });
     log.debug(JSON.stringify(user));
   };
 
@@ -50,12 +64,15 @@ export const UserPage = () => {
               Users
             </MDTypography>
           </MDBox>
-          <DataTable onClickRow={onClickRow} table={dataTableData} canSearch />
+          <DataTable 
+            onClickRow={onClickRow} 
+            table={dataTableData} canSearch 
+          />
         </Card>
         &nbsp;
         <Card>
           <MDBox p={3} lineHeight={0}>
-            <Button>Add</Button>
+            <Button onClick={onAddClicked}>Add</Button>
           </MDBox>
         </Card>
         &nbsp;
@@ -73,33 +90,37 @@ export const UserPage = () => {
           >
             <TextField
               required
-              id="filled-required"
+              id="username"
               label="User Id"
               variant="filled"
               value={user.username}
+              onChange={e => onFieldChange(e)}
             />
             <TextField
               required
-              id="filled-required"
+              id="nickname"
               label="Name"
               variant="filled"
               value={user.nickname}
+              onChange={e => onFieldChange(e)}
             />
             <TextField
-              id="filled-password-input1"
+              id="password"
               label="Password"
               type="password"
               autoComplete="current-password"
               variant="filled"
               value={user.password}
+              onChange={e => onFieldChange(e)}
             />
             <TextField
-              id="filled-password-input2"
+              id="verifypassword"
               label="Verify Password"
               type="password"
               autoComplete="current-password"
               variant="filled"
-              value={user.password}
+              value={user.verifypassword}
+              onChange={e => onFieldChange(e)}
             />
           </MDBox>
         </Card>
