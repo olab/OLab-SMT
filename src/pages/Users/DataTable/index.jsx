@@ -45,8 +45,12 @@ import MDPagination from "@/components/MDPagination";
 import DataTableHeadCell from "./DataTableHeadCell";
 import DataTableBodyCell from "./DataTableBodyCell";
 
+import ChevronLeft from "@mui/icons-material/ChevronLeft";
+import ChevronRight from "@mui/icons-material/ChevronRight";
+
+
 function DataTable({
-  entriesPerPage = { defaultValue: 10, entries: [5, 10, 15, 20, 25] },
+  entriesPerPage = { defaultValue: 5, entries: [5, 10, 15, 20, 25] },
   canSearch = false,
   showTotalEntries = true,
   table,
@@ -243,6 +247,7 @@ function DataTable({
               <TableRow 
                 onClick={onClickRow}
                 key={rowKey} 
+                name={row.cells[0].value}
                 {...rowRest}
               >
                 {row.cells.map((cell, idx) => {
@@ -289,7 +294,7 @@ function DataTable({
           >
             {canPreviousPage && (
               <MDPagination item onClick={() => previousPage()}>
-                <Icon sx={{ fontWeight: "bold" }}>chevron_left</Icon>
+                <ChevronLeft fontWeight="bold" fontSize="large"/>
               </MDPagination>
             )}
             {renderPagination.length > 6 ? (
@@ -309,7 +314,7 @@ function DataTable({
             )}
             {canNextPage && (
               <MDPagination item onClick={() => nextPage()}>
-                <Icon sx={{ fontWeight: "bold" }}>chevron_right</Icon>
+                <ChevronRight fontWeight="bold" fontSize="large"/>
               </MDPagination>
             )}
           </MDPagination>
@@ -318,16 +323,6 @@ function DataTable({
     </TableContainer>
   );
 }
-
-// Setting default values for the props of DataTable
-// DataTable.defaultProps = {
-//   entriesPerPage: { defaultValue: 10, entries: [5, 10, 15, 20, 25] },
-//   canSearch: false,
-//   showTotalEntries: true,
-//   pagination: { variant: "gradient", color: "info" },
-//   isSorted: true,
-//   noEndBorder: false,
-// };
 
 // Typechecking props for the DataTable
 DataTable.propTypes = {

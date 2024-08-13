@@ -10,7 +10,7 @@ import {
 import { useAuth } from "../hooks/useAuth";
 import OLabLogoIcon from "../shared/olab4_logo.svg";
 import styled from "styled-components";
-import { useMemo, useEffect, useState } from "react";
+import { useState } from "react";
 
 export const Logo = styled.div`
   text-decoration: none;
@@ -28,7 +28,7 @@ export const Logo = styled.div`
 `;
 
 export const LoginPage = () => {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
 
   // Search input value state
   const [error, setError] = useState(null);
@@ -41,6 +41,9 @@ export const LoginPage = () => {
         email: data.get("email"),
         password: data.get("password"),
       });
+
+      console.log(JSON.stringify(user));
+
     } catch (error) {
       setError(error.message);
     }

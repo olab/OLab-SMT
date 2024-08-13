@@ -28,7 +28,14 @@ import MDPaginationItemRoot from "@/components/MDPagination/MDPaginationItemRoot
 const Context = createContext(null);
 
 const MDPagination = forwardRef(
-  ({ item, variant, color, size, active, children, ...rest }, ref) => {
+  ({ 
+    item = false, 
+    variant = "gradient", 
+    color = "info", 
+    size = "medium", 
+    active = false, 
+    children, 
+    ...rest }, ref) => {
     const context = useContext(Context);
     const paginationSize = context ? context.size : null;
 
@@ -64,13 +71,13 @@ const MDPagination = forwardRef(
 );
 
 // Setting default values for the props of MDPagination
-MDPagination.defaultProps = {
-  item: false,
-  variant: "gradient",
-  color: "info",
-  size: "medium",
-  active: false,
-};
+// MDPagination.defaultProps = {
+//   item: false,
+//   variant: "gradient",
+//   color: "info",
+//   size: "medium",
+//   active: false,
+// };
 
 // Typechecking props for the MDPagination
 MDPagination.propTypes = {

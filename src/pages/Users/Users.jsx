@@ -15,6 +15,7 @@ Coded by www.creative-tim.com
 
 // @mui material components
 import Card from "@mui/material/Card";
+import CircularProgress from "@mui/material/CircularProgress";
 
 // Material Dashboard 2 PRO React components
 import MDBox from "@/components/MDBox";
@@ -25,35 +26,68 @@ import TextField from "@mui/material/TextField";
 import DashboardLayout from "./DashboardLayout";
 import DataTable from "./DataTable";
 import Button from "@mui/material/Button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Data
 import dataTableData from "./dataTableData";
 import defaultUser from "./defaultUser";
 import log from "loglevel";
+import { getUsers } from "../../services/api";
+import { useAuth } from "../../hooks/useAuth";
 
 export const UserPage = () => {
-  const [user, setUser] = useState({...defaultUser, verifypassword: defaultUser.password});
+
+  const { user } = useAuth();
+  const [tableData, setTableData] = useState(dataTableData);
+  const [loading, setLoading] = useState(true);
+  const [formUser, setFormUser] = useState({
+    ...defaultUser,
+    verifypassword: defaultUser.password,
+  });
+
+  useEffect(() => {
+    getUsers(user.authInfo.token).then(response => {
+      const users = { ...dataTableData, rows: response.data } ;
+      setTableData(users);
+      setLoading(false);
+    })
+  }, [])  
 
   const onFieldChange = (ev) => {
-    setUser(user => ({
+    setFormUser((user) => ({
       ...user,
-      [ev.target.id] : ev.target.value,
-    }))
-  }
+      [ev.target.id]: ev.target.value,
+    }));
+  };
 
   const onAddClicked = () => {
-    setUser(defaultUser);
-  }
+    setFormUser(defaultUser);
+  };
 
   const onClickRow = (a, b, c, d) => {
     log.debug(`rowindex: ${a.currentTarget.rowIndex}`);
-    setUser({ 
-      ...dataTableData.rows[a.currentTarget.rowIndex - 1], 
-      password: "*******", 
-      verifypassword: "*******" });
-    log.debug(JSON.stringify(user));
+    const dataIndex = tableData.rows.findIndex(x => x.id === Number(a.currentTarget.attributes["name"].value))
+    setFormUser({
+      ...tableData.rows[dataIndex],
+      password: "*******",
+      verifypassword: "*******",
+    });
+    log.debug(JSON.stringify(formUser));
   };
+
+  const onSubmit = (data) => {
+    alert(JSON.stringify(data));
+  };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <center>
+          <CircularProgress color="inherit" />
+        </center>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -64,10 +98,7 @@ export const UserPage = () => {
               Users
             </MDTypography>
           </MDBox>
-          <DataTable 
-            onClickRow={onClickRow} 
-            table={dataTableData} canSearch 
-          />
+          <DataTable onClickRow={onClickRow} table={tableData} canSearch />
         </Card>
         &nbsp;
         <Card>
@@ -88,40 +119,42 @@ export const UserPage = () => {
             alignItems="center"
             p={3}
           >
-            <TextField
-              required
-              id="username"
-              label="User Id"
-              variant="filled"
-              value={user.username}
-              onChange={e => onFieldChange(e)}
-            />
-            <TextField
-              required
-              id="nickname"
-              label="Name"
-              variant="filled"
-              value={user.nickname}
-              onChange={e => onFieldChange(e)}
-            />
-            <TextField
-              id="password"
-              label="Password"
-              type="password"
-              autoComplete="current-password"
-              variant="filled"
-              value={user.password}
-              onChange={e => onFieldChange(e)}
-            />
-            <TextField
-              id="verifypassword"
-              label="Verify Password"
-              type="password"
-              autoComplete="current-password"
-              variant="filled"
-              value={user.verifypassword}
-              onChange={e => onFieldChange(e)}
-            />
+            <form onSubmit={onSubmit}>
+              <TextField
+                required
+                id="username"
+                label="User Id"
+                variant="filled"
+                value={formUser.userName}
+                onChange={(e) => onFieldChange(e)}
+              />
+              <TextField
+                required
+                id="nickname"
+                label="Name"
+                variant="filled"
+                value={formUser.nickName}
+                onChange={(e) => onFieldChange(e)}
+              />
+              <TextField
+                id="password"
+                label="Password"
+                type="password"
+                autoComplete="current-password"
+                variant="filled"
+                value={formUser.password}
+                onChange={(e) => onFieldChange(e)}
+              />
+              <TextField
+                id="verifypassword"
+                label="Verify Password"
+                type="password"
+                autoComplete="current-password"
+                variant="filled"
+                value={formUser.verifypassword}
+                onChange={(e) => onFieldChange(e)}
+              />
+            </form>
           </MDBox>
         </Card>
       </MDBox>

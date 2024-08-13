@@ -24,7 +24,7 @@ export const AuthProvider = ({ children, userData }) => {
       throw new Error("Unable to login");
     }
 
-    setUser(data);
+    setUser(loginResult.data);
     navigate("/dashboard/home", { replace: true });
   };
 

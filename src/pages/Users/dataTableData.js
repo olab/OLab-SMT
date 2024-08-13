@@ -15,23 +15,23 @@ Coded by www.creative-tim.com
 
 const dataTableData = {
   columns: [
-    { Header: "User Id", accessor: "id", width: "20%", align: "center" },
-    { Header: "User Name", accessor: "username", width: "25%", align: "center" },
-    { Header: "Nick Name", accessor: "nickname", align: "center" },
+    { Header: "User Id", accessor: "id", width: "20px", align: "center" },
+    { Header: "User Name", accessor: "userName", align: "center" },
+    { Header: "Nick Name", accessor: "nickName", align: "center" },
   ],
 
   rows: [
     {
       id: 1,
-      username: "wirunc",
-      nickname: "Corey Wirun",
+      userName: "wirunc",
+      nickName: "Corey Wirun",
       align: "left"
     },
 
     {
       id: 2,
-      username: "olab4s",
-      nickname: "OLab Super User"
+      userName: "olab4s",
+      nickName: "OLab Super User"
     },
 
   ],
