@@ -15,9 +15,17 @@ Coded by www.creative-tim.com
 
 const dataTableData = {
   columns: [
-    { Header: "User Id", accessor: "id", width: "20px", align: "center" },
-    { Header: "User Name", accessor: "userName", align: "center" },
-    { Header: "Nick Name", accessor: "nickName", align: "center" },
+    { field: 'id', headerName: 'User Id', width: 90 },
+    {
+      field: 'userName',
+      headerName: 'User Name',
+      flex: 1
+    },
+    {
+      field: 'nickName',
+      headerName: 'Full Name',
+      flex: 1
+    }
   ],
 
   rows: [
@@ -25,7 +33,6 @@ const dataTableData = {
       id: 1,
       userName: "wirunc",
       nickName: "Corey Wirun",
-      align: "left"
     },
 
     {

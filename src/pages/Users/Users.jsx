@@ -22,11 +22,14 @@ import MDBox from "@/components/MDBox";
 import MDTypography from "@/components/MDTypography";
 import TextField from "@mui/material/TextField";
 
+import Box from "@mui/material/Box";
+import { DataGrid } from "@mui/x-data-grid";
+
 // Material Dashboard 2 PRO React examples
 import DashboardLayout from "./DashboardLayout";
 import DataTable from "./DataTable";
 import Button from "@mui/material/Button";
-import Grid from "@mui/material/Grid"
+import Grid from "@mui/material/Grid";
 import { useState, useEffect } from "react";
 
 // Data
@@ -101,8 +104,24 @@ export const UserPage = () => {
                 <MDTypography variant="h6" fontWeight="medium">
                   Users
                 </MDTypography>
+                <DataGrid
+                  rows={tableData.rows}
+                  columns={tableData.columns}
+                  initialState={{
+                    pagination: {
+                      paginationModel: {
+                        pageSize: 5,
+                      },
+                    },
+                  }}
+                  pageSizeOptions={[5, 10, 25, 50]}
+                  checkboxSelection
+                  disableRowSelectionOnClick
+                  rowHeight={30}
+                  columnHeaderHeight={30}
+                  autoHeight
+                />
               </MDBox>
-              <DataTable onClickRow={onClickRow} table={tableData} canSearch />
             </Card>
           </Grid>
           <Grid item xs={4}>
