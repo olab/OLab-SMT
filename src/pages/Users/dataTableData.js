@@ -15,16 +15,16 @@ Coded by www.creative-tim.com
 
 const dataTableData = {
   columns: [
-    { field: 'id', headerName: 'User Id', width: 90 },
+    { field: 'id', headerName: 'User Id', width: 90, editable: false },
     {
       field: 'userName',
       headerName: 'User Name',
-      flex: 1
+      flex: 1, editable: false
     },
     {
       field: 'nickName',
       headerName: 'Full Name',
-      flex: 1
+      flex: 1, editable: false
     }
   ],
 

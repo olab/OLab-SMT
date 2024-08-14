@@ -67,6 +67,10 @@ export const UserPage = () => {
     setFormUser(defaultUser);
   };
 
+  const onRowClick = (a, b, c ) => {
+    console.log("onRowClick");
+  }
+
   const onClickRow = (a, b, c, d) => {
     log.debug(`rowindex: ${a.currentTarget.rowIndex}`);
     const dataIndex = tableData.rows.findIndex(
@@ -110,11 +114,12 @@ export const UserPage = () => {
                   initialState={{
                     pagination: {
                       paginationModel: {
-                        pageSize: 5,
+                        pageSize: 15,
                       },
                     },
                   }}
-                  pageSizeOptions={[5, 10, 25, 50]}
+                  onRowClick={onRowClick}
+                  pageSizeOptions={[5, 10, 15, 20]}
                   checkboxSelection
                   disableRowSelectionOnClick
                   rowHeight={30}
