@@ -26,6 +26,7 @@ import TextField from "@mui/material/TextField";
 import DashboardLayout from "./DashboardLayout";
 import DataTable from "./DataTable";
 import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid"
 import { useState, useEffect } from "react";
 
 // Data
@@ -36,7 +37,6 @@ import { getUsers } from "../../services/api";
 import { useAuth } from "../../hooks/useAuth";
 
 export const UserPage = () => {
-
   const { user } = useAuth();
   const [tableData, setTableData] = useState(dataTableData);
   const [loading, setLoading] = useState(true);
@@ -46,12 +46,12 @@ export const UserPage = () => {
   });
 
   useEffect(() => {
-    getUsers(user.authInfo.token).then(response => {
-      const users = { ...dataTableData, rows: response.data } ;
+    getUsers(user.authInfo.token).then((response) => {
+      const users = { ...dataTableData, rows: response.data };
       setTableData(users);
       setLoading(false);
-    })
-  }, [])  
+    });
+  }, []);
 
   const onFieldChange = (ev) => {
     setFormUser((user) => ({
@@ -66,7 +66,9 @@ export const UserPage = () => {
 
   const onClickRow = (a, b, c, d) => {
     log.debug(`rowindex: ${a.currentTarget.rowIndex}`);
-    const dataIndex = tableData.rows.findIndex(x => x.id === Number(a.currentTarget.attributes["name"].value))
+    const dataIndex = tableData.rows.findIndex(
+      (x) => x.id === Number(a.currentTarget.attributes["name"].value)
+    );
     setFormUser({
       ...tableData.rows[dataIndex],
       password: "*******",
@@ -92,72 +94,77 @@ export const UserPage = () => {
   return (
     <DashboardLayout>
       <MDBox pt={0} pb={0}>
-        <Card>
-          <MDBox p={3} lineHeight={0}>
-            <MDTypography variant="h6" fontWeight="medium">
-              Users
-            </MDTypography>
-          </MDBox>
-          <DataTable onClickRow={onClickRow} table={tableData} canSearch />
-        </Card>
-        &nbsp;
-        <Card>
-          <MDBox p={3} lineHeight={0}>
-            <Button onClick={onAddClicked}>Add</Button>
-          </MDBox>
-        </Card>
-        &nbsp;
-        <Card>
-          <MDBox p={3} lineHeight={0}>
-            <MDTypography variant="h6" fontWeight="medium">
-              User
-            </MDTypography>
-          </MDBox>
-          <MDBox
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            p={3}
-          >
-            <form onSubmit={onSubmit}>
-              <TextField
-                required
-                id="username"
-                label="User Id"
-                variant="filled"
-                value={formUser.userName}
-                onChange={(e) => onFieldChange(e)}
-              />
-              <TextField
-                required
-                id="nickname"
-                label="Name"
-                variant="filled"
-                value={formUser.nickName}
-                onChange={(e) => onFieldChange(e)}
-              />
-              <TextField
-                id="password"
-                label="Password"
-                type="password"
-                autoComplete="current-password"
-                variant="filled"
-                value={formUser.password}
-                onChange={(e) => onFieldChange(e)}
-              />
-              <TextField
-                id="verifypassword"
-                label="Verify Password"
-                type="password"
-                autoComplete="current-password"
-                variant="filled"
-                value={formUser.verifypassword}
-                onChange={(e) => onFieldChange(e)}
-              />
-            </form>
-          </MDBox>
-        </Card>
+        <Grid container spacing={2}>
+          <Grid item xs={8}>
+            <Card>
+              <MDBox p={3} lineHeight={0}>
+                <MDTypography variant="h6" fontWeight="medium">
+                  Users
+                </MDTypography>
+              </MDBox>
+              <DataTable onClickRow={onClickRow} table={tableData} canSearch />
+            </Card>
+          </Grid>
+          <Grid item xs={4}>
+            <Card>
+              <MDBox p={3} lineHeight={0}>
+                <MDTypography variant="h6" fontWeight="medium">
+                  User
+                </MDTypography>
+              </MDBox>
+              <MDBox
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                p={3}
+              >
+                <form onSubmit={onSubmit}>
+                  <TextField
+                    required
+                    id="username"
+                    label="User Id"
+                    variant="filled"
+                    value={formUser.userName}
+                    onChange={(e) => onFieldChange(e)}
+                  />
+                  <TextField
+                    required
+                    id="nickname"
+                    label="Name"
+                    variant="filled"
+                    value={formUser.nickName}
+                    onChange={(e) => onFieldChange(e)}
+                  />
+                  <TextField
+                    id="password"
+                    label="Password"
+                    type="password"
+                    autoComplete="current-password"
+                    variant="filled"
+                    value={formUser.password}
+                    onChange={(e) => onFieldChange(e)}
+                  />
+                  <TextField
+                    id="verifypassword"
+                    label="Verify Password"
+                    type="password"
+                    autoComplete="current-password"
+                    variant="filled"
+                    value={formUser.verifypassword}
+                    onChange={(e) => onFieldChange(e)}
+                  />
+                </form>
+              </MDBox>
+            </Card>
+          </Grid>
+        </Grid>
       </MDBox>
+      &nbsp;
+      <Card>
+        <MDBox p={3} lineHeight={0}>
+          <Button onClick={onAddClicked}>Add</Button>
+        </MDBox>
+      </Card>
     </DashboardLayout>
   );
 };
