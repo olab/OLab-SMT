@@ -28,20 +28,7 @@ const dataTableData = {
     }
   ],
 
-  rows: [
-    {
-      id: 1,
-      userName: "wirunc",
-      nickName: "Corey Wirun",
-    },
-
-    {
-      id: 2,
-      userName: "olab4s",
-      nickName: "OLab Super User"
-    },
-
-  ],
+  rows: [  ],
 };
 
 export default dataTableData;

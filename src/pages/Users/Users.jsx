@@ -22,37 +22,53 @@ import MDBox from "@/components/MDBox";
 import MDTypography from "@/components/MDTypography";
 import TextField from "@mui/material/TextField";
 
-import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
 
 // Material Dashboard 2 PRO React examples
 import DashboardLayout from "./DashboardLayout";
-import DataTable from "./DataTable";
 import Button from "@mui/material/Button";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
 import { useState, useEffect } from "react";
 
 // Data
 import dataTableData from "./dataTableData";
 import defaultUser from "./defaultUser";
-import log from "loglevel";
-import { getUsers } from "../../services/api";
+import { getUsers, getGroups, getRoles } from "../../services/api";
 import { useAuth } from "../../hooks/useAuth";
+import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 
 export const UserPage = () => {
   const { user } = useAuth();
   const [tableData, setTableData] = useState(dataTableData);
+  const [groups, setGroups] = useState([]);
+  const [groupId, setGroupId] = useState(0);
+  const [roles, setRoles] = useState([]);
+  const [roleId, setRoleId] = useState(0);
   const [loading, setLoading] = useState(true);
   const [formUser, setFormUser] = useState({
     ...defaultUser,
     verifypassword: defaultUser.password,
   });
 
+  LogEnable();
+
   useEffect(() => {
     getUsers(user.authInfo.token).then((response) => {
       const users = { ...dataTableData, rows: response.data };
       setTableData(users);
-      setLoading(false);
+
+      getGroups(user.authInfo.token).then((response) => {
+        setGroups(response.data);
+
+        getRoles(user.authInfo.token).then((response) => {
+          setRoles(response.data);
+          setLoading(false);
+        });
+      });
     });
   }, []);
 
@@ -63,25 +79,24 @@ export const UserPage = () => {
     }));
   };
 
+  const handleGroupChange = (ev) => {
+    setGroupId(ev.target.value);
+  };
+
+  const handleRoleChange = (ev) => {
+    setRoleId(ev.target.value);
+  };
+
   const onAddClicked = () => {
     setFormUser(defaultUser);
   };
 
-  const onRowClick = (a, b, c ) => {
-    console.log("onRowClick");
-  }
-
-  const onClickRow = (a, b, c, d) => {
-    log.debug(`rowindex: ${a.currentTarget.rowIndex}`);
-    const dataIndex = tableData.rows.findIndex(
-      (x) => x.id === Number(a.currentTarget.attributes["name"].value)
-    );
+  const onRowClick = (table) => {
     setFormUser({
-      ...tableData.rows[dataIndex],
+      ...table.row,
       password: "*******",
       verifypassword: "*******",
     });
-    log.debug(JSON.stringify(formUser));
   };
 
   const onSubmit = (data) => {
@@ -102,7 +117,7 @@ export const UserPage = () => {
     <DashboardLayout>
       <MDBox pt={0} pb={0}>
         <Grid container spacing={2}>
-          <Grid item xs={8}>
+          <Grid item xs={6}>
             <Card>
               <MDBox p={3} lineHeight={0}>
                 <MDTypography variant="h6" fontWeight="medium">
@@ -129,54 +144,105 @@ export const UserPage = () => {
               </MDBox>
             </Card>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <Card>
               <MDBox p={3} lineHeight={0}>
                 <MDTypography variant="h6" fontWeight="medium">
                   User
                 </MDTypography>
-              </MDBox>
-              <MDBox
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                p={3}
-              >
+
                 <form onSubmit={onSubmit}>
-                  <TextField
-                    required
-                    id="username"
-                    label="User Id"
-                    variant="filled"
-                    value={formUser.userName}
-                    onChange={(e) => onFieldChange(e)}
-                  />
-                  <TextField
-                    required
-                    id="nickname"
-                    label="Name"
-                    variant="filled"
-                    value={formUser.nickName}
-                    onChange={(e) => onFieldChange(e)}
-                  />
-                  <TextField
-                    id="password"
-                    label="Password"
-                    type="password"
-                    autoComplete="current-password"
-                    variant="filled"
-                    value={formUser.password}
-                    onChange={(e) => onFieldChange(e)}
-                  />
-                  <TextField
-                    id="verifypassword"
-                    label="Verify Password"
-                    type="password"
-                    autoComplete="current-password"
-                    variant="filled"
-                    value={formUser.verifypassword}
-                    onChange={(e) => onFieldChange(e)}
-                  />
+                  <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                      <TextField
+                        required
+                        id="username"
+                        label="User Id"
+                        variant="filled"
+                        value={formUser.userName}
+                        onChange={(e) => onFieldChange(e)}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <TextField
+                        required
+                        id="nickname"
+                        label="Name"
+                        variant="filled"
+                        value={formUser.nickName}
+                        onChange={(e) => onFieldChange(e)}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <TextField
+                        id="password"
+                        label="Password"
+                        type="password"
+                        autoComplete="current-password"
+                        variant="filled"
+                        value={formUser.password}
+                        onChange={(e) => onFieldChange(e)}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <TextField
+                        id="verifypassword"
+                        label="Verify Password"
+                        type="password"
+                        autoComplete="current-password"
+                        variant="filled"
+                        value={formUser.verifypassword}
+                        onChange={(e) => onFieldChange(e)}
+                      />
+                    </Grid>
+
+                    <Grid item xs={6}>
+                      <FormControl variant="filled">
+                        <InputLabel id="group-label">Group</InputLabel>
+                        <Select
+                          labelId="group-label"
+                          id="group-select-filled"
+                          value={groupId}
+                          onChange={handleGroupChange}
+                        >
+                          <MenuItem value="0">
+                            <em>None</em>
+                          </MenuItem>
+                          {groups.map((item) => {
+                            return (
+                              <MenuItem key={item.id} value={item.id}>
+                                {item.name}
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+
+                    <Grid item xs={6}>
+                      <FormControl variant="filled">
+                        <InputLabel id="role-label">Role</InputLabel>
+                        <Select
+                        height={`75px`}
+                          labelId="role-label"
+                          id="role-select-filled"
+                          value={roleId}
+                          onChange={handleRoleChange}
+                        >
+                          <MenuItem value="0">
+                            <em>None</em>
+                          </MenuItem>
+                          {roles.map((item) => {
+                            return (
+                              <MenuItem key={item.id} value={item.id}>
+                                {item.name}
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  </Grid>
                 </form>
               </MDBox>
             </Card>

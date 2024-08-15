@@ -42,8 +42,6 @@ export const LoginPage = () => {
         password: data.get("password"),
       });
 
-      console.log(JSON.stringify(user));
-
     } catch (error) {
       setError(error.message);
     }

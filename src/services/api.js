@@ -34,6 +34,9 @@ async function internetJsonFetch(
 
   while (tries++ < retryCount) {
     try {
+
+      Log(`try #${tries} ${url}`);
+
       settings.signal = AbortSignal.timeout(30000);
       const response = await fetch(url, settings);
 
@@ -47,30 +50,30 @@ async function internetJsonFetch(
       }
 
       if (data.error_code === 401) {
-        log.error(`URL '${url}': access denied ${JSON.stringify(data)}`);
+        LogError(`URL '${url}': access denied ${JSON.stringify(data)}`);
         return data;
       }
 
       if (data.error_code === 500) {
-        log.error(`URL '${url}': server error ${JSON.stringify(data)}`);
+        LogError(`URL '${url}': server error ${JSON.stringify(data)}`);
         return data;
       }
 
       if (data.error_code !== 200) {
-        log.error(
+        LogError(
           `URL '${url}': ${JSON.stringify(data)}. try ${tries} of ${retryCount}`
         );
       } else {
         return data;
       }
     } catch (error) {
-      log.error(
+      LogError(
         `URL '${url}': ${error.message}. try ${tries} of ${retryCount}`
       );
     }
   }
 
-  log.error(`URL '${url}': max retries ${retryCount} exceeded`);
+  LogError(`URL '${url}': max retries ${retryCount} exceeded`);
 
   return {
     data: "max retries exceeded",
@@ -101,7 +104,27 @@ async function getUsers(token, searchTerm = null) {
   return data;
 }
 
+async function getGroups(token) {
+  let url = `${config.API_URL}/groups`;
+  const data = await internetJsonFetch("GET", url, null, {
+    Authorization: `Bearer ${token}`,
+  });
+
+  return data;
+}
+
+async function getRoles(token) {
+  let url = `${config.API_URL}/roles`;
+  const data = await internetJsonFetch("GET", url, null, {
+    Authorization: `Bearer ${token}`,
+  });
+
+  return data;
+}
+
 export {
   loginUserAsync,
+  getGroups,
+  getRoles,
   getUsers,
 };
