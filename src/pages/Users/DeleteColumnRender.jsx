@@ -1,17 +1,16 @@
-const Component = ({
-  fetchSmth, params,
-}) => {
-  const [isLoading, setIsLoading] = useState(false);
+import DeleteIcon from '@mui/icons-material/Delete';
 
-  const doSmth= async () => {
-      setIsLoading(true);
-      await fetchSmth(params.row);
-      setIsLoading(false);
-  };
+const DeleteGroupRoleComponent = ({data, onClick}) => {
+
+  const onDeleteClicked = () => {
+    if ( onClick != null ) {
+      onClick(data);
+    }
+  }
 
   return (
-      <Tooltip title='Some title'></Tooltip>
+    <DeleteIcon onClick={onDeleteClicked}/>
   );
 };
 
-export default Component;
+export default DeleteGroupRoleComponent;

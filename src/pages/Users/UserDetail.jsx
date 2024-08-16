@@ -22,7 +22,7 @@ import defaultUser from "./defaultUser";
 import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 
-export const UserDetail = (props) => {
+export const UserDetail = ({selectedUser, groups, roles}) => {
   const [formUser, setFormUser] = useState({
     ...defaultUser,
     verifypassword: defaultUser.password,
@@ -34,17 +34,17 @@ export const UserDetail = (props) => {
   const { user } = useAuth();
 
   useEffect(() => {
-    for (const role of props.selectedUser.roles) {
-      role.group = props.groups.find(
+    for (const role of selectedUser.roles) {
+      role.group = groups.find(
         (element) => element.id == role.groupId
       )?.name;
-      role.role = props.roles.find(
+      role.role = roles.find(
         (element) => element.id == role.roleId
       )?.name;
     }
-    setFormUser(props.selectedUser);
-    setOriginalUser(props.selectedUser);
-  }, [props]);
+    setFormUser(selectedUser);
+    setOriginalUser(selectedUser);
+  }, [selectedUser]);
 
   const updateIsChanged = () => {
     setIsChanged(JSON.stringify(formUser) === JSON.stringify(originalUser));
@@ -169,7 +169,7 @@ export const UserDetail = (props) => {
               <MenuItem value="0">
                 <em>None</em>
               </MenuItem>
-              {props.groups.map((item) => {
+              {groups.map((item) => {
                 return (
                   <MenuItem key={item.id} value={item.id}>
                     {item.name}
@@ -191,7 +191,7 @@ export const UserDetail = (props) => {
               <MenuItem value="0">
                 <em>None</em>
               </MenuItem>
-              {props.roles.map((item) => {
+              {roles.map((item) => {
                 return (
                   <MenuItem key={item.id} value={item.id}>
                     {item.name}
