@@ -1,8 +1,9 @@
 const defaultUser = {
   id: -1,
-  username: "",
-  nickname: "",
-  password: ""
+  userName: "",
+  nickName: "",
+  password: "",
+  roles: []
 };
 
 export default defaultUser;

@@ -14,22 +14,38 @@ import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
+import ButtonGroup from "@mui/material/ButtonGroup";
 import { useState, useEffect } from "react";
 
 // Data
 import groupRoleTableLayout from "./groupRoleTableLayout";
+import defaultUser from "./defaultUser";
 import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 
-export const UserDetail = (selectedUser, groups, roles) => {
-
+export const UserDetail = (props) => {
+  const [formUser, setFormUser] = useState({
+    ...defaultUser,
+    verifypassword: defaultUser.password,
+  });
+  const [originalUser, setOriginalUser] = useState(formUser);
   const [groupId, setGroupId] = useState(0);
   const [roleId, setRoleId] = useState(0);
-  const [formUser, setFormUser] = useState({
-    ...selectedUser,
-    verifypassword: selectedUser.password,
-  });
   const { user } = useAuth();
+
+  useEffect(() => {
+    for (const role of props.selectedUser.roles) {
+      role.group = props.groups.find(
+        (element) => (element.id = role.groupId)
+      )?.name;
+      role.role = props.roles.find(
+        (element) => (element.id = role.roleId)
+      )?.name;
+    }
+    setFormUser(props.selectedUser);
+    setOriginalUser(props.selectedUser);
+  }, [props]);
 
   const onFieldChange = (ev) => {
     setFormUser({
@@ -46,11 +62,31 @@ export const UserDetail = (selectedUser, groups, roles) => {
     setRoleId(ev.target.value);
   };
 
+  const onSubmit = (data) => {
+    alert(JSON.stringify(data));
+  };
+
+  const onAddClicked = () => {
+    Log("Add clicked");
+  };
+
+  const onClearClicked = () => {
+    setFormUser({
+      ...defaultUser,
+      verifypassword: defaultUser.password,
+    });
+  };
+
+  const onRevertClicked = () => {
+    setFormUser(originalUser);
+  };
+
   return (
     <form onSubmit={onSubmit}>
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <TextField
+            sx={{ width: "100%" }}
             required
             id="userName"
             label="User Id"
@@ -61,6 +97,7 @@ export const UserDetail = (selectedUser, groups, roles) => {
         </Grid>
         <Grid item xs={6}>
           <TextField
+            sx={{ width: "100%" }}
             required
             id="nickName"
             label="Name"
@@ -71,6 +108,7 @@ export const UserDetail = (selectedUser, groups, roles) => {
         </Grid>
         <Grid item xs={6}>
           <TextField
+            sx={{ width: "100%" }}
             id="password"
             label="Password"
             type="password"
@@ -82,6 +120,7 @@ export const UserDetail = (selectedUser, groups, roles) => {
         </Grid>
         <Grid item xs={6}>
           <TextField
+            sx={{ width: "100%" }}
             id="verifypassword"
             label="Verify Password"
             type="password"
@@ -92,10 +131,24 @@ export const UserDetail = (selectedUser, groups, roles) => {
           />
         </Grid>
         <Grid item xs={12}>
-
+          <DataGrid
+            rows={groupRoleTableLayout.rows}
+            columns={groupRoleTableLayout.columns}
+            rowHeight={30}
+            columnHeaderHeight={30}
+            autoHeight
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                },
+              },
+            }}
+            pageSizeOptions={[5]}
+          />
         </Grid>
-        <Grid item xs={6}>
-          <FormControl variant="filled">
+        <Grid item xs={5}>
+          <FormControl variant="filled" sx={{ width: "100%" }}>
             <InputLabel id="group-label">Group</InputLabel>
             <Select
               labelId="group-label"
@@ -106,7 +159,7 @@ export const UserDetail = (selectedUser, groups, roles) => {
               <MenuItem value="0">
                 <em>None</em>
               </MenuItem>
-              {groups.map((item) => {
+              {props.groups.map((item) => {
                 return (
                   <MenuItem key={item.id} value={item.id}>
                     {item.name}
@@ -116,9 +169,8 @@ export const UserDetail = (selectedUser, groups, roles) => {
             </Select>
           </FormControl>
         </Grid>
-
-        <Grid item xs={6}>
-          <FormControl variant="filled">
+        <Grid item xs={5}>
+          <FormControl sx={{ width: "100%" }} variant="filled">
             <InputLabel id="role-label">Role</InputLabel>
             <Select
               labelId="role-label"
@@ -129,7 +181,7 @@ export const UserDetail = (selectedUser, groups, roles) => {
               <MenuItem value="0">
                 <em>None</em>
               </MenuItem>
-              {roles.map((item) => {
+              {props.roles.map((item) => {
                 return (
                   <MenuItem key={item.id} value={item.id}>
                     {item.name}
@@ -139,7 +191,25 @@ export const UserDetail = (selectedUser, groups, roles) => {
             </Select>
           </FormControl>
         </Grid>
+        <Grid item xs={2}>
+          <Button onClick={onAddClicked}>Add</Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Grid
+            container
+            spacing={0}
+            direction="column"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Grid item xs={12}>
+              <Button onClick={onRevertClicked}>Save</Button>
+              <Button onClick={onRevertClicked}>Revert</Button>
+              <Button onClick={onClearClicked}>Clear</Button>
+            </Grid>
+          </Grid>
+        </Grid>
       </Grid>
     </form>
   );
-}
+};
