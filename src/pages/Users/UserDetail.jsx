@@ -1,22 +1,20 @@
 // @mui material components
-import Card from "@mui/material/Card";
 
 // Material Dashboard 2 PRO React components
-import MDBox from "@/components/MDBox";
-import MDTypography from "@/components/MDTypography";
-import TextField from "@mui/material/TextField";
 
 import { DataGrid } from "@mui/x-data-grid";
 
 // Material Dashboard 2 PRO React examples
+import TextField from "@mui/material/TextField";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
-import ButtonGroup from "@mui/material/ButtonGroup";
 import { useState, useEffect } from "react";
+
+import MDButton from "@/components/MDButton";
 
 // Data
 import groupRoleTableLayout from "./groupRoleTableLayout";
@@ -32,26 +30,32 @@ export const UserDetail = (props) => {
   const [originalUser, setOriginalUser] = useState(formUser);
   const [groupId, setGroupId] = useState(0);
   const [roleId, setRoleId] = useState(0);
+  const [isChanged, setIsChanged] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
     for (const role of props.selectedUser.roles) {
       role.group = props.groups.find(
-        (element) => (element.id = role.groupId)
+        (element) => element.id == role.groupId
       )?.name;
       role.role = props.roles.find(
-        (element) => (element.id = role.roleId)
+        (element) => element.id == role.roleId
       )?.name;
     }
     setFormUser(props.selectedUser);
     setOriginalUser(props.selectedUser);
   }, [props]);
 
+  const updateIsChanged = () => {
+    setIsChanged(JSON.stringify(formUser) === JSON.stringify(originalUser));
+  };
+
   const onFieldChange = (ev) => {
     setFormUser({
       ...formUser,
       [ev.target.id]: ev.target.value,
     });
+    updateIsChanged();
   };
 
   const handleGroupChange = (ev) => {
@@ -75,10 +79,16 @@ export const UserDetail = (props) => {
       ...defaultUser,
       verifypassword: defaultUser.password,
     });
+    setOriginalUser({
+      ...defaultUser,
+      verifypassword: defaultUser.password,
+    });
+    setIsChanged(false);
   };
 
   const onRevertClicked = () => {
     setFormUser(originalUser);
+    updateIsChanged();
   };
 
   return (
@@ -132,7 +142,7 @@ export const UserDetail = (props) => {
         </Grid>
         <Grid item xs={12}>
           <DataGrid
-            rows={groupRoleTableLayout.rows}
+            rows={formUser.roles}
             columns={groupRoleTableLayout.columns}
             rowHeight={30}
             columnHeaderHeight={30}
@@ -192,7 +202,16 @@ export const UserDetail = (props) => {
           </FormControl>
         </Grid>
         <Grid item xs={2}>
-          <Button onClick={onAddClicked}>Add</Button>
+          {groupId > 0 && roleId > 0 && (
+            <MDButton
+              onClick={onAddClicked}
+              color="secondary"
+              variant="contained"
+              size="small"
+            >
+              Add
+            </MDButton>
+          )}
         </Grid>
         <Grid item xs={12}>
           <Grid
@@ -203,9 +222,13 @@ export const UserDetail = (props) => {
             justifyContent="center"
           >
             <Grid item xs={12}>
-              <Button onClick={onRevertClicked}>Save</Button>
-              <Button onClick={onRevertClicked}>Revert</Button>
-              <Button onClick={onClearClicked}>Clear</Button>
+              {isChanged && (
+                <>
+                  <Button onClick={onRevertClicked}>Save</Button>
+                  <Button onClick={onRevertClicked}>Revert</Button>
+                  <Button onClick={onClearClicked}>Clear</Button>
+                </>
+              )}
             </Grid>
           </Grid>
         </Grid>

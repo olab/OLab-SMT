@@ -1,4 +1,3 @@
-import Button from "@mui/material/Button";
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const groupRoleTableLayout = {
@@ -31,30 +30,7 @@ const groupRoleTableLayout = {
     },    
   ],
 
-  rows: [
-    {
-      id: 1,
-      groupId: 1,
-      group: 'olab',
-      roleId: 17,
-      role: 'administrator'
-    },
-    {
-      id: 2,
-      groupId: 1,
-      group: 'olab',
-      roleId: 18,
-      role: 'student'
-    },
-    {
-      id: 3,
-      groupId: 1,
-      group: 'olab',
-      roleId: 6,
-      role: 'learner'
-    }
-
-  ],
+  rows: [],
 };
 
 export default groupRoleTableLayout;

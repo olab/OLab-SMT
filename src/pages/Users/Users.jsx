@@ -5,6 +5,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 // Material Dashboard 2 PRO React components
 import MDBox from "@/components/MDBox";
 import MDTypography from "@/components/MDTypography";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import MDButton from "@/components/MDButton";
 
 import { DataGrid } from "@mui/x-data-grid";
 
@@ -27,11 +29,13 @@ export const UserPage = () => {
     ...defaultUser,
     verifypassword: defaultUser.password,
   });
+  const [selection, setSelection] = useState([]);
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [roles, setRoles] = useState([]);
   const [tableData, setTableData] = useState(userTableLayout);
   const { user } = useAuth();
+  const [confirmDialog, setConfirmDialog] = useState(null);
 
   LogEnable();
 
@@ -51,21 +55,6 @@ export const UserPage = () => {
     });
   }, []);
 
-  const onFieldChange = (ev) => {
-    setSelectedUser({
-      ...selectedUser,
-      [ev.target.id]: ev.target.value,
-    });
-  };
-
-  const handleGroupChange = (ev) => {
-    setGroupId(ev.target.value);
-  };
-
-  const handleRoleChange = (ev) => {
-    setRoleId(ev.target.value);
-  };
-
   const onAddClicked = () => {
     setSelectedUser(defaultUser);
   };
@@ -78,9 +67,24 @@ export const UserPage = () => {
     });
   };
 
-  const onSubmit = (data) => {
-    alert(JSON.stringify(data));
+  const onDeleteClicked = () => {
+    Log("delete clicked");
+    Log(JSON.stringify(selection));
+    setConfirmDialog({
+      title: "Delete Confirmation",
+      message: `Delete ${selection.length} users?`,
+      onCancelClicked: () => {
+        setConfirmDialog(null);
+      },
+      onConfirmClicked: () => {
+        setConfirmDialog(null);
+      },
+    });
   };
+
+  if (confirmDialog != null) {
+    <ConfirmDialog data={confirmDialog} />;
+  }
 
   if (loading) {
     return (
@@ -94,6 +98,14 @@ export const UserPage = () => {
 
   return (
     <DashboardLayout>
+      {confirmDialog != null && (
+        <ConfirmDialog
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          handleCancel={confirmDialog.onCancelClicked}
+          handleOk={confirmDialog.onConfirmClicked}
+        />
+      )}
       <MDBox pt={0} pb={0}>
         <Grid container spacing={2}>
           <Grid item xs={6}>
@@ -103,8 +115,10 @@ export const UserPage = () => {
                   Users
                 </MDTypography>
                 <DataGrid
+                  keepNonExistentRowsSelected
                   rows={tableData.rows}
                   columns={tableData.columns}
+                  onRowSelectionModelChange={setSelection}
                   initialState={{
                     pagination: {
                       paginationModel: {
@@ -120,6 +134,27 @@ export const UserPage = () => {
                   columnHeaderHeight={30}
                   autoHeight
                 />
+                {selection.length > 0 && (
+                  <MDBox pt={3} lineHeight={0}>
+                    <Grid
+                      container
+                      spacing={5}
+                      direction="column"
+                      justifyContent="center"
+                    >
+                      <Grid item xs={12}>
+                        <MDButton
+                          onClick={onDeleteClicked}
+                          color="secondary"
+                          variant="contained"
+                          size="small"
+                        >
+                          Delete
+                        </MDButton>
+                      </Grid>
+                    </Grid>
+                  </MDBox>
+                )}
               </MDBox>
             </Card>
           </Grid>
@@ -142,23 +177,38 @@ export const UserPage = () => {
       </MDBox>
       &nbsp;
       <Card>
-        <Grid container spacing={2}>
-          <Grid item xs={1}>
-            <MDBox p={3} lineHeight={0}>
-              <Button onClick={onAddClicked}>Add</Button>
-            </MDBox>
+        <MDBox p={3} lineHeight={0}>
+          <Grid item xs={12}>
+            <Grid
+              container
+              spacing={0}
+              direction="column"
+              justifyContent="center"
+            >
+              <Grid item xs={12}>
+                <>
+                  <MDButton
+                    onClick={onAddClicked}
+                    color="secondary"
+                    variant="contained"
+                    size="small"
+                  >
+                    Import
+                  </MDButton>
+                  &nbsp;
+                  <MDButton
+                    onClick={onAddClicked}
+                    color="secondary"
+                    variant="contained"
+                    size="small"
+                  >
+                    Export
+                  </MDButton>
+                </>
+              </Grid>
+            </Grid>
           </Grid>
-          <Grid item xs={1}>
-            <MDBox p={3} lineHeight={0}>
-              <Button onClick={onAddClicked}>Import</Button>
-            </MDBox>
-          </Grid>
-          <Grid item xs={1}>
-            <MDBox p={3} lineHeight={0}>
-              <Button onClick={onAddClicked}>Export</Button>
-            </MDBox>
-          </Grid>
-        </Grid>
+        </MDBox>
       </Card>
     </DashboardLayout>
   );
