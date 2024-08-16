@@ -26,6 +26,7 @@ import defaultUser from "./defaultUser";
 import { getUsers, getGroups, getRoles } from "../../services/api";
 import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
+import { UserDetail } from "./UserDetail";
 
 export const UserPage = () => {
   const [selectedUser, setSelectedUser] = useState({
