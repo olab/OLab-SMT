@@ -13,7 +13,7 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-const dataTableData = {
+const userTableLayout = {
   columns: [
     { field: 'id', headerName: 'User Id', width: 90, editable: false },
     {
@@ -31,4 +31,4 @@ const dataTableData = {
   rows: [  ],
 };
 
-export default dataTableData;
+export default userTableLayout;

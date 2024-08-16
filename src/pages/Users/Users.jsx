@@ -1,18 +1,3 @@
-/**
-=========================================================
-* Material Dashboard 2 PRO React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-pro-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 // @mui material components
 import Card from "@mui/material/Card";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -35,30 +20,31 @@ import Grid from "@mui/material/Grid";
 import { useState, useEffect } from "react";
 
 // Data
-import dataTableData from "./dataTableData";
+import userTableLayout from "./userTableLayout";
+import groupRoleTableLayout from "./groupRoleTableLayout";
 import defaultUser from "./defaultUser";
 import { getUsers, getGroups, getRoles } from "../../services/api";
 import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 
 export const UserPage = () => {
-  const { user } = useAuth();
-  const [tableData, setTableData] = useState(dataTableData);
-  const [groups, setGroups] = useState([]);
-  const [groupId, setGroupId] = useState(0);
-  const [roles, setRoles] = useState([]);
-  const [roleId, setRoleId] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [formUser, setFormUser] = useState({
+  const [selectedUser, setSelectedUser] = useState({
     ...defaultUser,
     verifypassword: defaultUser.password,
   });
+  const [groupId, setGroupId] = useState(0);
+  const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [roleId, setRoleId] = useState(0);
+  const [roles, setRoles] = useState([]);
+  const [tableData, setTableData] = useState(userTableLayout);
+  const { user } = useAuth();
 
   LogEnable();
 
   useEffect(() => {
     getUsers(user.authInfo.token).then((response) => {
-      const users = { ...dataTableData, rows: response.data };
+      const users = { ...userTableLayout, rows: response.data };
       setTableData(users);
 
       getGroups(user.authInfo.token).then((response) => {
@@ -73,10 +59,10 @@ export const UserPage = () => {
   }, []);
 
   const onFieldChange = (ev) => {
-    setFormUser((user) => ({
-      ...user,
+    setSelectedUser({
+      ...selectedUser,
       [ev.target.id]: ev.target.value,
-    }));
+    });
   };
 
   const handleGroupChange = (ev) => {
@@ -88,11 +74,11 @@ export const UserPage = () => {
   };
 
   const onAddClicked = () => {
-    setFormUser(defaultUser);
+    setSelectedUser(defaultUser);
   };
 
   const onRowClick = (table) => {
-    setFormUser({
+    setSelectedUser({
       ...table.row,
       password: "*******",
       verifypassword: "*******",
@@ -156,20 +142,20 @@ export const UserPage = () => {
                     <Grid item xs={6}>
                       <TextField
                         required
-                        id="username"
+                        id="userName"
                         label="User Id"
                         variant="filled"
-                        value={formUser.userName}
+                        value={selectedUser.userName}
                         onChange={(e) => onFieldChange(e)}
                       />
                     </Grid>
                     <Grid item xs={6}>
                       <TextField
                         required
-                        id="nickname"
+                        id="nickName"
                         label="Name"
                         variant="filled"
-                        value={formUser.nickName}
+                        value={selectedUser.nickName}
                         onChange={(e) => onFieldChange(e)}
                       />
                     </Grid>
@@ -180,7 +166,7 @@ export const UserPage = () => {
                         type="password"
                         autoComplete="current-password"
                         variant="filled"
-                        value={formUser.password}
+                        value={selectedUser.password}
                         onChange={(e) => onFieldChange(e)}
                       />
                     </Grid>
@@ -191,11 +177,13 @@ export const UserPage = () => {
                         type="password"
                         autoComplete="current-password"
                         variant="filled"
-                        value={formUser.verifypassword}
+                        value={selectedUser.verifypassword}
                         onChange={(e) => onFieldChange(e)}
                       />
                     </Grid>
+                    <Grid item xs={12}>
 
+                    </Grid>
                     <Grid item xs={6}>
                       <FormControl variant="filled">
                         <InputLabel id="group-label">Group</InputLabel>
@@ -223,7 +211,6 @@ export const UserPage = () => {
                       <FormControl variant="filled">
                         <InputLabel id="role-label">Role</InputLabel>
                         <Select
-                        height={`75px`}
                           labelId="role-label"
                           id="role-select-filled"
                           value={roleId}
