@@ -14,6 +14,7 @@ import { ProtectedLayout } from "./components/ProtectedLayout";
 import { HomeLayout } from "./components/HomeLayout";
 import "./styles.css";
 import { AuthLayout } from "./components/AuthLayout";
+import { config } from "./config";
 
 // ideally this would be an API call to server to get logged in user data
 
@@ -25,14 +26,6 @@ const getUserData = () =>
     }, 3000)
   );
 
-// for error
-// const getUserData = () =>
-//   new Promise((resolve, reject) =>
-//     setTimeout(() => {
-//       reject("Error");
-//     }, 3000)
-//   );
-
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route
@@ -40,10 +33,10 @@ export const router = createBrowserRouter(
       loader={() => defer({ userPromise: getUserData() })}
     >
       <Route element={<HomeLayout />}>
-        <Route path="/" element={<LoginPage />} />
+        <Route path={`${config.APP_BASEPATH}`} element={<LoginPage />} />
       </Route>
 
-      <Route path="/dashboard" element={<ProtectedLayout />}>
+      <Route path={`${config.APP_BASEPATH}/dashboard`} element={<ProtectedLayout />}>
         <Route path="users" element={<UserPage />} />
         <Route path="home" element={<HomePage />} />
         <Route path="profile" element={<ProfilePage />} />
