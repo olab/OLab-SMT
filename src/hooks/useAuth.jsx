@@ -2,6 +2,8 @@ import { createContext, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "./useLocalStorage";
 import { loginUserAsync } from "../services/api";
+import { config } from "../config";
+import { Log } from "../utils/Logger";
 
 const AuthContext = createContext();
 
@@ -25,12 +27,20 @@ export const AuthProvider = ({ children, userData }) => {
     }
 
     setUser(loginResult.data);
-    navigate("/dashboard/home", { replace: true });
+
+    const url = `${config.APP_BASEPATH}/dashboard/home`;
+    Log(`url: ${url}`);
+
+    navigate(url, { replace: true });
   };
 
   const logout = () => {
     setUser(null);
-    navigate("/", { replace: true });
+
+    const url = `${config.APP_BASEPATH}/`;
+    Log(`url: ${url}`);
+
+    navigate(url, { replace: true });
   };
 
   const value = useMemo(

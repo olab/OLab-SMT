@@ -28,7 +28,7 @@ const userTableLayout = {
     }
   ],
 
-  rows: [  ],
+  rows: [ ],
 };
 
 export default userTableLayout;

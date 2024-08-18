@@ -1,4 +1,5 @@
 import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteGroupRole from "./DeleteGroupRole";
 
 const groupRoleTableLayout = {
   columns: [
@@ -15,17 +16,11 @@ const groupRoleTableLayout = {
       editable: false
     },
     {
-      field: "action",
+      field: "delete",
       headerName: "",
       sortable: false,
       renderCell: (params) => {
-        const onClick = (e) => {
-          e.stopPropagation(); // don't select this row after clicking
-          return alert(JSON.stringify(params.row, null, 4));
-        };
-  
-        return <DeleteIcon onClick={onClick}/>;
-
+        return <DeleteIcon/>;
       }
     },    
   ],

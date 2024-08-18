@@ -8,7 +8,7 @@ import MDTypography from "@/components/MDTypography";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import MDButton from "@/components/MDButton";
 
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 
 // Material Dashboard 2 PRO React examples
 import DashboardLayout from "./DashboardLayout";
@@ -36,6 +36,7 @@ export const UserPage = () => {
   const [tableData, setTableData] = useState(userTableLayout);
   const { user } = useAuth();
   const [confirmDialog, setConfirmDialog] = useState(null);
+  const apiRef = useGridApiRef();
 
   LogEnable();
 
@@ -78,8 +79,22 @@ export const UserPage = () => {
       },
       onConfirmClicked: () => {
         setConfirmDialog(null);
+        deleteSelectedUsers();
       },
     });
+  };
+
+  const deleteSelectedUsers = () => {
+
+    const newRows = 
+      tableData.rows.filter((user) => !selection.includes(user.id));
+    const newTableData = { 
+      ...tableData,
+      rows: newRows
+    };
+
+    setTableData(newTableData);
+    apiRef.current.forceUpdate();
   };
 
   if (confirmDialog != null) {
@@ -115,7 +130,7 @@ export const UserPage = () => {
                   Users
                 </MDTypography>
                 <DataGrid
-                  keepNonExistentRowsSelected
+                  apiRef={apiRef}
                   rows={tableData.rows}
                   columns={tableData.columns}
                   onRowSelectionModelChange={setSelection}

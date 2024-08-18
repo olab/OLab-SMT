@@ -11,10 +11,11 @@ import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
-import Button from "@mui/material/Button";
 import { useState, useEffect } from "react";
 
 import MDButton from "@/components/MDButton";
+import MDTypography from "@/components/MDTypography";
+import OLabAlert from "@/components/OLabAlert";
 
 // Data
 import groupRoleTableLayout from "./groupRoleTableLayout";
@@ -22,32 +23,42 @@ import defaultUser from "./defaultUser";
 import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 
-export const UserDetail = ({selectedUser, groups, roles}) => {
+export const UserDetail = ({ selectedUser, groups, roles }) => {
   const [formUser, setFormUser] = useState({
     ...defaultUser,
     verifypassword: defaultUser.password,
   });
+  const [alertMessage, setAlertMessage] = useState(null);
   const [originalUser, setOriginalUser] = useState(formUser);
   const [groupId, setGroupId] = useState(0);
+  const [nextIndex, setNextIndex] = useState(-1);
   const [roleId, setRoleId] = useState(0);
   const [isChanged, setIsChanged] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
+    // enhance group role object with group/role names
     for (const role of selectedUser.roles) {
-      role.group = groups.find(
-        (element) => element.id == role.groupId
-      )?.name;
-      role.role = roles.find(
-        (element) => element.id == role.roleId
-      )?.name;
+      enhanceGroupRole(role);
     }
+
     setFormUser(selectedUser);
     setOriginalUser(selectedUser);
   }, [selectedUser]);
 
   const updateIsChanged = () => {
-    setIsChanged(JSON.stringify(formUser) === JSON.stringify(originalUser));
+    const isChanged = JSON.stringify(formUser) === JSON.stringify(originalUser);
+    setIsChanged(true);
+  };
+
+  const enhanceGroupRole = (groupRole) => {
+    groupRole.group = groups.find(
+      (element) => element.id == groupRole.groupId
+    )?.name;
+    groupRole.role = roles.find(
+      (element) => element.id == groupRole.roleId
+    )?.name;
+    return groupRole;
   };
 
   const onFieldChange = (ev) => {
@@ -58,11 +69,11 @@ export const UserDetail = ({selectedUser, groups, roles}) => {
     updateIsChanged();
   };
 
-  const handleGroupChange = (ev) => {
+  const onGroupChanged = (ev) => {
     setGroupId(ev.target.value);
   };
 
-  const handleRoleChange = (ev) => {
+  const onRoleChanged = (ev) => {
     setRoleId(ev.target.value);
   };
 
@@ -70,8 +81,36 @@ export const UserDetail = ({selectedUser, groups, roles}) => {
     alert(JSON.stringify(data));
   };
 
-  const onAddClicked = () => {
-    Log("Add clicked");
+  const onAddGroupRoleClicked = () => {
+    const newRole = enhanceGroupRole({
+      id: nextIndex,
+      roleId: roleId,
+      groupId: groupId,
+    });
+
+    const existingRole = formUser.roles.filter(
+      (role) => role.roleId == newRole.roleId && role.groupId == newRole.groupId
+    );
+
+    if (existingRole.length > 0) {
+      setAlertMessage("Group/Role already exists");
+      return;
+    }
+
+    let newRoles = [...formUser.roles];
+    newRoles.push(newRole);
+
+    const newFormUser = {
+      ...formUser,
+      roles: newRoles,
+    };
+
+    setNextIndex(nextIndex - 1);
+    setFormUser(newFormUser);
+    setGroupId(0);
+    setRoleId(0);
+
+    setIsChanged(true);
   };
 
   const onClearClicked = () => {
@@ -83,12 +122,31 @@ export const UserDetail = ({selectedUser, groups, roles}) => {
       ...defaultUser,
       verifypassword: defaultUser.password,
     });
+    setGroupId(0);
+    setRoleId(0);
     setIsChanged(false);
   };
 
   const onRevertClicked = () => {
     setFormUser(originalUser);
-    updateIsChanged();
+    setGroupId(0);
+    setRoleId(0);
+    setIsChanged(false);
+  };
+
+  const onCellClick = (cell) => {
+    if (cell.field !== "delete") {
+      return;
+    }
+
+    const newRoles = formUser.roles.filter((role) => role.id != cell.row.id);
+    const newTableData = {
+      ...formUser,
+      roles: newRoles,
+    };
+
+    setFormUser(newTableData);
+    setIsChanged(true);
   };
 
   return (
@@ -125,6 +183,7 @@ export const UserDetail = ({selectedUser, groups, roles}) => {
             autoComplete="current-password"
             variant="filled"
             value={formUser.password}
+            error={formUser.password !== formUser.verifypassword}
             onChange={(e) => onFieldChange(e)}
           />
         </Grid>
@@ -142,10 +201,12 @@ export const UserDetail = ({selectedUser, groups, roles}) => {
         </Grid>
         <Grid item xs={12}>
           <DataGrid
+            onCellClick={onCellClick}
             rows={formUser.roles}
             columns={groupRoleTableLayout.columns}
             rowHeight={30}
             columnHeaderHeight={30}
+            disableRowSelectionOnClick
             autoHeight
             initialState={{
               pagination: {
@@ -157,6 +218,11 @@ export const UserDetail = ({selectedUser, groups, roles}) => {
             pageSizeOptions={[5]}
           />
         </Grid>
+        <Grid item xs={12}>
+          <MDTypography variant="h6" fontWeight="medium">
+            Add Group/Role
+          </MDTypography>
+        </Grid>
         <Grid item xs={5}>
           <FormControl variant="filled" sx={{ width: "100%" }}>
             <InputLabel id="group-label">Group</InputLabel>
@@ -164,7 +230,7 @@ export const UserDetail = ({selectedUser, groups, roles}) => {
               labelId="group-label"
               id="group-select-filled"
               value={groupId}
-              onChange={handleGroupChange}
+              onChange={onGroupChanged}
             >
               <MenuItem value="0">
                 <em>None</em>
@@ -186,7 +252,7 @@ export const UserDetail = ({selectedUser, groups, roles}) => {
               labelId="role-label"
               id="role-select-filled"
               value={roleId}
-              onChange={handleRoleChange}
+              onChange={onRoleChanged}
             >
               <MenuItem value="0">
                 <em>None</em>
@@ -204,7 +270,7 @@ export const UserDetail = ({selectedUser, groups, roles}) => {
         <Grid item xs={2}>
           {groupId > 0 && roleId > 0 && (
             <MDButton
-              onClick={onAddClicked}
+              onClick={onAddGroupRoleClicked}
               color="secondary"
               variant="contained"
               size="small"
@@ -213,6 +279,11 @@ export const UserDetail = ({selectedUser, groups, roles}) => {
             </MDButton>
           )}
         </Grid>
+
+        <Grid item xs={12}>
+          <OLabAlert color="info">{alertMessage}</OLabAlert>
+        </Grid>
+
         <Grid item xs={12}>
           <Grid
             container
@@ -224,11 +295,36 @@ export const UserDetail = ({selectedUser, groups, roles}) => {
             <Grid item xs={12}>
               {isChanged && (
                 <>
-                  <Button onClick={onRevertClicked}>Save</Button>
-                  <Button onClick={onRevertClicked}>Revert</Button>
-                  <Button onClick={onClearClicked}>Clear</Button>
+                  <MDButton
+                    color="secondary"
+                    variant="contained"
+                    size="small"
+                    onClick={onRevertClicked}
+                  >
+                    Save
+                  </MDButton>
+                  &nbsp;
+                  <MDButton
+                    color="secondary"
+                    variant="contained"
+                    size="small"
+                    onClick={onRevertClicked}
+                  >
+                    Revert
+                  </MDButton>
                 </>
               )}
+              <>
+                &nbsp;
+                <MDButton
+                  color="secondary"
+                  variant="contained"
+                  size="small"
+                  onClick={onClearClicked}
+                >
+                  Clear
+                </MDButton>
+              </>
             </Grid>
           </Grid>
         </Grid>
