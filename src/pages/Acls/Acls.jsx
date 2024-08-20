@@ -100,7 +100,7 @@ export const AclPage = ({ groups, roles }) => {
                   initialState={{
                     pagination: {
                       paginationModel: {
-                        pageSize: 5,
+                        pageSize: 10,
                       },
                     },
                   }}
@@ -127,7 +127,7 @@ export const AclPage = ({ groups, roles }) => {
                   initialState={{
                     pagination: {
                       paginationModel: {
-                        pageSize: 15,
+                        pageSize: 10,
                       },
                     },
                   }}
