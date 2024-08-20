@@ -1,16 +1,11 @@
-// @mui material components
 
-// Material Dashboard 2 PRO React components
-
-import { DataGrid } from "@mui/x-data-grid";
-
-// Material Dashboard 2 PRO React examples
 import TextField from "@mui/material/TextField";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
+import { DataGrid } from "@mui/x-data-grid";
 import { useState, useEffect } from "react";
 
 import MDButton from "@/components/MDButton";

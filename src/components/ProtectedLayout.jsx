@@ -18,7 +18,7 @@ export const ProtectedLayout = () => {
           { label: "Users", path: "users" },
           { label: "Groups", path: "profile" },
           { label: "Roles", path: "profile" },
-          { label: "Access", path: "profile" }
+          { label: "Access", path: "access" }
         ]}
       />
       {outlet}

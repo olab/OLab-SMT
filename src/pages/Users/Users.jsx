@@ -11,8 +11,7 @@ import MDButton from "@/components/MDButton";
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 
 // Material Dashboard 2 PRO React examples
-import DashboardLayout from "./DashboardLayout";
-import Button from "@mui/material/Button";
+import DashboardLayout from "@/components/DashboardLayout";
 import Grid from "@mui/material/Grid";
 import { useState, useEffect } from "react";
 

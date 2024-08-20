@@ -122,9 +122,29 @@ async function getRoles(token) {
   return data;
 }
 
+async function getMaps(token) {
+  let url = `${config.API_URL}/maps`;
+  const data = await internetJsonFetch("GET", url, null, {
+    Authorization: `Bearer ${token}`,
+  });
+
+  return data;
+}
+
+async function getNodes(token, mapId) {
+  let url = `${config.API_URL}/maps/${mapId}/nodes`;
+  const data = await internetJsonFetch("GET", url, null, {
+    Authorization: `Bearer ${token}`,
+  });
+
+  return data;
+}
+
 export {
   loginUserAsync,
   getGroups,
   getRoles,
   getUsers,
+  getMaps, 
+  getNodes
 };

@@ -7,6 +7,7 @@ import {
 
 import { LoginPage } from "./pages/Login";
 import { UserPage } from "./pages/Users/Users";
+import { AclPage } from "./pages/Acls/Acls";
 import { HomePage } from "./pages/Home";
 import { ProfilePage } from "./pages/Profile";
 import { SettingsPage } from "./pages/Settings";
@@ -38,6 +39,7 @@ export const router = createBrowserRouter(
 
       <Route path={`${config.APP_BASEPATH}/dashboard`} element={<ProtectedLayout />}>
         <Route path="users" element={<UserPage />} />
+        <Route path="access" element={<AclPage />} />
         <Route path="home" element={<HomePage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="settings" element={<SettingsPage />} />
