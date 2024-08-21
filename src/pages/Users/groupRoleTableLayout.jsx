@@ -23,9 +23,7 @@ const groupRoleTableLayout = {
         return <DeleteIcon/>;
       }
     },    
-  ],
-
-  rows: [],
+  ]
 };
 
 export default groupRoleTableLayout;

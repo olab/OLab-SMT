@@ -12,6 +12,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { getMaps, getNodes } from "../../services/api";
 import mapTableLayout from "./mapTableLayout";
 import nodeTableLayout from "./nodeTableLayout";
+import aclTableLayout from "./aclTableLayout";
 import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 
@@ -20,6 +21,8 @@ export const AclPage = ({ groups, roles }) => {
   const [mapSelection, setMapSelection] = useState([]);
   const [nodeTableData, setNodeTableData] = useState(nodeTableLayout);
   const [nodeSelection, setNodeSelection] = useState([]);
+  const [aclTableData, setAclTableData] = useState(aclTableLayout);
+  const [aclSelection, setAclSelection] = useState([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -38,6 +41,11 @@ export const AclPage = ({ groups, roles }) => {
     setNodeSelection(selectedNodeIds);
   };
 
+  const onAclSelectionChanged = (selectedAclIds) => {
+    Log(`onAclSelectionChanged ${selectedAclIds}`);
+    setAclSelection(selectedAclIds);
+  };
+
   const onMapSelectionChanged = (selectedMapIds) => {
     Log(`onMapSelectionChanged ${selectedMapIds}`);
 
@@ -51,16 +59,6 @@ export const AclPage = ({ groups, roles }) => {
     } else {
       for (const mapId of selectedMapIds) {
         getNodes(user.authInfo.token, mapId).then((response) => {
-          // add map name to responses array
-          for (const data of response.data) {
-            for (const mapRow of mapTableData.rows) {
-              if (data.mapId == mapRow.id) {
-                data.mapName = mapRow.name;
-                break;
-              }
-            }
-          }
-
           mapNodes = mapNodes.concat(response.data);
           const nodes = { ...nodeTableLayout, rows: mapNodes };
           setNodeTableData(nodes);
@@ -106,8 +104,7 @@ export const AclPage = ({ groups, roles }) => {
                   }}
                   pageSizeOptions={[5, 10, 15, 20]}
                   checkboxSelection
-                  disableRowSelectionOnClick
-                  rowHeight={30}
+                  rowHeight={25}
                   columnHeaderHeight={30}
                   autoHeight
                 />
@@ -133,8 +130,7 @@ export const AclPage = ({ groups, roles }) => {
                   }}
                   pageSizeOptions={[5, 10, 15, 20]}
                   checkboxSelection
-                  disableRowSelectionOnClick
-                  rowHeight={30}
+                  rowHeight={25}
                   columnHeaderHeight={30}
                   autoHeight
                 />
@@ -144,14 +140,41 @@ export const AclPage = ({ groups, roles }) => {
           <Grid item xs={12}>
             <Card>
               <MDBox p={3} lineHeight={0}>
-                {mapSelection.length == 1 && nodeSelection.length == 0 && (
-                  <div>Single-Map ACLs</div>
-                )}
-                {mapSelection.length > 1 && nodeSelection.length == 0 && (
-                  <div>Multi-Map ACLs</div>
-                )}
-                {mapSelection.length >= 1 && nodeSelection.length == 1 && <div>Single-Node ACLs</div>}
-                {mapSelection.length >= 1 && nodeSelection.length > 1 && <div>Multi-Node ACLs</div>}
+                <MDTypography variant="h6" fontWeight="medium">
+                  {mapSelection.length == 0 && nodeSelection.length == 0 && (
+                    <>System Default ACLs</>
+                  )}
+                  {mapSelection.length == 1 && nodeSelection.length == 0 && (
+                    <>Single-Map ACLs</>
+                  )}
+                  {mapSelection.length > 1 && nodeSelection.length == 0 && (
+                    <>Multi-Map ACLs</>
+                  )}
+                  {mapSelection.length >= 1 && nodeSelection.length == 1 && (
+                    <>Single-Node ACLs</>
+                  )}
+                  {mapSelection.length >= 1 && nodeSelection.length > 1 && (
+                    <>Multi-Node ACLs</>
+                  )}
+                </MDTypography>
+
+                <DataGrid
+                  rows={aclTableData.rows}
+                  columns={aclTableData.columns}
+                  onRowSelectionModelChange={onAclSelectionChanged}
+                  initialState={{
+                    pagination: {
+                      paginationModel: {
+                        pageSize: 10,
+                      },
+                    },
+                  }}
+                  pageSizeOptions={[5, 10, 15, 20]}
+                  checkboxSelection
+                  rowHeight={25}
+                  columnHeaderHeight={30}
+                  autoHeight
+                />
               </MDBox>
             </Card>
           </Grid>
