@@ -1,5 +1,9 @@
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import CircularProgress from "@mui/material/CircularProgress";
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import { useState, useEffect } from "react";
@@ -9,22 +13,24 @@ import MDTypography from "@/components/MDTypography";
 import DashboardLayout from "@/components/DashboardLayout";
 
 // Data
-import { getMaps, getNodes } from "../../services/api";
+import { getMaps, getNodes, getGroups, getRoles } from "../../services/api";
 import mapTableLayout from "./mapTableLayout";
 import nodeTableLayout from "./nodeTableLayout";
-import aclTableLayout from "./aclTableLayout";
+import { aclTableLayout } from "./aclTableLayout";
 import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 
-export const AclPage = ({ groups, roles }) => {
-  const [mapTableData, setMapTableData] = useState(mapTableLayout);
-  const [mapSelection, setMapSelection] = useState([]);
-  const [nodeTableData, setNodeTableData] = useState(nodeTableLayout);
-  const [nodeSelection, setNodeSelection] = useState([]);
-  const [aclTableData, setAclTableData] = useState(aclTableLayout);
+export const AclPage = () => {
   const [aclSelection, setAclSelection] = useState([]);
-
+  const [aclTableLabel, setAclTableLabel] = useState("");
+  const [aclTableData, setAclTableData] = useState(aclTableLayout);
+  const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mapSelection, setMapSelection] = useState([]);
+  const [mapTableData, setMapTableData] = useState(mapTableLayout);
+  const [nodeSelection, setNodeSelection] = useState([]);
+  const [nodeTableData, setNodeTableData] = useState(nodeTableLayout);
+  const [roles, setRoles] = useState([]);
 
   const { user } = useAuth();
 
@@ -32,18 +38,59 @@ export const AclPage = ({ groups, roles }) => {
     getMaps(user.authInfo.token).then((response) => {
       const maps = { ...mapTableLayout, rows: response.data };
       setMapTableData(maps);
-      setLoading(false);
+
+      // let newAclTableColumns = { ...aclTableData.columns };
+
+      getGroups(user.authInfo.token).then((response) => {
+        setGroups(response.data);
+
+        // let columnDef = newAclTableColumns.columns.filter(
+        //   (column) => column.field == "groupName"
+        // );
+        // columnDef.valueOptions = groups;
+        
+        getRoles(user.authInfo.token).then((response) => {
+          setRoles(response.data);
+
+          // let columnDef = newAclTableColumns.columns.filter(
+          //   (column) => column.field == "roleName"
+          // );
+          // columnDef.valueOptions = roles;
+
+          // setAclTableData(newAclTableColumns);
+
+          refreshAclData();
+
+          setLoading(false);
+        });
+      });
     });
   }, []);
+
+  const refreshAclData = () => {
+    if (mapSelection.length == 0 && nodeSelection.length == 0) {
+      setAclTableLabel("System Default ACLs");
+    } else if (mapSelection.length == 1 && nodeSelection.length == 0) {
+      setAclTableLabel("Single-Map ACLs");
+    } else if (mapSelection.length > 1 && nodeSelection.length == 0) {
+      setAclTableLabel("Multi-Map ACLs");
+    } else if (mapSelection.length >= 1 && nodeSelection.length == 1) {
+      setAclTableLabel("Single-Node ACLs");
+    } else if (mapSelection.length >= 1 && nodeSelection.length > 1) {
+      setAclTableLabel("Multi-Node ACLs");
+    }
+  };
 
   const onNodeSelectionChanged = (selectedNodeIds) => {
     Log(`onNodeSelectionChanged ${selectedNodeIds}`);
     setNodeSelection(selectedNodeIds);
+    refreshAclData();
   };
 
   const onAclSelectionChanged = (selectedAclIds) => {
     Log(`onAclSelectionChanged ${selectedAclIds}`);
     setAclSelection(selectedAclIds);
+    refreshAclData();
   };
 
   const onMapSelectionChanged = (selectedMapIds) => {
@@ -67,6 +114,7 @@ export const AclPage = ({ groups, roles }) => {
     }
 
     setMapSelection(selectedMapIds);
+    refreshAclData();
 
     setLoading(false);
   };
@@ -106,7 +154,6 @@ export const AclPage = ({ groups, roles }) => {
                   checkboxSelection
                   rowHeight={25}
                   columnHeaderHeight={30}
-                  autoHeight
                 />
               </MDBox>
             </Card>
@@ -132,7 +179,6 @@ export const AclPage = ({ groups, roles }) => {
                   checkboxSelection
                   rowHeight={25}
                   columnHeaderHeight={30}
-                  autoHeight
                 />
               </MDBox>
             </Card>
@@ -141,7 +187,8 @@ export const AclPage = ({ groups, roles }) => {
             <Card>
               <MDBox p={3} lineHeight={0}>
                 <MDTypography variant="h6" fontWeight="medium">
-                  {mapSelection.length == 0 && nodeSelection.length == 0 && (
+                  <>{aclTableLabel}</>
+                  {/* {mapSelection.length == 0 && nodeSelection.length == 0 && (
                     <>System Default ACLs</>
                   )}
                   {mapSelection.length == 1 && nodeSelection.length == 0 && (
@@ -155,7 +202,7 @@ export const AclPage = ({ groups, roles }) => {
                   )}
                   {mapSelection.length >= 1 && nodeSelection.length > 1 && (
                     <>Multi-Node ACLs</>
-                  )}
+                  )} */}
                 </MDTypography>
 
                 <DataGrid
@@ -171,9 +218,9 @@ export const AclPage = ({ groups, roles }) => {
                   }}
                   pageSizeOptions={[5, 10, 15, 20]}
                   checkboxSelection
-                  rowHeight={25}
                   columnHeaderHeight={30}
                   autoHeight
+                  disableRowSelectionOnClick
                 />
               </MDBox>
             </Card>
