@@ -1,6 +1,6 @@
 import AclCheckBox from "./AclCheckBox";
 
-export const aclTableLayout = {
+const aclTableLayout = {
   columns: [
     { field: "id", headerName: "Id", editable: false },
     {
@@ -55,16 +55,7 @@ export const aclTableLayout = {
     },
   ],
 
-  rows: [
-    {
-      id: 1,
-      groupName: "olab",
-      roleName: "learner",
-      objectType: "Maps",
-      objectIndex: "*",
-      read: true,
-      write: false,
-      execute: true,
-    },
-  ],
+  rows: [],
 };
+
+export default aclTableLayout;

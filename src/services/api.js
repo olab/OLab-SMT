@@ -94,7 +94,7 @@ async function loginUserAsync(credentials) {
 
 async function getUsers(token, searchTerm = null) {
   let url = `${config.API_URL}/auth/getusers`;
-  if ( searchTerm != null ) {
+  if (searchTerm != null) {
     url += searchTerm;
   }
   const data = await internetJsonFetch("GET", url, null, {
@@ -140,11 +140,51 @@ async function getNodes(token, mapId) {
   return data;
 }
 
+async function getAcls(
+  token, 
+  groupId, 
+  roleId, 
+  mapIds, 
+  nodeIds) {
+
+  let url = `${config.API_URL}/acls`;
+  const data = await internetJsonFetch("POST", url, {
+    groupId: groupId,
+    roleId: roleId,
+    mapIds: mapIds,
+    nodeIds: nodeIds,
+  }, {
+    Authorization: `Bearer ${token}`,
+  });
+
+  return data;
+
+  /*
+  return {
+    data: [
+      {
+        id: 1,
+        groupName: "All",
+        groupId: 0,
+        roleName: "All",
+        roleId: 0,
+        objectType: "All",
+        objectIndex: "*",
+        read: false,
+        write: false,
+        execute: false,
+      }
+    ]
+  };
+  */
+}
+
 export {
   loginUserAsync,
   getGroups,
   getRoles,
   getUsers,
-  getMaps, 
-  getNodes
+  getMaps,
+  getNodes,
+  getAcls
 };

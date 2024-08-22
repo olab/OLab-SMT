@@ -29,7 +29,6 @@ export const UserDetail = ({ selectedUser, groups, roles }) => {
   const [nextIndex, setNextIndex] = useState(-1);
   const [roleId, setRoleId] = useState(0);
   const [isChanged, setIsChanged] = useState(false);
-  const { user } = useAuth();
 
   useEffect(() => {
     // enhance group role object with group/role names
