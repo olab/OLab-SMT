@@ -308,6 +308,9 @@ export const AclPage = () => {
                         value={roleId}
                         onChange={onRoleChanged}
                         variant="outlined"
+                        InputProps={{
+                          classes: { root: "select-input-styles" },
+                        }}
                         size="large"
                       >
                         <MenuItem value="0">
