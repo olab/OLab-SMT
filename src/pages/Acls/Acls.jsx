@@ -167,6 +167,8 @@ export const AclPage = () => {
     setRoleId(ev.target.value);
   };
 
+  const onSaveClicked = () => {};
+
   const onCreateClicked = () => {
     const selectedGroup = groups.filter((group) => group.id == groupId);
     const selectedRole = roles.filter((role) => role.id == roleId);
@@ -237,9 +239,9 @@ export const AclPage = () => {
   return (
     <DashboardLayout>
       <MDBox pt={0} pb={0}>
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <Card>
+        <Card>
+          <Grid container spacing={0}>
+            <Grid item xs={6}>
               <MDBox p={3} lineHeight={0}>
                 <MDTypography variant="h6" fontWeight="medium">
                   Maps
@@ -252,10 +254,8 @@ export const AclPage = () => {
                   {...tableLayout}
                 />
               </MDBox>
-            </Card>
-          </Grid>
-          <Grid item xs={6}>
-            <Card>
+            </Grid>
+            <Grid item xs={6}>
               <MDBox p={3} lineHeight={0}>
                 <MDTypography variant="h6" fontWeight="medium">
                   Nodes
@@ -268,10 +268,8 @@ export const AclPage = () => {
                   {...tableLayout}
                 />
               </MDBox>
-            </Card>
-          </Grid>
-          <Grid item xs={12}>
-            <Card>
+            </Grid>
+            <Grid item xs={12}>
               <MDBox p={3} lineHeight={0}>
                 <Grid container spacing={2}>
                   <Grid item xs={6}>
@@ -310,9 +308,6 @@ export const AclPage = () => {
                         value={roleId}
                         onChange={onRoleChanged}
                         variant="outlined"
-                        InputProps={{
-                          classes: { root: "select-input-styles" },
-                        }}
                         size="large"
                       >
                         <MenuItem value="0">
@@ -343,15 +338,18 @@ export const AclPage = () => {
                           size="small"
                           onClick={onCreateClicked}
                         >
-                          Create
+                          Create ACLs
                         </MDButton>
                       </Grid>
                     </Grid>
                   </Grid>
                 </Grid>
               </MDBox>
-            </Card>
+            </Grid>
           </Grid>
+        </Card>
+        <br/>
+        <Grid container spacing={0}>
           <Grid item xs={12}>
             <Card>
               <MDBox p={3} lineHeight={0}>
@@ -366,6 +364,25 @@ export const AclPage = () => {
                   loading={aclTableLoading}
                   {...tableLayout}
                 />
+                <MDBox pt={3} lineHeight={0}>
+                  <Grid
+                    container
+                    direction="column"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Grid item xs={12}>
+                      <MDButton
+                        color="secondary"
+                        variant="contained"
+                        size="small"
+                        onClick={onSaveClicked}
+                      >
+                        Save
+                      </MDButton>
+                    </Grid>
+                  </Grid>
+                </MDBox>
               </MDBox>
             </Card>
           </Grid>

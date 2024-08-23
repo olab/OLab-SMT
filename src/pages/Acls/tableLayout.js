@@ -10,7 +10,8 @@ const tableLayout = {
   checkboxSelection: true,
   columnHeaderHeight: 30,
   rowHeight: 30,
-  disableRowSelectionOnClick: true
+  disableRowSelectionOnClick: true,
+  autoHeight: true
 };
 
 export default tableLayout;
