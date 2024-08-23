@@ -1,14 +1,11 @@
-
-import TextField from "@mui/material/TextField";
 import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
 import { DataGrid } from "@mui/x-data-grid";
 import { useState, useEffect } from "react";
 
 import MDButton from "@/components/MDButton";
+import MDInput from "@/components/MDInput";
 import MDTypography from "@/components/MDTypography";
 import OLabAlert from "@/components/OLabAlert";
 
@@ -17,8 +14,9 @@ import groupRoleTableLayout from "./groupRoleTableLayout";
 import defaultUser from "./defaultUser";
 import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
+import { postUser } from "../../services/api";
 
-export const UserDetail = ({ selectedUser, groups, roles }) => {
+export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
   const [formUser, setFormUser] = useState({
     ...defaultUser,
     verifypassword: defaultUser.password,
@@ -29,6 +27,8 @@ export const UserDetail = ({ selectedUser, groups, roles }) => {
   const [nextIndex, setNextIndex] = useState(-1);
   const [roleId, setRoleId] = useState(0);
   const [isChanged, setIsChanged] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     // enhance group role object with group/role names
@@ -36,14 +36,21 @@ export const UserDetail = ({ selectedUser, groups, roles }) => {
       enhanceGroupRole(role);
     }
 
-    setFormUser(selectedUser);
+    setFormUser(selectedUser);    
     setOriginalUser(selectedUser);
+    Log(JSON.stringify(selectedUser, null, 2));
+
+    resetForm();
+
   }, [selectedUser]);
 
-  const updateIsChanged = () => {
-    const isChanged = JSON.stringify(formUser) === JSON.stringify(originalUser);
-    setIsChanged(true);
-  };
+  const resetForm = () => {
+    setGroupId(0);
+    setRoleId(0);
+    setIsChanged(false);
+    setShowPassword(false);
+    setAlertMessage(null);
+  }
 
   const enhanceGroupRole = (groupRole) => {
     groupRole.group = groups.find(
@@ -60,7 +67,7 @@ export const UserDetail = ({ selectedUser, groups, roles }) => {
       ...formUser,
       [ev.target.id]: ev.target.value,
     });
-    updateIsChanged();
+    setIsChanged(true);
   };
 
   const onGroupChanged = (ev) => {
@@ -112,20 +119,18 @@ export const UserDetail = ({ selectedUser, groups, roles }) => {
       ...defaultUser,
       verifypassword: defaultUser.password,
     });
+
     setOriginalUser({
       ...defaultUser,
       verifypassword: defaultUser.password,
     });
-    setGroupId(0);
-    setRoleId(0);
-    setIsChanged(false);
+
+    resetForm();
   };
 
   const onRevertClicked = () => {
     setFormUser(originalUser);
-    setGroupId(0);
-    setRoleId(0);
-    setIsChanged(false);
+    resetForm();
   };
 
   const onCellClick = (cell) => {
@@ -143,55 +148,175 @@ export const UserDetail = ({ selectedUser, groups, roles }) => {
     setIsChanged(true);
   };
 
+  const onSaveClicked = () => {
+
+    setAlertMessage(`Saving user...`);
+
+    var apiUser = {
+      Id: formUser.id,
+      UserName: formUser.userName,
+      Password: formUser.password,
+      Email: formUser.email,
+      NickName: formUser.nickName,
+      GroupRoles: [],
+    };
+
+    var roleParts = [];
+    for (const role of formUser.roles) {
+      roleParts.push(`${role.group}:${role.role}`);
+    }
+
+    apiUser.GroupRoles = roleParts.join(',');
+
+    Log(JSON.stringify(apiUser, null, 2));
+
+    postUser(user.authInfo.token, apiUser).then((response) => {
+      setOriginalUser(formUser);
+      setIsChanged(false);
+      setAlertMessage(`User '${formUser.nickName}' saved`);
+
+      onUserChanged(formUser);
+    });
+  };
+
+  const onGenerateClicked = () => {
+    const newPassword = generatePassword();
+
+    const newFormUser = {
+      ...formUser,
+      password: newPassword,
+      verifypassword: newPassword,
+    };
+
+    setFormUser(newFormUser);
+    setShowPassword(true);
+    setIsChanged(true);
+  };
+
+  const generatePassword = () => {
+    let length = 12,
+      charset =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz",
+      charsetArr = charset.split(" ");
+    let retVal = "";
+    charsetArr.forEach((chars) => {
+      for (let i = 0, n = chars.length; i < length / charsetArr.length; ++i) {
+        retVal += chars.charAt(Math.floor(Math.random() * n));
+      }
+    });
+    return retVal;
+  };
+
   return (
     <form onSubmit={onSubmit}>
+      <MDTypography variant="h6" fontWeight="medium">
+        User Detail
+      </MDTypography>
       <Grid container spacing={2}>
-        <Grid item xs={6}>
-          <TextField
+        <Grid item xs={4}>
+          <MDInput
             sx={{ width: "100%" }}
             required
             id="userName"
-            label="User Id"
-            variant="filled"
+            label="User Name"
+            type="text"
+            variant="outlined"
             value={formUser.userName}
             onChange={(e) => onFieldChange(e)}
           />
         </Grid>
-        <Grid item xs={6}>
-          <TextField
+        <Grid item xs={4}>
+          <MDInput
             sx={{ width: "100%" }}
             required
             id="nickName"
             label="Name"
-            variant="filled"
+            type="text"
+            variant="outlined"
             value={formUser.nickName}
             onChange={(e) => onFieldChange(e)}
           />
         </Grid>
-        <Grid item xs={6}>
-          <TextField
+        <Grid item xs={4}>
+          <MDInput
             sx={{ width: "100%" }}
-            id="password"
-            label="Password"
-            type="password"
-            autoComplete="current-password"
-            variant="filled"
-            value={formUser.password}
-            error={formUser.password !== formUser.verifypassword}
+            required
+            id="email"
+            label="E-Mail"
+            type="text"
+            variant="outlined"
+            value={formUser.email}
             onChange={(e) => onFieldChange(e)}
           />
         </Grid>
-        <Grid item xs={6}>
-          <TextField
-            sx={{ width: "100%" }}
-            id="verifypassword"
-            label="Verify Password"
-            type="password"
-            autoComplete="current-password"
-            variant="filled"
-            value={formUser.verifypassword}
-            onChange={(e) => onFieldChange(e)}
-          />
+
+        {showPassword && (
+          <>
+            <Grid item xs={5}>
+              <MDInput
+                sx={{ width: "100%" }}
+                id="password"
+                label="Password"
+                type="text"
+                autoComplete="current-password"
+                variant="outlined"
+                value={formUser.password}
+                error={formUser.password !== formUser.verifypassword}
+                onChange={(e) => onFieldChange(e)}
+              />
+            </Grid>
+            <Grid item xs={5}>
+              <MDInput
+                sx={{ width: "100%" }}
+                id="verifypassword"
+                label="Verify Password"
+                type="text"
+                autoComplete="current-password"
+                variant="outlined"
+                value={formUser.verifypassword}
+                onChange={(e) => onFieldChange(e)}
+              />
+            </Grid>
+          </>
+        )}
+        {!showPassword && (
+          <>
+            <Grid item xs={5}>
+              <MDInput
+                sx={{ width: "100%" }}
+                id="password"
+                label="Password"
+                type="password"
+                autoComplete="current-password"
+                variant="outlined"
+                value={formUser.password}
+                error={formUser.password !== formUser.verifypassword}
+                onChange={(e) => onFieldChange(e)}
+              />
+            </Grid>
+            <Grid item xs={5}>
+              <MDInput
+                sx={{ width: "100%" }}
+                id="verifypassword"
+                label="Verify Password"
+                type="password"
+                autoComplete="current-password"
+                variant="outlined"
+                value={formUser.verifypassword}
+                onChange={(e) => onFieldChange(e)}
+              />
+            </Grid>
+          </>
+        )}
+        <Grid item xs={2}>
+          <MDButton
+            onClick={onGenerateClicked}
+            color="secondary"
+            variant="contained"
+            size="small"
+          >
+            Generate
+          </MDButton>
         </Grid>
         <Grid item xs={12}>
           <DataGrid
@@ -219,12 +344,17 @@ export const UserDetail = ({ selectedUser, groups, roles }) => {
         </Grid>
         <Grid item xs={5}>
           <FormControl variant="filled" sx={{ width: "100%" }}>
-            <InputLabel id="group-label">Group</InputLabel>
-            <Select
-              labelId="group-label"
+            <MDInput
+              select
+              label="Group"
               id="group-select-filled"
               value={groupId}
               onChange={onGroupChanged}
+              variant="outlined"
+              InputProps={{
+                classes: { root: "select-input-styles" },
+              }}
+              size="large"
             >
               <MenuItem value="0">
                 <em>None</em>
@@ -236,17 +366,22 @@ export const UserDetail = ({ selectedUser, groups, roles }) => {
                   </MenuItem>
                 );
               })}
-            </Select>
+            </MDInput>
           </FormControl>
         </Grid>
         <Grid item xs={5}>
           <FormControl sx={{ width: "100%" }} variant="filled">
-            <InputLabel id="role-label">Role</InputLabel>
-            <Select
-              labelId="role-label"
+            <MDInput
+              select
+              label="Role"
               id="role-select-filled"
               value={roleId}
               onChange={onRoleChanged}
+              variant="outlined"
+              InputProps={{
+                classes: { root: "select-input-styles" },
+              }}
+              size="large"
             >
               <MenuItem value="0">
                 <em>None</em>
@@ -258,7 +393,7 @@ export const UserDetail = ({ selectedUser, groups, roles }) => {
                   </MenuItem>
                 );
               })}
-            </Select>
+            </MDInput>
           </FormControl>
         </Grid>
         <Grid item xs={2}>
@@ -293,7 +428,7 @@ export const UserDetail = ({ selectedUser, groups, roles }) => {
                     color="secondary"
                     variant="contained"
                     size="small"
-                    onClick={onRevertClicked}
+                    onClick={onSaveClicked}
                   >
                     Save
                   </MDButton>

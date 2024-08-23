@@ -32,7 +32,7 @@ export const UserPage = () => {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [roles, setRoles] = useState([]);
-  const [tableData, setTableData] = useState(userTableLayout);
+  const [tableData, setTableData] = useState([]);
   const { user } = useAuth();
   const [confirmDialog, setConfirmDialog] = useState(null);
   const apiRef = useGridApiRef();
@@ -41,8 +41,7 @@ export const UserPage = () => {
 
   useEffect(() => {
     getUsers(user.authInfo.token).then((response) => {
-      const users = { ...userTableLayout, rows: response.data };
-      setTableData(users);
+      setTableData(response.data);
 
       getGroups(user.authInfo.token).then((response) => {
         setGroups(response.data);
@@ -84,15 +83,11 @@ export const UserPage = () => {
   };
 
   const deleteSelectedUsers = () => {
+    const newRows = tableData.filter(
+      (user) => !selection.includes(user.id)
+    );
 
-    const newRows = 
-      tableData.rows.filter((user) => !selection.includes(user.id));
-    const newTableData = { 
-      ...tableData,
-      rows: newRows
-    };
-
-    setTableData(newTableData);
+    setTableData(newRows);
     apiRef.current.forceUpdate();
   };
 
@@ -109,6 +104,27 @@ export const UserPage = () => {
       </DashboardLayout>
     );
   }
+
+  // fires if user detail page changed something that
+  // requires updating the user list
+  const onUserChanged = (user) => {
+
+    let newTableData = [ ...tableData ];
+
+    let targetIndex = -1;
+    for (let index = 0; index < newTableData.length; index++) {
+      if (newTableData[index].id == user.id) {
+        targetIndex = index;
+        break;
+      }
+    }
+    
+    newTableData[targetIndex] = user;
+
+    setTableData(newTableData);
+
+    Log('user list updated from user detail change');
+  };
 
   return (
     <DashboardLayout>
@@ -130,8 +146,8 @@ export const UserPage = () => {
                 </MDTypography>
                 <DataGrid
                   apiRef={apiRef}
-                  rows={tableData.rows}
-                  columns={tableData.columns}
+                  rows={tableData}
+                  columns={userTableLayout.columns}
                   onRowSelectionModelChange={setSelection}
                   initialState={{
                     pagination: {
@@ -175,11 +191,8 @@ export const UserPage = () => {
           <Grid item xs={6}>
             <Card>
               <MDBox p={3} lineHeight={0}>
-                <MDTypography variant="h6" fontWeight="medium">
-                  User Detail
-                </MDTypography>
-
                 <UserDetail
+                  onUserChanged={onUserChanged}
                   selectedUser={selectedUser}
                   groups={groups}
                   roles={roles}

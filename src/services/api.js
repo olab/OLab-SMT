@@ -158,25 +158,16 @@ async function getAcls(
   });
 
   return data;
+}
 
-  /*
-  return {
-    data: [
-      {
-        id: 1,
-        groupName: "All",
-        groupId: 0,
-        roleName: "All",
-        roleId: 0,
-        objectType: "All",
-        objectIndex: "*",
-        read: false,
-        write: false,
-        execute: false,
-      }
-    ]
-  };
-  */
+async function postUser( token, user ) {
+
+  let url = `${config.API_URL}/auth/edituser`;
+  const data = await internetJsonFetch("PUT", url, user, {
+    Authorization: `Bearer ${token}`,
+  });
+
+  return data;  
 }
 
 export {
@@ -184,6 +175,7 @@ export {
   getGroups,
   getRoles,
   getUsers,
+  postUser,
   getMaps,
   getNodes,
   getAcls

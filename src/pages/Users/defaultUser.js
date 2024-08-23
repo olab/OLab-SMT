@@ -3,6 +3,7 @@ const defaultUser = {
   userName: "",
   nickName: "",
   password: "",
+  email: "",
   roles: []
 };
 

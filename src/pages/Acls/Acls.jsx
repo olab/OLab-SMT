@@ -9,6 +9,7 @@ import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import { useState, useEffect } from "react";
 
 import MDBox from "@/components/MDBox";
+import MDInput from "@/components/MDInput";
 import MDTypography from "@/components/MDTypography";
 import DashboardLayout from "@/components/DashboardLayout";
 import MDButton from "@/components/MDButton";
@@ -220,7 +221,7 @@ export const AclPage = () => {
     }
 
     setNextIndex(index);
-    setAclTableRows( newAclRows );
+    setAclTableRows(newAclRows);
   };
 
   if (loading) {
@@ -275,12 +276,17 @@ export const AclPage = () => {
                 <Grid container spacing={2}>
                   <Grid item xs={6}>
                     <FormControl variant="filled" sx={{ width: "100%" }}>
-                      <InputLabel id="group-label">Group</InputLabel>
-                      <Select
-                        labelId="group-label"
+                      <MDInput
+                        select
+                        label="Group"
                         id="group-select-filled"
                         value={groupId}
                         onChange={onGroupChanged}
+                        variant="outlined"
+                        InputProps={{
+                          classes: { root: "select-input-styles" },
+                        }}
+                        size="large"
                       >
                         <MenuItem value="0">
                           <em>None</em>
@@ -292,17 +298,22 @@ export const AclPage = () => {
                             </MenuItem>
                           );
                         })}
-                      </Select>
+                      </MDInput>
                     </FormControl>
                   </Grid>
                   <Grid item xs={6}>
                     <FormControl sx={{ width: "100%" }} variant="filled">
-                      <InputLabel id="role-label">Role</InputLabel>
-                      <Select
-                        labelId="role-label"
+                      <MDInput
+                        select
+                        label="Role"
                         id="role-select-filled"
                         value={roleId}
                         onChange={onRoleChanged}
+                        variant="outlined"
+                        InputProps={{
+                          classes: { root: "select-input-styles" },
+                        }}
+                        size="large"
                       >
                         <MenuItem value="0">
                           <em>None</em>
@@ -314,7 +325,7 @@ export const AclPage = () => {
                             </MenuItem>
                           );
                         })}
-                      </Select>
+                      </MDInput>
                     </FormControl>
                   </Grid>
                   <Grid item xs={12}>
