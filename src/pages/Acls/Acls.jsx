@@ -193,8 +193,8 @@ export const AclPage = () => {
           groupId: selectedGroup.length == 0 ? 0 : selectedGroup[0].id,
           objectIndex: selectedNode.id,
           roleId: selectedRole.length == 0 ? 0 : selectedRole[0].id,
-          groupName: selectedGroup.length == 0 ? "All" : selectedGroup[0].name,
-          roleName: selectedRole.length == 0 ? "All" : selectedRole[0].name,
+          groupName: selectedGroup.length == 0 ? "*" : selectedGroup[0].name,
+          roleName: selectedRole.length == 0 ? "*" : selectedRole[0].name,
         };
 
         newAclRows.push(newRecord);
@@ -210,8 +210,8 @@ export const AclPage = () => {
           groupId: selectedGroup.length == 0 ? 0 : selectedGroup[0].id,
           objectIndex: selectedMap.id,
           roleId: selectedRole.length == 0 ? 0 : selectedRole[0].id,
-          groupName: selectedGroup.length == 0 ? "All" : selectedGroup[0].name,
-          roleName: selectedRole.length == 0 ? "All" : selectedRole[0].name,
+          groupName: selectedGroup.length == 0 ? "*" : selectedGroup[0].name,
+          roleName: selectedRole.length == 0 ? "*" : selectedRole[0].name,
         };
 
         newAclRows.push(newRecord);
@@ -265,7 +265,7 @@ export const AclPage = () => {
                           <em>-- Select --</em>
                         </MenuItem>
                         <MenuItem value="0">
-                          <em>All</em>
+                          <em>*</em>
                         </MenuItem>
                         {groups.map((item) => {
                           return (
@@ -295,7 +295,7 @@ export const AclPage = () => {
                           <em>-- Select --</em>
                         </MenuItem>
                         <MenuItem value="0">
-                          <em>All</em>
+                          <em>*</em>
                         </MenuItem>
                         {roles.map((item) => {
                           return (

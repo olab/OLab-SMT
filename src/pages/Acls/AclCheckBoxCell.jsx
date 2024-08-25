@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Checkbox from "@mui/material/Checkbox";
 
-const AclCheckBox = (props) => {
+const AclCheckBoxCell = (props) => {
   const [checked, setChecked] = useState(props.value);
 
   const handleChange = (event) => {
@@ -21,4 +21,4 @@ const AclCheckBox = (props) => {
   );
 };
 
-export default AclCheckBox;
+export default AclCheckBoxCell;

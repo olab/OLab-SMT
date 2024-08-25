@@ -1,4 +1,4 @@
-import AclCheckBox from "./AclCheckBox";
+import AclCheckBoxCell from "./AclCheckBoxCell";
 import AclNullableCell from "./AclNullableCell";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -27,7 +27,7 @@ const aclTableLayout = {
     },
     {
       field: "objectIndex",
-      headerName: "Name",
+      headerName: "Id",
       flex: 1,
       editable: false,
       renderCell: AclNullableCell
@@ -37,21 +37,21 @@ const aclTableLayout = {
       headerAlign: 'center',
       headerName: "R",
       flex: 0.25,
-      renderCell: AclCheckBox,
+      renderCell: AclCheckBoxCell,
     },
     {
       headerAlign: 'center',
       field: "write",
       headerName: "W",
       flex: 0.25,
-      renderCell: AclCheckBox,
+      renderCell: AclCheckBoxCell,
     },
     {
       headerAlign: 'center',
       field: "execute",
       headerName: "X",
       flex: 0.25,
-      renderCell: AclCheckBox,
+      renderCell: AclCheckBoxCell,
     },
     {
       headerAlign: 'center',
