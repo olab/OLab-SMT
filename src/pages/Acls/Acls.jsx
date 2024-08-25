@@ -1,10 +1,9 @@
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import CircularProgress from "@mui/material/CircularProgress";
+import Tooltip from "@mui/material/Tooltip";
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import { useState, useEffect } from "react";
 
@@ -32,13 +31,12 @@ import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 
 export const AclPage = () => {
   const [aclSelection, setAclSelection] = useState([]);
-  const [aclTableLabel, setAclTableLabel] = useState("");
   const [aclTableColumns, setAclTableColumns] = useState(
     aclTableLayout.columns
   );
   const [aclTableRows, setAclTableRows] = useState(aclTableLayout.rows);
   const [groups, setGroups] = useState([]);
-  const [groupId, setGroupId] = useState(0);
+  const [groupId, setGroupId] = useState(-1);
   const [loading, setLoading] = useState(true);
   const [aclTableLoading, setAclTableLoading] = useState(false);
 
@@ -47,14 +45,9 @@ export const AclPage = () => {
   const [selectedNodeIds, setNodeSelection] = useState([]);
   const [nodeTableData, setNodeTableData] = useState(nodeTableLayout);
   const [roles, setRoles] = useState([]);
-  const [roleId, setRoleId] = useState(0);
+  const [roleId, setRoleId] = useState(-1);
   const [nextIndex, setNextIndex] = useState(-1);
-  // 0 = default mode
-  // 1 = single map mode
-  // 2 = multi map mode
-  // 3 = single node mode
-  // 4 = multi-node mode
-  const [aclTableMode, setAclTableMode] = useState(0);
+  const apiRef = useGridApiRef();
 
   const { user } = useAuth();
 
@@ -83,8 +76,6 @@ export const AclPage = () => {
 
           setAclTableColumns(newAclTableColumns);
 
-          refreshAclData();
-
           setLoading(false);
         });
       });
@@ -110,18 +101,6 @@ export const AclPage = () => {
       }
     );
 
-    if (mapIds.length == 0 && nodeIds.length == 0) {
-      setAclTableLabel("Default ACLs");
-    } else if (mapIds.length == 1 && nodeIds.length == 0) {
-      setAclTableLabel("Single-Map ACLs");
-    } else if (mapIds.length > 1 && nodeIds.length == 0) {
-      setAclTableLabel("Multi-Map ACLs");
-    } else if (mapIds.length >= 1 && nodeIds.length == 1) {
-      setAclTableLabel("Single-Node ACLs");
-    } else if (mapIds.length >= 1 && nodeIds.length > 1) {
-      setAclTableLabel("Multi-Node ACLs");
-    }
-
     setAclTableLoading(false);
   };
 
@@ -144,19 +123,16 @@ export const AclPage = () => {
     }
 
     setMapSelection(selectedMapIds);
-    refreshAclData(selectedMapIds);
   };
 
   const onNodeSelectionChanged = (selectedNodeIds) => {
     Log(`onNodeSelectionChanged ${selectedNodeIds}`);
     setNodeSelection(selectedNodeIds);
-    refreshAclData(selectedMapIds, selectedNodeIds);
   };
 
   const onAclSelectionChanged = (selectedAclIds) => {
     Log(`onAclSelectionChanged ${selectedAclIds}`);
     setAclSelection(selectedAclIds);
-    refreshAclData();
   };
 
   const onGroupChanged = (ev) => {
@@ -167,9 +143,29 @@ export const AclPage = () => {
     setRoleId(ev.target.value);
   };
 
-  const onSaveClicked = () => {};
+  const onLoadAclClicked = () => {
+    refreshAclData(selectedMapIds, selectedNodeIds);
+  };
 
-  const onCreateClicked = () => {
+  const onSaveAclClicked = () => {};
+  const onClearAclClicked = () => {
+    setAclTableRows([]);
+  };
+
+  const onResetQueryFormClicked = () => {
+    setGroupId(-1);
+    setRoleId(-1);
+    // reset the map selections
+    apiRef.current.setRowSelectionModel([]);
+  };
+
+  const onCellClick = (cell) => {
+    if (cell.field !== "delete") {
+      return;
+    }
+  };
+
+  const onCreateAclClicked = () => {
     const selectedGroup = groups.filter((group) => group.id == groupId);
     const selectedRole = roles.filter((role) => role.id == roleId);
     const selectedMaps = mapTableData.rows.filter((map) =>
@@ -194,11 +190,11 @@ export const AclPage = () => {
           write: false,
           objectType: "Nodes",
           id: index--,
-          groupId: selectedGroup[0].id,
+          groupId: selectedGroup.length == 0 ? 0 : selectedGroup[0].id,
           objectIndex: selectedNode.id,
-          roleId: selectedRole[0].id,
-          groupName: selectedGroup[0].name,
-          roleName: selectedRole[0].name,
+          roleId: selectedRole.length == 0 ? 0 : selectedRole[0].id,
+          groupName: selectedGroup.length == 0 ? "All" : selectedGroup[0].name,
+          roleName: selectedRole.length == 0 ? "All" : selectedRole[0].name,
         };
 
         newAclRows.push(newRecord);
@@ -211,11 +207,11 @@ export const AclPage = () => {
           write: false,
           objectType: "Maps",
           id: index--,
-          groupId: selectedGroup[0].id,
+          groupId: selectedGroup.length == 0 ? 0 : selectedGroup[0].id,
           objectIndex: selectedMap.id,
-          roleId: selectedRole[0].id,
-          groupName: selectedGroup[0].name,
-          roleName: selectedRole[0].name,
+          roleId: selectedRole.length == 0 ? 0 : selectedRole[0].id,
+          groupName: selectedGroup.length == 0 ? "All" : selectedGroup[0].name,
+          roleName: selectedRole.length == 0 ? "All" : selectedRole[0].name,
         };
 
         newAclRows.push(newRecord);
@@ -238,40 +234,19 @@ export const AclPage = () => {
 
   return (
     <DashboardLayout>
-      <MDBox pt={0} pb={0}>
+      <MDBox p={0} pb={0}>
         <Card>
           <Grid container spacing={0}>
-            <Grid item xs={6}>
-              <MDBox p={3} lineHeight={0}>
+            <Grid item xs={12}>
+              <MDBox p={3} pb={0} lineHeight={0}>
                 <MDTypography variant="h6" fontWeight="medium">
-                  Maps
+                  Query Form
                 </MDTypography>
-                <DataGrid
-                  rows={mapTableData.rows}
-                  columns={mapTableData.columns}
-                  onRowSelectionModelChange={onMapSelectionChanged}
-                  checkboxSelection
-                  {...tableLayout}
-                />
-              </MDBox>
-            </Grid>
-            <Grid item xs={6}>
-              <MDBox p={3} lineHeight={0}>
-                <MDTypography variant="h6" fontWeight="medium">
-                  Nodes
-                </MDTypography>
-                <DataGrid
-                  rows={nodeTableData.rows}
-                  columns={nodeTableData.columns}
-                  onRowSelectionModelChange={onNodeSelectionChanged}
-                  checkboxSelection
-                  {...tableLayout}
-                />
               </MDBox>
             </Grid>
             <Grid item xs={12}>
               <MDBox p={3} lineHeight={0}>
-                <Grid container spacing={2}>
+                <Grid container spacing={3}>
                   <Grid item xs={6}>
                     <FormControl variant="filled" sx={{ width: "100%" }}>
                       <MDInput
@@ -286,8 +261,11 @@ export const AclPage = () => {
                         }}
                         size="large"
                       >
+                        <MenuItem value="-1">
+                          <em>-- Select --</em>
+                        </MenuItem>
                         <MenuItem value="0">
-                          <em>None</em>
+                          <em>All</em>
                         </MenuItem>
                         {groups.map((item) => {
                           return (
@@ -313,8 +291,11 @@ export const AclPage = () => {
                         }}
                         size="large"
                       >
+                        <MenuItem value="-1">
+                          <em>-- Select --</em>
+                        </MenuItem>
                         <MenuItem value="0">
-                          <em>None</em>
+                          <em>All</em>
                         </MenuItem>
                         {roles.map((item) => {
                           return (
@@ -326,40 +307,96 @@ export const AclPage = () => {
                       </MDInput>
                     </FormControl>
                   </Grid>
+                </Grid>
+              </MDBox>
+            </Grid>
+            <Grid item xs={6}>
+              <MDBox p={3} pt={0} lineHeight={0}>
+                <MDTypography variant="h6" fontWeight="medium">
+                  Maps
+                </MDTypography>
+                <DataGrid
+                  apiRef={apiRef}
+                  rows={mapTableData.rows}
+                  columns={mapTableData.columns}
+                  onRowSelectionModelChange={onMapSelectionChanged}
+                  checkboxSelection
+                  {...tableLayout}
+                />
+              </MDBox>
+            </Grid>
+            <Grid item xs={6}>
+              <MDBox p={3} pt={0} lineHeight={0}>
+                <MDTypography variant="h6" fontWeight="medium">
+                  Nodes
+                </MDTypography>
+                <DataGrid
+                  rows={nodeTableData.rows}
+                  columns={nodeTableData.columns}
+                  onRowSelectionModelChange={onNodeSelectionChanged}
+                  checkboxSelection
+                  {...tableLayout}
+                />
+              </MDBox>
+            </Grid>
+            <Grid item xs={12}>
+              <MDBox pb={3} lineHeight={0}>
+                <Grid
+                  container
+                  spacing={0}
+                  direction="column"
+                  alignItems="center"
+                  justifyContent="center"
+                >
                   <Grid item xs={12}>
-                    <Grid
-                      container
-                      spacing={0}
-                      direction="column"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <Grid item xs={12}>
-                        <MDButton
-                          color="secondary"
-                          variant="contained"
-                          size="small"
-                          onClick={onCreateClicked}
-                        >
-                          Create ACLs
-                        </MDButton>
-                      </Grid>
-                    </Grid>
+                    <Tooltip title="Query ACLs using Query Form">
+                      <MDButton
+                        color="secondary"
+                        variant="contained"
+                        size="small"
+                        onClick={onLoadAclClicked}
+                      >
+                        Query ACLs
+                      </MDButton>
+                    </Tooltip>
+                    &nbsp;
+                    <Tooltip title="Create ACLs from Query Form">
+                      <MDButton
+                        color="secondary"
+                        variant="contained"
+                        size="small"
+                        onClick={onCreateAclClicked}
+                      >
+                        Create ACLs
+                      </MDButton>
+                    </Tooltip>
+                    &nbsp;
+                    <Tooltip title="Reset Query Form">
+                      <MDButton
+                        color="secondary"
+                        variant="contained"
+                        size="small"
+                        onClick={onResetQueryFormClicked}
+                      >
+                        Reset
+                      </MDButton>
+                    </Tooltip>
                   </Grid>
                 </Grid>
               </MDBox>
             </Grid>
           </Grid>
         </Card>
-        <br/>
+        <br />
         <Grid container spacing={0}>
           <Grid item xs={12}>
             <Card>
               <MDBox p={3} lineHeight={0}>
                 <MDTypography variant="h6" fontWeight="medium">
-                  {aclTableLabel}
+                  Aaccess Control Lists (ACL)
                 </MDTypography>
                 <DataGrid
+                  onCellClick={onCellClick}
                   rows={aclTableRows}
                   columns={aclTableColumns}
                   onRowSelectionModelChange={onAclSelectionChanged}
@@ -375,14 +412,27 @@ export const AclPage = () => {
                     justifyContent="center"
                   >
                     <Grid item xs={12}>
-                      <MDButton
-                        color="secondary"
-                        variant="contained"
-                        size="small"
-                        onClick={onSaveClicked}
-                      >
-                        Save
-                      </MDButton>
+                      <Tooltip title="Save ACLs">
+                        <MDButton
+                          color="secondary"
+                          variant="contained"
+                          size="small"
+                          onClick={onSaveAclClicked}
+                        >
+                          Save
+                        </MDButton>
+                      </Tooltip>
+                      &nbsp;
+                      <Tooltip title="Save ACLs">
+                        <MDButton
+                          color="secondary"
+                          variant="contained"
+                          size="small"
+                          onClick={onClearAclClicked}
+                        >
+                          Clear
+                        </MDButton>
+                      </Tooltip>
                     </Grid>
                   </Grid>
                 </MDBox>

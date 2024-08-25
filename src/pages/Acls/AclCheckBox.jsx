@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Checkbox from '@mui/material/Checkbox';
+import Checkbox from "@mui/material/Checkbox";
 
 const AclCheckBox = (props) => {
   const [checked, setChecked] = useState(props.value);
@@ -10,13 +10,15 @@ const AclCheckBox = (props) => {
   };
 
   return (
-    <Checkbox
-      id={props.field}
-      size="lg"
-      checked={checked}
-      onChange={handleChange}
-    />
+    <center>
+      <Checkbox
+        id={props.field}
+        size="lg"
+        checked={checked}
+        onChange={handleChange}
+      />
+    </center>
   );
-}
+};
 
 export default AclCheckBox;

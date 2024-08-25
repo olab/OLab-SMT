@@ -15,9 +15,8 @@ export const ProtectedLayout = () => {
       <AppBar
         pages={[
           { label: "Home", path: "home" },
+          { label: "Groups/Roles", path: "groupsroles" },
           { label: "Users", path: "users" },
-          { label: "Groups", path: "profile" },
-          { label: "Roles", path: "profile" },
           { label: "Access", path: "access" }
         ]}
       />

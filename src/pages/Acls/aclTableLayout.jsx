@@ -1,57 +1,66 @@
 import AclCheckBox from "./AclCheckBox";
+import AclNullableCell from "./AclNullableCell";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const aclTableLayout = {
   columns: [
-    { field: "id", headerName: "Id", editable: false },
     {
       field: "groupName",
       headerName: "Group",
-      type: "singleSelect",
       flex: 1,
       editable: false,
-      valueOptions: null
+      renderCell: AclNullableCell
     },
     {
       field: "roleName",
       headerName: "Role",
-      type: "singleSelect",
       flex: 1,
       editable: false,
-      valueOptions: null
+      renderCell: AclNullableCell
     },
     {
       editable: true,
       field: "objectType",
       headerName: "Type",
       flex: 1,
-      type: "singleSelect",
-      valueOptions: (params) => {
-        return ["All", "Maps", "Nodes"];
-      },
+      renderCell: AclNullableCell
     },
     {
       field: "objectIndex",
       headerName: "Name",
       flex: 1,
       editable: false,
+      renderCell: AclNullableCell
     },
     {
       field: "read",
+      headerAlign: 'center',
       headerName: "R",
       flex: 0.25,
       renderCell: AclCheckBox,
     },
     {
+      headerAlign: 'center',
       field: "write",
       headerName: "W",
       flex: 0.25,
       renderCell: AclCheckBox,
     },
     {
+      headerAlign: 'center',
       field: "execute",
       headerName: "X",
       flex: 0.25,
       renderCell: AclCheckBox,
+    },
+    {
+      headerAlign: 'center',
+      field: "delete",
+      headerName: "",
+      sortable: false,
+      renderCell: () => {
+        return <DeleteIcon />;
+      },
     },
   ],
 
