@@ -91,10 +91,6 @@ export const UserPage = () => {
     apiRef.current.forceUpdate();
   };
 
-  if (confirmDialog != null) {
-    <ConfirmDialog data={confirmDialog} />;
-  }
-
   if (loading) {
     return (
       <DashboardLayout>

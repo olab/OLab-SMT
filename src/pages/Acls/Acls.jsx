@@ -12,6 +12,7 @@ import MDInput from "@/components/MDInput";
 import MDTypography from "@/components/MDTypography";
 import DashboardLayout from "@/components/DashboardLayout";
 import MDButton from "@/components/MDButton";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 // Data
 import {
@@ -30,7 +31,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 
 export const AclPage = () => {
-  const [aclSelection, setAclSelection] = useState([]);
+  const [aclSelectionIds, setAclSelection] = useState([]);
   const [aclTableColumns, setAclTableColumns] = useState(
     aclTableLayout.columns
   );
@@ -39,6 +40,7 @@ export const AclPage = () => {
   const [groupId, setGroupId] = useState(-1);
   const [loading, setLoading] = useState(true);
   const [aclTableLoading, setAclTableLoading] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState(null);
 
   const [selectedMapIds, setMapSelection] = useState([]);
   const [mapTableData, setMapTableData] = useState(mapTableLayout);
@@ -165,6 +167,31 @@ export const AclPage = () => {
     }
   };
 
+  const onDeleteAclClicked = () => {
+    Log("delete clicked");
+    Log(JSON.stringify(aclSelectionIds));
+    setConfirmDialog({
+      title: "Delete Confirmation",
+      message: `Delete ${aclSelectionIds.length} ACLs?`,
+      onCancelClicked: () => {
+        setConfirmDialog(null);
+      },
+      onConfirmClicked: () => {
+        setConfirmDialog(null);
+        deleteSelectedAcls();
+      },
+    });
+  };
+
+  const deleteSelectedAcls = () => {
+    const newRows = aclTableRows.filter(
+      (acl) => !aclSelectionIds.includes(acl.id)
+    );
+
+    setAclTableRows(newRows);
+    apiRef.current.forceUpdate();
+  };
+
   const onCreateAclClicked = () => {
     const selectedGroup = groups.filter((group) => group.id == groupId);
     const selectedRole = roles.filter((role) => role.id == roleId);
@@ -222,6 +249,10 @@ export const AclPage = () => {
     setAclTableRows(newAclRows);
   };
 
+  if (confirmDialog != null) {
+    <ConfirmDialog data={confirmDialog} />;
+  }
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -234,6 +265,14 @@ export const AclPage = () => {
 
   return (
     <DashboardLayout>
+      {confirmDialog != null && (
+        <ConfirmDialog
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          handleCancel={confirmDialog.onCancelClicked}
+          handleOk={confirmDialog.onConfirmClicked}
+        />
+      )}      
       <MDBox p={0} pb={0}>
         <Card>
           <Grid container spacing={0}>
@@ -412,6 +451,17 @@ export const AclPage = () => {
                     justifyContent="center"
                   >
                     <Grid item xs={12}>
+                      <Tooltip title="Delete Selected ACLs">
+                        <MDButton
+                          color="secondary"
+                          variant="contained"
+                          size="small"
+                          onClick={onDeleteAclClicked}
+                        >
+                          Delete
+                        </MDButton>
+                      </Tooltip>
+                      &nbsp;
                       <Tooltip title="Save ACLs">
                         <MDButton
                           color="secondary"
@@ -423,7 +473,7 @@ export const AclPage = () => {
                         </MDButton>
                       </Tooltip>
                       &nbsp;
-                      <Tooltip title="Save ACLs">
+                      <Tooltip title="Clear ACLs">
                         <MDButton
                           color="secondary"
                           variant="contained"

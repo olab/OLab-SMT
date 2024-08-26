@@ -52,16 +52,7 @@ const aclTableLayout = {
       headerName: "X",
       flex: 0.25,
       renderCell: AclCheckBoxCell,
-    },
-    {
-      headerAlign: 'center',
-      field: "delete",
-      headerName: "",
-      sortable: false,
-      renderCell: () => {
-        return <DeleteIcon />;
-      },
-    },
+    }
   ],
 
   rows: [],
