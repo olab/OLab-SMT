@@ -14,6 +14,14 @@ import DashboardLayout from "@/components/DashboardLayout";
 import MDButton from "@/components/MDButton";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
+import mapTableLayout from "./layouts/mapTableLayout";
+import nodeTableLayout from "./layouts/nodeTableLayout";
+import aclTableLayout from "./layouts/aclTableLayout";
+import tableLayout from "./layouts/tableLayout";
+
+import { useAuth } from "../../hooks/useAuth";
+import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
+
 // Data
 import {
   getAcls,
@@ -22,13 +30,6 @@ import {
   getGroups,
   getRoles,
 } from "../../services/api";
-import mapTableLayout from "./mapTableLayout";
-import nodeTableLayout from "./nodeTableLayout";
-import aclTableLayout from "./aclTableLayout";
-import tableLayout from "./tableLayout";
-
-import { useAuth } from "../../hooks/useAuth";
-import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 
 export const AclPage = () => {
   const [aclSelectionIds, setAclSelection] = useState([]);

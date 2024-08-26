@@ -1,6 +1,6 @@
-import AclCheckBoxCell from "./AclCheckBoxCell";
-import AclNullableCell from "./AclNullableCell";
-import AclChangeStatusCell from "./AclChangeStatusCell";
+import AclCheckBoxCell from "../components/AclCheckBoxCell";
+import AclNullableCell from "../components/AclNullableCell";
+import AclChangeStatusCell from "../components/AclChangeStatusCell";
 
 const aclTableLayout = {
   columns: [
