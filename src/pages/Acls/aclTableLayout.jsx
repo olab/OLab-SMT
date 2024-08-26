@@ -1,53 +1,60 @@
 import AclCheckBoxCell from "./AclCheckBoxCell";
 import AclNullableCell from "./AclNullableCell";
-import DeleteIcon from "@mui/icons-material/Delete";
+import AclChangeStatusCell from "./AclChangeStatusCell";
 
 const aclTableLayout = {
   columns: [
+    {
+      headerAlign: "center",
+      field: "status",
+      headerName: "",
+      flex: 0.25,
+      renderCell: AclChangeStatusCell,
+    },    
     {
       field: "groupName",
       headerName: "Group",
       flex: 1,
       editable: false,
-      renderCell: AclNullableCell
+      renderCell: AclNullableCell,
     },
     {
       field: "roleName",
       headerName: "Role",
       flex: 1,
       editable: false,
-      renderCell: AclNullableCell
+      renderCell: AclNullableCell,
     },
     {
       editable: true,
       field: "objectType",
       headerName: "Type",
       flex: 1,
-      renderCell: AclNullableCell
+      renderCell: AclNullableCell,
     },
     {
       field: "objectIndex",
       headerName: "Id",
       flex: 1,
       editable: false,
-      renderCell: AclNullableCell
+      renderCell: AclNullableCell,
     },
     {
       field: "read",
-      headerAlign: 'center',
+      headerAlign: "center",
       headerName: "R",
       flex: 0.25,
       renderCell: AclCheckBoxCell,
     },
     {
-      headerAlign: 'center',
+      headerAlign: "center",
       field: "write",
       headerName: "W",
       flex: 0.25,
       renderCell: AclCheckBoxCell,
     },
     {
-      headerAlign: 'center',
+      headerAlign: "center",
       field: "execute",
       headerName: "X",
       flex: 0.25,
