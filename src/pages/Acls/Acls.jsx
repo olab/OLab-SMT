@@ -14,6 +14,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import MDButton from "@/components/MDButton";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
+import { AclQuery } from "./components/AclQuery";
+
 import mapTableLayout from "./layouts/mapTableLayout";
 import nodeTableLayout from "./layouts/nodeTableLayout";
 import aclTableLayout from "./layouts/aclTableLayout";
@@ -36,7 +38,7 @@ export const AclPage = () => {
   const [aclTableColumns, setAclTableColumns] = useState(
     aclTableLayout.columns
   );
-  const [aclTableRows, setAclTableRows] = useState(aclTableLayout.rows);
+  const [aclTableRows, setAclTableRows] = useState([]);
   const [groups, setGroups] = useState([]);
   const [groupId, setGroupId] = useState(-1);
   const [loading, setLoading] = useState(true);
@@ -264,6 +266,10 @@ export const AclPage = () => {
     );
   }
 
+  const onStateChange = (state) => {
+    Log(JSON.stringify(state, null, 1));
+  }
+
   return (
     <DashboardLayout>
       {confirmDialog != null && (
@@ -273,7 +279,18 @@ export const AclPage = () => {
           handleCancel={confirmDialog.onCancelClicked}
           handleOk={confirmDialog.onConfirmClicked}
         />
-      )}      
+      )}
+      <MDBox p={0} pb={0}>
+        <AclQuery
+          groups={groups}
+          roles={roles}
+          setGroupId={setGroupId}
+          setRoleId={setRoleId}
+          onStateChange={onStateChange}
+          onLoadAclClicked={onLoadAclClicked}
+          onCreateAclClicked={onCreateAclClicked} />
+      </MDBox>
+
       <MDBox p={0} pb={0}>
         <Card>
           <Grid container spacing={0}>

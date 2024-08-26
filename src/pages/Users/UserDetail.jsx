@@ -1,8 +1,8 @@
 import FormControl from "@mui/material/FormControl";
-import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
+import MenuItem from "@mui/material/MenuItem";
 import { DataGrid } from "@mui/x-data-grid";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import MDButton from "@/components/MDButton";
 import MDInput from "@/components/MDInput";
@@ -10,11 +10,11 @@ import MDTypography from "@/components/MDTypography";
 import OLabAlert from "@/components/OLabAlert";
 
 // Data
-import groupRoleTableLayout from "./groupRoleTableLayout";
-import defaultUser from "./defaultUser";
 import { useAuth } from "../../hooks/useAuth";
-import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 import { postUser } from "../../services/api";
+import { Log, LogEnable, LogError, LogInfo } from "../../utils/Logger";
+import defaultUser from "./defaultUser";
+import groupRoleTableLayout from "./groupRoleTableLayout";
 
 export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
   const [formUser, setFormUser] = useState({
