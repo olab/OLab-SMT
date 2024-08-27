@@ -140,21 +140,36 @@ async function getNodes(token, mapId) {
   return data;
 }
 
-async function postUser( token, user ) {
+async function postUser(token, user) {
 
   let url = `${config.API_URL}/auth/edituser`;
   const data = await internetJsonFetch("PUT", url, user, {
     Authorization: `Bearer ${token}`,
   });
 
-  return data;  
+  return data;
+}
+
+async function deleteUser(token, ids) {
+
+  let body = [];
+  for (const id of ids) {
+    body.push({id: id});
+  }
+
+  let url = `${config.API_URL}/auth/deleteuser`;
+  const data = await internetJsonFetch("POST", url, body, {
+    Authorization: `Bearer ${token}`,
+  });
+
+  return data;
 }
 
 async function getAcls(
-  token, 
-  groupId, 
-  roleId, 
-  mapIds, 
+  token,
+  groupId,
+  roleId,
+  mapIds,
   nodeIds) {
 
   let url = `${config.API_URL}/acls`;
@@ -170,21 +185,21 @@ async function getAcls(
   return data;
 }
 
-async function putAcl( 
+async function putAcl(
   token,
   acl
 ) {
   return acl;
 }
 
-async function deleteAcl( 
+async function deleteAcl(
   token,
   acl
 ) {
   return acl;
 }
 
-async function postAcl( 
+async function postAcl(
   token,
   acl
 ) {
@@ -192,15 +207,16 @@ async function postAcl(
 }
 
 export {
-  loginUserAsync,
+  deleteAcl,
+  deleteUser,
+  getAcls,
   getGroups,
-  getRoles,
-  getUsers,
-  postUser,
   getMaps,
   getNodes,
-  getAcls,
+  getRoles,
+  getUsers,
+  loginUserAsync,
+  postAcl,
+  postUser,
   putAcl,
-  deleteAcl,
-  postAcl
 };

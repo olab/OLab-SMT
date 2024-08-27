@@ -18,7 +18,7 @@ import { useState, useEffect } from "react";
 // Data
 import userTableLayout from "./userTableLayout";
 import defaultUser from "./defaultUser";
-import { getUsers, getGroups, getRoles } from "../../services/api";
+import { getUsers, getGroups, getRoles, deleteUser } from "../../services/api";
 import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 import { UserDetail } from "./UserDetail";
@@ -66,7 +66,7 @@ export const UserPage = () => {
     });
   };
 
-  const onDeleteClicked = () => {
+  const onDeleteUserClicked = () => {
     Log("delete clicked");
     Log(JSON.stringify(selection));
     setConfirmDialog({
@@ -83,6 +83,13 @@ export const UserPage = () => {
   };
 
   const deleteSelectedUsers = () => {
+
+    deleteUser(user.authInfo.token, selection).then((response) => {
+      Log(`deleted ${selection.length} users.  ${JSON.stringify(response, null, 1)}`);
+    }); 
+
+    // get non-deleted users from table
+    // and use for new table contents
     const newRows = tableData.filter(
       (user) => !selection.includes(user.id)
     );
@@ -170,7 +177,7 @@ export const UserPage = () => {
                     >
                       <Grid item xs={12}>
                         <MDButton
-                          onClick={onDeleteClicked}
+                          onClick={onDeleteUserClicked}
                           color="secondary"
                           variant="contained"
                           size="small"
