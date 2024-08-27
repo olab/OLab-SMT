@@ -3,6 +3,7 @@ import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import Tooltip from "@mui/material/Tooltip";
+import CircularProgress from "@mui/material/CircularProgress";
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import { useState, useEffect } from "react";
 
@@ -37,6 +38,8 @@ export const AclQuery = ({
   const [mapTableData, setMapTableData] = useState([]);
   const [nodeTableData, setNodeTableData] = useState([]);
   const [queryState, setQueryState] = useState(initialState);
+  const [mapTableLoading, setMapTableLoading] = useState(true);
+  const [nodeTableLoading, setNodeTableLoading] = useState(false);
 
   const { user } = useAuth();
 
@@ -46,6 +49,7 @@ export const AclQuery = ({
     if (mapTableData.length == 0) {
       getMaps(user.authInfo.token).then((response) => {
         setMapTableData(response.data);
+        setMapTableLoading(false);
       });
     }
   }, []);
@@ -53,11 +57,11 @@ export const AclQuery = ({
   const onFieldChanged = (ev) => {
     let newState = { ...queryState, [ev.target.name]: ev.target.value };
     setQueryState(newState);
-    onStateChange({ 
+    onStateChange({
       ...newState,
       groupId: newState.groupId == -1 ? null : newState.groupId,
-      roleId: newState.roleId == -1 ? null : newState.roleId,      
-     });
+      roleId: newState.roleId == -1 ? null : newState.roleId,
+    });
   };
 
   const setMapSelection = (ids) => {
@@ -76,19 +80,22 @@ export const AclQuery = ({
     if (ids.length == 0) {
       setNodeTableData([]);
     } else {
+      setNodeTableLoading(true);
       for (const mapId of ids) {
         getNodes(user.authInfo.token, mapId).then((response) => {
           mapNodes = mapNodes.concat(response.data);
           setNodeTableData(mapNodes);
         });
       }
+      setNodeTableLoading(false);
+
     }
 
     setMapSelection(ids);
     onStateChange({
       ...queryState,
       groupId: queryState.groupId == -1 ? null : queryState.groupId,
-      roleId: queryState.roleId == -1 ? null : queryState.roleId,    
+      roleId: queryState.roleId == -1 ? null : queryState.roleId,
       selectedMapIds: ids,
     });
   };
@@ -207,6 +214,7 @@ export const AclQuery = ({
               columns={mapTableLayout.columns}
               onRowSelectionModelChange={onMapSelectionChanged}
               checkboxSelection
+              loading={mapTableLoading}
               {...tableLayout}
             />
           </MDBox>

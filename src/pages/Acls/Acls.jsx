@@ -1,14 +1,10 @@
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
-import FormControl from "@mui/material/FormControl";
-import MenuItem from "@mui/material/MenuItem";
-import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip from "@mui/material/Tooltip";
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import { useState, useEffect } from "react";
 
 import MDBox from "@/components/MDBox";
-import MDInput from "@/components/MDInput";
 import MDTypography from "@/components/MDTypography";
 import DashboardLayout from "@/components/DashboardLayout";
 import MDButton from "@/components/MDButton";
@@ -25,13 +21,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 
 // Data
-import {
-  getAcls,
-  getMaps,
-  getNodes,
-  getGroups,
-  getRoles,
-} from "../../services/api";
+import { getAcls, getMaps, getGroups, getRoles } from "../../services/api";
 
 export const AclPage = () => {
   const [aclSelectionIds, setAclSelection] = useState([]);
@@ -42,7 +32,6 @@ export const AclPage = () => {
 
   const [groups, setGroups] = useState([]);
   const [groupId, setGroupId] = useState(-1);
-  const [loading, setLoading] = useState(true);
   const [aclTableLoading, setAclTableLoading] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState(null);
 
@@ -58,32 +47,27 @@ export const AclPage = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    getMaps(user.authInfo.token).then((response) => {
-      const maps = { ...mapTableLayout, rows: response.data };
-      setMapTableData(maps);
+    let newAclTableColumns = [...aclTableColumns];
 
-      let newAclTableColumns = [...aclTableColumns];
+    // dynamically create group/role select list based on
+    // results of database requests
+    getGroups(user.authInfo.token).then((response) => {
+      setGroups(response.data);
 
-      getGroups(user.authInfo.token).then((response) => {
-        setGroups(response.data);
+      let columnDef = newAclTableColumns.filter(
+        (column) => column.field == "groupName"
+      );
+      columnDef.valueOptions = groups;
+
+      getRoles(user.authInfo.token).then((response) => {
+        setRoles(response.data);
 
         let columnDef = newAclTableColumns.filter(
-          (column) => column.field == "groupName"
+          (column) => column.field == "roleName"
         );
-        columnDef.valueOptions = groups;
+        columnDef.valueOptions = roles;
 
-        getRoles(user.authInfo.token).then((response) => {
-          setRoles(response.data);
-
-          let columnDef = newAclTableColumns.filter(
-            (column) => column.field == "roleName"
-          );
-          columnDef.valueOptions = roles;
-
-          setAclTableColumns(newAclTableColumns);
-
-          setLoading(false);
-        });
+        setAclTableColumns(newAclTableColumns);
       });
     });
   }, []);
@@ -124,10 +108,32 @@ export const AclPage = () => {
       },
       onConfirmClicked: () => {
         setConfirmDialog(null);
-        // deleteSelectedAcls();
+        saveChangedAcls();
       },
     });
   };
+
+  const saveChangedAcls = () => {
+    for (const aclTableRow of aclTableRows) {
+      if (aclTableRow.id < 0) {
+        Log(`acl id: ${aclTableRow.id} added`);
+        continue;
+      }
+
+      if (aclTableRow.status == 2) {
+        Log(`acl id: ${aclTableRow.id} edited`);
+        continue;
+      }
+
+      if (aclTableRow.status == 3) {
+        Log(`acl id: ${aclTableRow.id} deleted`);
+        continue;
+      }
+
+      Log(`acl id: ${aclTableRow.id} unchanged`);
+    }
+  };
+
   const onClearAclClicked = () => {
     setConfirmDialog({
       title: "Confirmation",
@@ -166,7 +172,7 @@ export const AclPage = () => {
   const onDeleteAclClicked = () => {
     Log("delete clicked");
     Log(JSON.stringify(aclSelectionIds));
-    deleteSelectedAcls();    
+    deleteSelectedAcls();
   };
 
   const deleteSelectedAcls = () => {
@@ -175,12 +181,12 @@ export const AclPage = () => {
     // appear to work
     apiRef.current.setRowSelectionModel([]);
 
-    // set 'deleted' flag in selected records
+    // toggle 'deleted' flag in selected records
     setAclTableRows(
       aclTableRows.map((row) => {
         if (aclSelectionIds.includes(row.id)) {
-          // undelete, if already deleted
-          if ( row.status == 3 ) {
+          // undelete, if already marked deleted
+          if (row.status == 3) {
             return { ...row, status: null };
           }
           return { ...row, status: 3 };
@@ -252,16 +258,6 @@ export const AclPage = () => {
     <ConfirmDialog data={confirmDialog} />;
   }
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <center>
-          <CircularProgress color="inherit" />
-        </center>
-      </DashboardLayout>
-    );
-  }
-
   const onStateChange = (state) => {
     Log(`onStateChange: ${JSON.stringify(state, null, 1)}`);
 
@@ -275,6 +271,10 @@ export const AclPage = () => {
 
     setNodeSelection(state.selectedNodeIds);
     setMapSelection(state.selectedMapIds);
+  };
+
+  const isAclRowSelectedable = (params) => {
+    return ( params.row.groupId != null && params.row.roleId != null );
   };
 
   return (
@@ -313,6 +313,7 @@ export const AclPage = () => {
                   rows={aclTableRows}
                   columns={aclTableColumns}
                   onRowSelectionModelChange={onAclSelectionChanged}
+                  isRowSelectable={isAclRowSelectedable}
                   disableRowSelectionOnClick
                   loading={aclTableLoading}
                   {...tableLayout}
@@ -326,16 +327,18 @@ export const AclPage = () => {
                     justifyContent="center"
                   >
                     <Grid item xs={12}>
-                      <Tooltip title="(Un)delete Selected ACLs">
-                        <MDButton
-                          color="secondary"
-                          variant="contained"
-                          size="small"
-                          onClick={onDeleteAclClicked}
-                        >
-                          Delete
-                        </MDButton>
-                      </Tooltip>
+                      {aclSelectionIds.length > 0 && (
+                        <Tooltip title="(Un)delete Selected ACLs">
+                          <MDButton
+                            color="secondary"
+                            variant="contained"
+                            size="small"
+                            onClick={onDeleteAclClicked}
+                          >
+                            Delete
+                          </MDButton>
+                        </Tooltip>
+                      )}
                       &nbsp;
                       <Tooltip title="Save ACL Table">
                         <MDButton
