@@ -140,6 +140,16 @@ async function getNodes(token, mapId) {
   return data;
 }
 
+async function postUser( token, user ) {
+
+  let url = `${config.API_URL}/auth/edituser`;
+  const data = await internetJsonFetch("PUT", url, user, {
+    Authorization: `Bearer ${token}`,
+  });
+
+  return data;  
+}
+
 async function getAcls(
   token, 
   groupId, 
@@ -160,14 +170,25 @@ async function getAcls(
   return data;
 }
 
-async function postUser( token, user ) {
+async function putAcl( 
+  token,
+  acl
+) {
+  return acl;
+}
 
-  let url = `${config.API_URL}/auth/edituser`;
-  const data = await internetJsonFetch("PUT", url, user, {
-    Authorization: `Bearer ${token}`,
-  });
+async function deleteAcl( 
+  token,
+  acl
+) {
+  return acl;
+}
 
-  return data;  
+async function postAcl( 
+  token,
+  acl
+) {
+  return acl;
 }
 
 export {
@@ -178,5 +199,8 @@ export {
   postUser,
   getMaps,
   getNodes,
-  getAcls
+  getAcls,
+  putAcl,
+  deleteAcl,
+  postAcl
 };

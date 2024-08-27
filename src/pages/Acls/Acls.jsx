@@ -21,7 +21,14 @@ import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 
 // Data
-import { getAcls, getMaps, getGroups, getRoles } from "../../services/api";
+import {
+  deleteAcl,
+  getAcls,
+  getGroups,
+  getRoles,
+  postAcl,
+  putAcl,
+} from "../../services/api";
 
 export const AclPage = () => {
   const [aclSelectionIds, setAclSelection] = useState([]);
@@ -116,17 +123,23 @@ export const AclPage = () => {
   const saveChangedAcls = () => {
     for (const aclTableRow of aclTableRows) {
       if (aclTableRow.id < 0) {
-        Log(`acl id: ${aclTableRow.id} added`);
+        postAcl(user.authInfo.token, aclTableRow).then((response) => {
+          Log(`acl id: ${aclTableRow.id} added`);
+        });
         continue;
       }
 
       if (aclTableRow.status == 2) {
-        Log(`acl id: ${aclTableRow.id} edited`);
+        putAcl(user.authInfo.token, aclTableRow).then((response) => {
+          Log(`acl id: ${aclTableRow.id} edited`);
+        });
         continue;
       }
 
       if (aclTableRow.status == 3) {
-        Log(`acl id: ${aclTableRow.id} deleted`);
+        deleteAcl(user.authInfo.token, aclTableRow).then((response) => {
+          Log(`acl id: ${aclTableRow.id} delete`);
+        });
         continue;
       }
 
@@ -274,7 +287,7 @@ export const AclPage = () => {
   };
 
   const isAclRowSelectedable = (params) => {
-    return ( params.row.groupId != null && params.row.roleId != null );
+    return params.row.groupId != null && params.row.roleId != null;
   };
 
   return (
