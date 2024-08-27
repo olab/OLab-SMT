@@ -39,6 +39,7 @@ export const AclPage = () => {
     aclTableLayout.columns
   );
   const [aclTableRows, setAclTableRows] = useState([]);
+
   const [groups, setGroups] = useState([]);
   const [groupId, setGroupId] = useState(-1);
   const [loading, setLoading] = useState(true);
@@ -90,49 +91,19 @@ export const AclPage = () => {
   const refreshAclData = (mapIds = [], nodeIds = []) => {
     setAclTableLoading(true);
 
-    if (mapIds == null) {
-      mapIds = [];
-    }
-
-    if (nodeIds == null) {
-      nodeIds = [];
-    }
-
     Log(`mapIds = ${mapIds}, nodeIds = ${nodeIds}`);
 
-    getAcls(user.authInfo.token, groupId, roleId, mapIds, nodeIds).then(
-      (response) => {
-        setAclTableRows(response.data);
-      }
-    );
+    getAcls(
+      user.authInfo.token,
+      groupId < 0 ? null : groupId,
+      roleId < 0 ? null : roleId,
+      mapIds,
+      nodeIds
+    ).then((response) => {
+      setAclTableRows(response.data);
+    });
 
     setAclTableLoading(false);
-  };
-
-  const onMapSelectionChanged = (selectedMapIds) => {
-    Log(`onMapSelectionChanged ${selectedMapIds}`);
-
-    let mapNodes = [];
-
-    if (selectedMapIds.length == 0) {
-      const nodes = { ...nodeTableLayout };
-      setNodeTableData(nodes);
-    } else {
-      for (const mapId of selectedMapIds) {
-        getNodes(user.authInfo.token, mapId).then((response) => {
-          mapNodes = mapNodes.concat(response.data);
-          const nodes = { ...nodeTableLayout, rows: mapNodes };
-          setNodeTableData(nodes);
-        });
-      }
-    }
-
-    setMapSelection(selectedMapIds);
-  };
-
-  const onNodeSelectionChanged = (selectedNodeIds) => {
-    Log(`onNodeSelectionChanged ${selectedNodeIds}`);
-    setNodeSelection(selectedNodeIds);
   };
 
   const onAclSelectionChanged = (selectedAclIds) => {
@@ -140,59 +111,84 @@ export const AclPage = () => {
     setAclSelection(selectedAclIds);
   };
 
-  const onGroupChanged = (ev) => {
-    setGroupId(ev.target.value);
-  };
-
-  const onRoleChanged = (ev) => {
-    setRoleId(ev.target.value);
-  };
-
   const onLoadAclClicked = () => {
     refreshAclData(selectedMapIds, selectedNodeIds);
   };
 
-  const onSaveAclClicked = () => {};
-  const onClearAclClicked = () => {
-    setAclTableRows([]);
-  };
-
-  const onResetQueryFormClicked = () => {
-    setGroupId(-1);
-    setRoleId(-1);
-    // reset the map selections
-    apiRef.current.setRowSelectionModel([]);
-  };
-
-  const onCellClick = (cell) => {
-    if (cell.field !== "delete") {
-      return;
-    }
-  };
-
-  const onDeleteAclClicked = () => {
-    Log("delete clicked");
-    Log(JSON.stringify(aclSelectionIds));
+  const onSaveAclClicked = () => {
     setConfirmDialog({
-      title: "Delete Confirmation",
-      message: `Delete ${aclSelectionIds.length} ACLs?`,
+      title: "Confirmation",
+      message: `Save ACL Changes?`,
       onCancelClicked: () => {
         setConfirmDialog(null);
       },
       onConfirmClicked: () => {
         setConfirmDialog(null);
-        deleteSelectedAcls();
+        // deleteSelectedAcls();
+      },
+    });
+  };
+  const onClearAclClicked = () => {
+    setConfirmDialog({
+      title: "Confirmation",
+      message: `Clear ACL Table?`,
+      onCancelClicked: () => {
+        setConfirmDialog(null);
+      },
+      onConfirmClicked: () => {
+        setConfirmDialog(null);
+        setAclTableRows([]);
       },
     });
   };
 
-  const deleteSelectedAcls = () => {
-    const newRows = aclTableRows.filter(
-      (acl) => !aclSelectionIds.includes(acl.id)
-    );
+  const onCellClick = (cell) => {
+    if (
+      cell.field !== "read" &&
+      cell.field !== "write" &&
+      cell.field !== "execute"
+    ) {
+      return;
+    }
 
-    setAclTableRows(newRows);
-    apiRef.current.forceUpdate();
+    // set 'changed' flag in record
+    setAclTableRows(
+      aclTableRows.map((row) => {
+        if (row.id === cell.row.id) {
+          return { ...row, status: 2 };
+        } else {
+          return row;
+        }
+      })
+    );
+  };
+
+  const onDeleteAclClicked = () => {
+    Log("delete clicked");
+    Log(JSON.stringify(aclSelectionIds));
+    deleteSelectedAcls();    
+  };
+
+  const deleteSelectedAcls = () => {
+    // reset the map selections manually
+    // since settings the model doesn't
+    // appear to work
+    apiRef.current.setRowSelectionModel([]);
+
+    // set 'deleted' flag in selected records
+    setAclTableRows(
+      aclTableRows.map((row) => {
+        if (aclSelectionIds.includes(row.id)) {
+          // undelete, if already deleted
+          if ( row.status == 3 ) {
+            return { ...row, status: null };
+          }
+          return { ...row, status: 3 };
+        } else {
+          return row;
+        }
+      })
+    );
   };
 
   const onCreateAclClicked = () => {
@@ -212,8 +208,8 @@ export const AclPage = () => {
     let newAclRows = [...aclTableRows];
     let index = nextIndex;
 
-    if (selectedNodes.length > 0) {
-      for (const selectedNode of selectedNodes) {
+    if (selectedNodeIds.length > 0) {
+      for (const selectedNodeId of selectedNodeIds) {
         const newRecord = {
           execute: false,
           read: false,
@@ -221,7 +217,7 @@ export const AclPage = () => {
           objectType: "Nodes",
           id: index--,
           groupId: selectedGroup.length == 0 ? 0 : selectedGroup[0].id,
-          objectIndex: selectedNode.id,
+          objectIndex: selectedNodeId,
           roleId: selectedRole.length == 0 ? 0 : selectedRole[0].id,
           groupName: selectedGroup.length == 0 ? "*" : selectedGroup[0].name,
           roleName: selectedRole.length == 0 ? "*" : selectedRole[0].name,
@@ -229,8 +225,8 @@ export const AclPage = () => {
 
         newAclRows.push(newRecord);
       }
-    } else if (selectedMaps.length > 0) {
-      for (const selectedMap of selectedMaps) {
+    } else if (selectedMapIds.length > 0) {
+      for (const selectedMapId of selectedMapIds) {
         const newRecord = {
           execute: false,
           read: false,
@@ -238,7 +234,7 @@ export const AclPage = () => {
           objectType: "Maps",
           id: index--,
           groupId: selectedGroup.length == 0 ? 0 : selectedGroup[0].id,
-          objectIndex: selectedMap.id,
+          objectIndex: selectedMapId,
           roleId: selectedRole.length == 0 ? 0 : selectedRole[0].id,
           groupName: selectedGroup.length == 0 ? "*" : selectedGroup[0].name,
           roleName: selectedRole.length == 0 ? "*" : selectedRole[0].name,
@@ -267,8 +263,19 @@ export const AclPage = () => {
   }
 
   const onStateChange = (state) => {
-    Log(JSON.stringify(state, null, 1));
-  }
+    Log(`onStateChange: ${JSON.stringify(state, null, 1)}`);
+
+    if (state.groupId != groupId) {
+      setGroupId(state.groupId);
+    }
+
+    if (state.roleId != roleId) {
+      setRoleId(state.roleId);
+    }
+
+    setNodeSelection(state.selectedNodeIds);
+    setMapSelection(state.selectedMapIds);
+  };
 
   return (
     <DashboardLayout>
@@ -288,171 +295,20 @@ export const AclPage = () => {
           setRoleId={setRoleId}
           onStateChange={onStateChange}
           onLoadAclClicked={onLoadAclClicked}
-          onCreateAclClicked={onCreateAclClicked} />
+          onCreateAclClicked={onCreateAclClicked}
+        />
       </MDBox>
 
       <MDBox p={0} pb={0}>
-        <Card>
-          <Grid container spacing={0}>
-            <Grid item xs={12}>
-              <MDBox p={3} pb={0} lineHeight={0}>
-                <MDTypography variant="h6" fontWeight="medium">
-                  Query Form
-                </MDTypography>
-              </MDBox>
-            </Grid>
-            <Grid item xs={12}>
-              <MDBox p={3} lineHeight={0}>
-                <Grid container spacing={3}>
-                  <Grid item xs={6}>
-                    <FormControl variant="filled" sx={{ width: "100%" }}>
-                      <MDInput
-                        select
-                        label="Group"
-                        id="group-select-filled"
-                        value={groupId}
-                        onChange={onGroupChanged}
-                        variant="outlined"
-                        InputProps={{
-                          classes: { root: "select-input-styles" },
-                        }}
-                        size="large"
-                      >
-                        <MenuItem value="-1">
-                          <em>-- Select --</em>
-                        </MenuItem>
-                        <MenuItem value="0">
-                          <em>*</em>
-                        </MenuItem>
-                        {groups.map((item) => {
-                          return (
-                            <MenuItem key={item.id} value={item.id}>
-                              {item.name}
-                            </MenuItem>
-                          );
-                        })}
-                      </MDInput>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <FormControl sx={{ width: "100%" }} variant="filled">
-                      <MDInput
-                        select
-                        label="Role"
-                        id="role-select-filled"
-                        value={roleId}
-                        onChange={onRoleChanged}
-                        variant="outlined"
-                        InputProps={{
-                          classes: { root: "select-input-styles" },
-                        }}
-                        size="large"
-                      >
-                        <MenuItem value="-1">
-                          <em>-- Select --</em>
-                        </MenuItem>
-                        <MenuItem value="0">
-                          <em>*</em>
-                        </MenuItem>
-                        {roles.map((item) => {
-                          return (
-                            <MenuItem key={item.id} value={item.id}>
-                              {item.name}
-                            </MenuItem>
-                          );
-                        })}
-                      </MDInput>
-                    </FormControl>
-                  </Grid>
-                </Grid>
-              </MDBox>
-            </Grid>
-            <Grid item xs={6}>
-              <MDBox p={3} pt={0} lineHeight={0}>
-                <MDTypography variant="h6" fontWeight="medium">
-                  Maps
-                </MDTypography>
-                <DataGrid
-                  apiRef={apiRef}
-                  rows={mapTableData.rows}
-                  columns={mapTableData.columns}
-                  onRowSelectionModelChange={onMapSelectionChanged}
-                  checkboxSelection
-                  {...tableLayout}
-                />
-              </MDBox>
-            </Grid>
-            <Grid item xs={6}>
-              <MDBox p={3} pt={0} lineHeight={0}>
-                <MDTypography variant="h6" fontWeight="medium">
-                  Nodes
-                </MDTypography>
-                <DataGrid
-                  rows={nodeTableData.rows}
-                  columns={nodeTableData.columns}
-                  onRowSelectionModelChange={onNodeSelectionChanged}
-                  checkboxSelection
-                  {...tableLayout}
-                />
-              </MDBox>
-            </Grid>
-            <Grid item xs={12}>
-              <MDBox pb={3} lineHeight={0}>
-                <Grid
-                  container
-                  spacing={0}
-                  direction="column"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Grid item xs={12}>
-                    <Tooltip title="Query ACLs using Query Form">
-                      <MDButton
-                        color="secondary"
-                        variant="contained"
-                        size="small"
-                        onClick={onLoadAclClicked}
-                      >
-                        Query ACLs
-                      </MDButton>
-                    </Tooltip>
-                    &nbsp;
-                    <Tooltip title="Create ACLs from Query Form">
-                      <MDButton
-                        color="secondary"
-                        variant="contained"
-                        size="small"
-                        onClick={onCreateAclClicked}
-                      >
-                        Create ACLs
-                      </MDButton>
-                    </Tooltip>
-                    &nbsp;
-                    <Tooltip title="Reset Query Form">
-                      <MDButton
-                        color="secondary"
-                        variant="contained"
-                        size="small"
-                        onClick={onResetQueryFormClicked}
-                      >
-                        Reset
-                      </MDButton>
-                    </Tooltip>
-                  </Grid>
-                </Grid>
-              </MDBox>
-            </Grid>
-          </Grid>
-        </Card>
-        <br />
         <Grid container spacing={0}>
           <Grid item xs={12}>
             <Card>
               <MDBox p={3} lineHeight={0}>
                 <MDTypography variant="h6" fontWeight="medium">
-                  Aaccess Control Lists (ACL)
+                  Access Control Lists (ACL)
                 </MDTypography>
                 <DataGrid
+                  apiRef={apiRef}
                   onCellClick={onCellClick}
                   rows={aclTableRows}
                   columns={aclTableColumns}
@@ -460,6 +316,7 @@ export const AclPage = () => {
                   disableRowSelectionOnClick
                   loading={aclTableLoading}
                   {...tableLayout}
+                  rowHeight={30}
                 />
                 <MDBox pt={3} lineHeight={0}>
                   <Grid
@@ -469,7 +326,7 @@ export const AclPage = () => {
                     justifyContent="center"
                   >
                     <Grid item xs={12}>
-                      <Tooltip title="Delete Selected ACLs">
+                      <Tooltip title="(Un)delete Selected ACLs">
                         <MDButton
                           color="secondary"
                           variant="contained"
@@ -480,7 +337,7 @@ export const AclPage = () => {
                         </MDButton>
                       </Tooltip>
                       &nbsp;
-                      <Tooltip title="Save ACLs">
+                      <Tooltip title="Save ACL Table">
                         <MDButton
                           color="secondary"
                           variant="contained"
@@ -491,7 +348,7 @@ export const AclPage = () => {
                         </MDButton>
                       </Tooltip>
                       &nbsp;
-                      <Tooltip title="Clear ACLs">
+                      <Tooltip title="Clear ACL Table">
                         <MDButton
                           color="secondary"
                           variant="contained"

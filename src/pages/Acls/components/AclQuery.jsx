@@ -25,8 +25,6 @@ const initialState = {
   roleId: -1,
   selectedMapIds: [],
   selectedNodeIds: [],
-  mapIds: [],
-  nodeIds: [],
 };
 
 export const AclQuery = ({
@@ -50,13 +48,16 @@ export const AclQuery = ({
         setMapTableData(response.data);
       });
     }
-  }, [queryState]);
+  }, []);
 
   const onFieldChanged = (ev) => {
-    let newState = { ...queryState, [ev.target.name]: ev.target.value }; 
+    let newState = { ...queryState, [ev.target.name]: ev.target.value };
     setQueryState(newState);
-    onStateChange(newState);
-
+    onStateChange({ 
+      ...newState,
+      groupId: newState.groupId == -1 ? null : newState.groupId,
+      roleId: newState.roleId == -1 ? null : newState.roleId,      
+     });
   };
 
   const setMapSelection = (ids) => {
@@ -84,11 +85,23 @@ export const AclQuery = ({
     }
 
     setMapSelection(ids);
+    onStateChange({
+      ...queryState,
+      groupId: queryState.groupId == -1 ? null : queryState.groupId,
+      roleId: queryState.roleId == -1 ? null : queryState.roleId,    
+      selectedMapIds: ids,
+    });
   };
 
   const onNodeSelectionChanged = (ids) => {
     Log(`onNodeSelectionChanged ${ids}`);
     setNodeSelection(ids);
+    onStateChange({
+      ...queryState,
+      groupId: queryState.groupId == -1 ? null : queryState.groupId,
+      roleId: queryState.roleId == -1 ? null : queryState.roleId,
+      selectedNodeIds: ids,
+    });
   };
 
   const onResetQueryFormClicked = () => {
@@ -98,7 +111,11 @@ export const AclQuery = ({
     apiRef.current.setRowSelectionModel([]);
 
     setQueryState({ ...initialState });
-    onStateChange({ ...initialState });
+    onStateChange({
+      ...initialState,
+      groupId: null,
+      roleId: null,
+    });
   };
 
   return (

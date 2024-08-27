@@ -9,8 +9,8 @@ const AclChangeStatusCell = (props) => {
       {props.value == null && (
         <></>
       )}
-      {props.value == 1 && (
-        <Tooltip title="To Be Added">
+      {props.row.id < 0 && (
+        <Tooltip title="Added">
           <AddIcon />
         </Tooltip>
       )}
