@@ -1,5 +1,5 @@
 const defaultUser = {
-  id: -1,
+  id: 0,
   userName: "",
   nickName: "",
   password: "",

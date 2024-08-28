@@ -1,6 +1,7 @@
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
+import Tooltip from "@mui/material/Tooltip";
 import { DataGrid } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 
@@ -36,12 +37,11 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
       enhanceGroupRole(role);
     }
 
-    setFormUser(selectedUser);    
+    setFormUser(selectedUser);
     setOriginalUser(selectedUser);
     Log(JSON.stringify(selectedUser, null, 2));
 
     resetForm();
-
   }, [selectedUser]);
 
   const resetForm = () => {
@@ -50,7 +50,7 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
     setIsChanged(false);
     setShowPassword(false);
     setAlertMessage(null);
-  }
+  };
 
   const enhanceGroupRole = (groupRole) => {
     groupRole.group = groups.find(
@@ -148,8 +148,25 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
     setIsChanged(true);
   };
 
-  const onSaveClicked = () => {
+  const onCloneClicked = () => {
+    const newPassword = generatePassword();
 
+    let cloneUser = {
+      ...formUser,
+      id: 0,
+      userName: "",
+      nickName: "",
+      email: "",
+      password: newPassword,
+      verifypassword: newPassword,
+    };
+
+    setShowPassword(true);
+    setFormUser(cloneUser);
+    setIsChanged(true);
+  };
+
+  const onSaveClicked = () => {
     setAlertMessage(`Saving user...`);
 
     var apiUser = {
@@ -166,17 +183,27 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
       roleParts.push(`${role.group}:${role.role}`);
     }
 
-    apiUser.GroupRoles = roleParts.join(',');
+    apiUser.GroupRoles = roleParts.join(",");
 
     Log(JSON.stringify(apiUser, null, 2));
 
-    postUser(user.authInfo.token, apiUser).then((response) => {
-      setOriginalUser(formUser);
-      setIsChanged(false);
-      setAlertMessage(`User '${formUser.nickName}' saved`);
+    if (formUser.id > 0) {
+      putUser(user.authInfo.token, apiUser).then((response) => {
+        setOriginalUser(formUser);
+        setIsChanged(false);
+        setAlertMessage(`User '${formUser.nickName}' saved`);
 
-      onUserChanged(formUser);
-    });
+        onUserChanged(formUser);
+      });
+    } else {
+      postUser(user.authInfo.token, apiUser).then((response) => {
+        setOriginalUser(formUser);
+        setIsChanged(false);
+        setAlertMessage(`User '${formUser.nickName}' created`);
+
+        onUserChanged(formUser);
+      });
+    }
   };
 
   const onGenerateClicked = () => {
@@ -222,6 +249,7 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
             type="text"
             variant="outlined"
             value={formUser.userName}
+            error={formUser.userName == ""}
             onChange={(e) => onFieldChange(e)}
           />
         </Grid>
@@ -234,6 +262,7 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
             type="text"
             variant="outlined"
             value={formUser.nickName}
+            error={formUser.nickName == ""}
             onChange={(e) => onFieldChange(e)}
           />
         </Grid>
@@ -246,6 +275,7 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
             type="text"
             variant="outlined"
             value={formUser.email}
+            error={formUser.email == ""}
             onChange={(e) => onFieldChange(e)}
           />
         </Grid>
@@ -422,37 +452,56 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
             justifyContent="center"
           >
             <Grid item xs={12}>
+              {formUser.id > 0 && (
+                <Tooltip title="Clone Current User">
+                  <MDButton
+                    color="secondary"
+                    variant="contained"
+                    size="small"
+                    onClick={onCloneClicked}
+                  >
+                    Clone
+                  </MDButton>
+                </Tooltip>
+              )}
+              &nbsp;
               {isChanged && (
                 <>
-                  <MDButton
-                    color="secondary"
-                    variant="contained"
-                    size="small"
-                    onClick={onSaveClicked}
-                  >
-                    Save
-                  </MDButton>
+                  <Tooltip title="Save User">
+                    <MDButton
+                      color="secondary"
+                      variant="contained"
+                      size="small"
+                      onClick={onSaveClicked}
+                    >
+                      Save
+                    </MDButton>
+                  </Tooltip>
                   &nbsp;
-                  <MDButton
-                    color="secondary"
-                    variant="contained"
-                    size="small"
-                    onClick={onRevertClicked}
-                  >
-                    Revert
-                  </MDButton>
+                  <Tooltip title="Revert User">
+                    <MDButton
+                      color="secondary"
+                      variant="contained"
+                      size="small"
+                      onClick={onRevertClicked}
+                    >
+                      Revert
+                    </MDButton>
+                  </Tooltip>
                 </>
               )}
               <>
                 &nbsp;
-                <MDButton
-                  color="secondary"
-                  variant="contained"
-                  size="small"
-                  onClick={onClearClicked}
-                >
-                  Clear
-                </MDButton>
+                <Tooltip title="Clear User Form">
+                  <MDButton
+                    color="secondary"
+                    variant="contained"
+                    size="small"
+                    onClick={onClearClicked}
+                  >
+                    Clear
+                  </MDButton>
+                </Tooltip>
               </>
             </Grid>
           </Grid>

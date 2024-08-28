@@ -140,7 +140,7 @@ async function getNodes(token, mapId) {
   return data;
 }
 
-async function postUser(token, user) {
+async function putUser(token, user) {
 
   let url = `${config.API_URL}/auth/edituser`;
   const data = await internetJsonFetch("PUT", url, user, {
@@ -149,6 +149,17 @@ async function postUser(token, user) {
 
   return data;
 }
+
+async function postUser(token, user) {
+
+  let url = `${config.API_URL}/auth/adduser`;
+  const data = await internetJsonFetch("POST", url, user, {
+    Authorization: `Bearer ${token}`,
+  });
+
+  return data;
+}
+
 
 async function deleteUser(token, ids) {
 
@@ -219,4 +230,5 @@ export {
   postAcl,
   postUser,
   putAcl,
+  putUser,
 };
