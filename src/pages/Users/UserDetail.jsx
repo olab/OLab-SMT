@@ -39,8 +39,10 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
   const { user } = useAuth();
 
   useEffect(() => {
-    selectedUser.password = DefaultUserPassword;
-    selectedUser.verifypassword = DefaultUserPassword;
+    if (selectedUser.id != 0) {
+      selectedUser.password = DefaultUserPassword;
+      selectedUser.verifypassword = DefaultUserPassword;
+    }
 
     // enhance group role object with group/role names
     for (const role of selectedUser.roles) {
@@ -249,14 +251,11 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
 
   const onStatusCloseClicked = () => {
     setStatusMessage(null);
-  }
+  };
 
   return (
     <form onSubmit={onSubmit}>
-      
-      <OLabAlert onClose={onStatusCloseClicked}>
-        {statusMessage}
-      </OLabAlert>
+      <OLabAlert onClose={onStatusCloseClicked}>{statusMessage}</OLabAlert>
 
       <MDTypography variant="h6" fontWeight="medium">
         User Detail
@@ -356,11 +355,7 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
           </>
         )}
         <Grid item xs={2}>
-          <MDButton
-            onClick={onGenerateClicked}
-          >
-            Generate
-          </MDButton>
+          <MDButton onClick={onGenerateClicked}>Generate</MDButton>
         </Grid>
 
         <Grid item xs={12}>
@@ -420,11 +415,7 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
         </Grid>
         <Grid item xs={2}>
           {groupId > 0 && roleId > 0 && (
-            <MDButton
-              onClick={onAddGroupRoleClicked}
-            >
-              Add
-            </MDButton>
+            <MDButton onClick={onAddGroupRoleClicked}>Add</MDButton>
           )}
         </Grid>
 
@@ -458,41 +449,25 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
             <Grid item xs={12}>
               {formUser.id > 0 && (
                 <Tooltip title="Clone Current User">
-                  <MDButton
-                    onClick={onCloneClicked}
-                  >
-                    Clone
-                  </MDButton>
+                  <MDButton onClick={onCloneClicked}>Clone</MDButton>
                 </Tooltip>
               )}
               &nbsp;
               {isChanged && (
                 <>
                   <Tooltip title="Save User">
-                    <MDButton
-                      onClick={onSaveClicked}
-                    >
-                      Save
-                    </MDButton>
+                    <MDButton onClick={onSaveClicked}>Save</MDButton>
                   </Tooltip>
                   &nbsp;
                   <Tooltip title="Revert User">
-                    <MDButton
-                      onClick={onRevertClicked}
-                    >
-                      Revert
-                    </MDButton>
+                    <MDButton onClick={onRevertClicked}>Revert</MDButton>
                   </Tooltip>
                 </>
               )}
               <>
                 &nbsp;
                 <Tooltip title="Clear User Form">
-                  <MDButton
-                    onClick={onClearClicked}
-                  >
-                    Clear
-                  </MDButton>
+                  <MDButton onClick={onClearClicked}>Clear</MDButton>
                 </Tooltip>
               </>
             </Grid>
