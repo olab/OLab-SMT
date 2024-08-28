@@ -147,7 +147,6 @@ export const AclQuery = ({
                     id="group-select-filled"
                     value={queryState.groupId}
                     onChange={onFieldChanged}
-                    variant="outlined"
                     InputProps={{
                       classes: { root: "select-input-styles" },
                     }}
@@ -178,7 +177,6 @@ export const AclQuery = ({
                     id="role-select-filled"
                     value={queryState.roleId}
                     onChange={onFieldChanged}
-                    variant="outlined"
                     InputProps={{
                       classes: { root: "select-input-styles" },
                     }}
@@ -245,9 +243,6 @@ export const AclQuery = ({
               <Grid item xs={12}>
                 <Tooltip title="Query ACLs using Query Form">
                   <MDButton
-                    color="secondary"
-                    variant="contained"
-                    size="small"
                     onClick={onLoadAclClicked}
                   >
                     Query ACLs
@@ -256,9 +251,6 @@ export const AclQuery = ({
                 &nbsp;
                 <Tooltip title="Create ACLs from Query Form">
                   <MDButton
-                    color="secondary"
-                    variant="contained"
-                    size="small"
                     onClick={onCreateAclClicked}
                   >
                     Create ACLs
@@ -267,9 +259,6 @@ export const AclQuery = ({
                 &nbsp;
                 <Tooltip title="Reset Query Form">
                   <MDButton
-                    color="secondary"
-                    variant="contained"
-                    size="small"
                     onClick={onResetQueryFormClicked}
                   >
                     Reset

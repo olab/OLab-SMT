@@ -1,14 +1,30 @@
-import MDAlert from "@/components/MDAlert";
+import Snackbar from "@mui/material/Snackbar";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import { Fragment } from "react";
 
-function OLabAlert({ color, children }) {
+function OLabAlert({ onClose, children}) {
 
-  if ( children == null ) {
-    return (<></>);
-  }
+  const progressAction = (
+    <Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        onClick={onClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </Fragment>
+  );
+
   return (
-    <MDAlert color={color} dismissible>
-      {children}
-    </MDAlert>
+    <Snackbar
+      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      open={children != null}
+      onClose={onClose}
+      message={children}
+      action={progressAction}
+    />
   );
 }
 

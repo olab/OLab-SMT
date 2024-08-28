@@ -7,6 +7,7 @@ import MDBox from "@/components/MDBox";
 import MDTypography from "@/components/MDTypography";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import MDButton from "@/components/MDButton";
+import OLabAlert from "@/components/OLabAlert";
 
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 
@@ -28,13 +29,14 @@ export const UserPage = () => {
     ...defaultUser,
     verifypassword: defaultUser.password,
   });
-  const [selection, setSelection] = useState([]);
+  const [confirmDialog, setConfirmDialog] = useState(null);
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [roles, setRoles] = useState([]);
+  const [selection, setSelection] = useState([]);
+  const [statusMessage, setStatusMessage] = useState(null);
   const [tableData, setTableData] = useState([]);
   const { user } = useAuth();
-  const [confirmDialog, setConfirmDialog] = useState(null);
   const apiRef = useGridApiRef();
 
   LogEnable();
@@ -83,19 +85,23 @@ export const UserPage = () => {
   };
 
   const deleteSelectedUsers = () => {
-
     deleteUser(user.authInfo.token, selection).then((response) => {
-      Log(`deleted ${selection.length} users.  ${JSON.stringify(response, null, 1)}`);
-    }); 
+      Log(
+        `deleted ${selection.length} users.  ${JSON.stringify(
+          response,
+          null,
+          1
+        )}`
+      );
+    });
 
     // get non-deleted users from table
     // and use for new table contents
-    const newRows = tableData.filter(
-      (user) => !selection.includes(user.id)
-    );
+    const newRows = tableData.filter((user) => !selection.includes(user.id));
 
     setTableData(newRows);
     apiRef.current.forceUpdate();
+    setStatusMessage("Users deleted");
   };
 
   if (loading) {
@@ -111,8 +117,7 @@ export const UserPage = () => {
   // fires if user detail page changed something that
   // requires updating the user list
   const onUserChanged = (user) => {
-
-    let newTableData = [ ...tableData ];
+    let newTableData = [...tableData];
 
     let targetIndex = -1;
     for (let index = 0; index < newTableData.length; index++) {
@@ -121,16 +126,21 @@ export const UserPage = () => {
         break;
       }
     }
-    
+
     newTableData[targetIndex] = user;
 
     setTableData(newTableData);
 
-    Log('user list updated from user detail change');
+    Log("user list updated from user detail change");
   };
+
+  const onStatusCloseClicked = () => {
+    setStatusMessage(null);
+  }
 
   return (
     <DashboardLayout>
+      <OLabAlert onClose={onStatusCloseClicked}>{statusMessage}</OLabAlert>
       {confirmDialog != null && (
         <ConfirmDialog
           title={confirmDialog.title}
@@ -178,9 +188,6 @@ export const UserPage = () => {
                       <Grid item xs={12}>
                         <MDButton
                           onClick={onDeleteUserClicked}
-                          color="secondary"
-                          variant="contained"
-                          size="small"
                         >
                           Delete
                         </MDButton>
@@ -219,18 +226,12 @@ export const UserPage = () => {
                 <>
                   <MDButton
                     onClick={onAddClicked}
-                    color="secondary"
-                    variant="contained"
-                    size="small"
                   >
                     Import
                   </MDButton>
                   &nbsp;
                   <MDButton
                     onClick={onAddClicked}
-                    color="secondary"
-                    variant="contained"
-                    size="small"
                   >
                     Export
                   </MDButton>

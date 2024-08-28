@@ -25,7 +25,7 @@ import MDButtonRoot from "@/components/MDButton/MDButtonRoot";
 import { useMaterialUIController } from "@/context";
 
 const MDButton = forwardRef(
-  ({ color, variant, size, circular, iconOnly, children, ...rest }, ref) => {
+  ({ color = "primary", variant = "contained", size = "small", circular = false, iconOnly = false, children, ...rest }, ref) => {
     const [controller] = useMaterialUIController();
     const { darkMode } = controller;
 
@@ -33,7 +33,6 @@ const MDButton = forwardRef(
       <MDButtonRoot
         {...rest}
         ref={ref}
-        color="primary"
         variant={variant === "gradient" ? "contained" : variant}
         size={size}
         ownerState={{ color, variant, size, circular, iconOnly, darkMode }}
@@ -43,15 +42,6 @@ const MDButton = forwardRef(
     );
   }
 );
-
-// Setting default values for the props of MDButton
-MDButton.defaultProps = {
-  size: "medium",
-  variant: "contained",
-  color: "white",
-  circular: false,
-  iconOnly: false,
-};
 
 // Typechecking props for the MDButton
 MDButton.propTypes = {

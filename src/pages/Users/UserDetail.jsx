@@ -2,8 +2,9 @@ import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import Tooltip from "@mui/material/Tooltip";
+
 import { DataGrid } from "@mui/x-data-grid";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 
 import MDButton from "@/components/MDButton";
 import MDInput from "@/components/MDInput";
@@ -12,17 +13,23 @@ import OLabAlert from "@/components/OLabAlert";
 
 // Data
 import { useAuth } from "../../hooks/useAuth";
-import { postUser } from "../../services/api";
+import { postUser, putUser } from "../../services/api";
 import { Log, LogEnable, LogError, LogInfo } from "../../utils/Logger";
 import defaultUser from "./defaultUser";
 import groupRoleTableLayout from "./groupRoleTableLayout";
+
+// this is set in the form when there
+// is a selected user.  something to
+// compare against to test if user
+// changes it
+const DefaultUserPassword = "******";
 
 export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
   const [formUser, setFormUser] = useState({
     ...defaultUser,
     verifypassword: defaultUser.password,
   });
-  const [alertMessage, setAlertMessage] = useState(null);
+  const [statusMessage, setStatusMessage] = useState(null);
   const [originalUser, setOriginalUser] = useState(formUser);
   const [groupId, setGroupId] = useState(0);
   const [nextIndex, setNextIndex] = useState(-1);
@@ -32,6 +39,9 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
   const { user } = useAuth();
 
   useEffect(() => {
+    selectedUser.password = DefaultUserPassword;
+    selectedUser.verifypassword = DefaultUserPassword;
+
     // enhance group role object with group/role names
     for (const role of selectedUser.roles) {
       enhanceGroupRole(role);
@@ -49,7 +59,6 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
     setRoleId(0);
     setIsChanged(false);
     setShowPassword(false);
-    setAlertMessage(null);
   };
 
   const enhanceGroupRole = (groupRole) => {
@@ -94,7 +103,7 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
     );
 
     if (existingRole.length > 0) {
-      setAlertMessage("Group/Role already exists");
+      setStatusMessage("Group/Role already exists");
       return;
     }
 
@@ -167,16 +176,18 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
   };
 
   const onSaveClicked = () => {
-    setAlertMessage(`Saving user...`);
-
     var apiUser = {
       Id: formUser.id,
       UserName: formUser.userName,
-      Password: formUser.password,
       Email: formUser.email,
       NickName: formUser.nickName,
       GroupRoles: [],
     };
+
+    // add the password only if it has been edited
+    if (formUser.password != DefaultUserPassword) {
+      apiUser.Password = formUser.password;
+    }
 
     var roleParts = [];
     for (const role of formUser.roles) {
@@ -187,11 +198,13 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
 
     Log(JSON.stringify(apiUser, null, 2));
 
+    // id > 0 are existing records => edit
+    // else is an add user
     if (formUser.id > 0) {
       putUser(user.authInfo.token, apiUser).then((response) => {
         setOriginalUser(formUser);
         setIsChanged(false);
-        setAlertMessage(`User '${formUser.nickName}' saved`);
+        setStatusMessage(`User '${formUser.nickName}' saved`);
 
         onUserChanged(formUser);
       });
@@ -199,7 +212,7 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
       postUser(user.authInfo.token, apiUser).then((response) => {
         setOriginalUser(formUser);
         setIsChanged(false);
-        setAlertMessage(`User '${formUser.nickName}' created`);
+        setStatusMessage(`User '${formUser.nickName}' created`);
 
         onUserChanged(formUser);
       });
@@ -234,8 +247,17 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
     return retVal;
   };
 
+  const onStatusCloseClicked = () => {
+    setStatusMessage(null);
+  }
+
   return (
     <form onSubmit={onSubmit}>
+      
+      <OLabAlert onClose={onStatusCloseClicked}>
+        {statusMessage}
+      </OLabAlert>
+
       <MDTypography variant="h6" fontWeight="medium">
         User Detail
       </MDTypography>
@@ -246,8 +268,6 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
             required
             id="userName"
             label="User Name"
-            type="text"
-            variant="outlined"
             value={formUser.userName}
             error={formUser.userName == ""}
             onChange={(e) => onFieldChange(e)}
@@ -259,8 +279,6 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
             required
             id="nickName"
             label="Name"
-            type="text"
-            variant="outlined"
             value={formUser.nickName}
             error={formUser.nickName == ""}
             onChange={(e) => onFieldChange(e)}
@@ -272,8 +290,6 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
             required
             id="email"
             label="E-Mail"
-            type="text"
-            variant="outlined"
             value={formUser.email}
             error={formUser.email == ""}
             onChange={(e) => onFieldChange(e)}
@@ -287,9 +303,7 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
                 sx={{ width: "100%" }}
                 id="password"
                 label="Password"
-                type="text"
                 autoComplete="current-password"
-                variant="outlined"
                 value={formUser.password}
                 error={formUser.password !== formUser.verifypassword}
                 onChange={(e) => onFieldChange(e)}
@@ -300,9 +314,7 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
                 sx={{ width: "100%" }}
                 id="verifypassword"
                 label="Verify Password"
-                type="text"
                 autoComplete="current-password"
-                variant="outlined"
                 value={formUser.verifypassword}
                 onChange={(e) => onFieldChange(e)}
               />
@@ -318,9 +330,11 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
                 label="Password"
                 type="password"
                 autoComplete="current-password"
-                variant="outlined"
                 value={formUser.password}
-                error={formUser.password !== formUser.verifypassword}
+                error={
+                  formUser.password !== formUser.verifypassword ||
+                  formUser.password == ""
+                }
                 onChange={(e) => onFieldChange(e)}
               />
             </Grid>
@@ -331,8 +345,11 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
                 label="Verify Password"
                 type="password"
                 autoComplete="current-password"
-                variant="outlined"
                 value={formUser.verifypassword}
+                error={
+                  formUser.password !== formUser.verifypassword ||
+                  formUser.verifypassword == ""
+                }
                 onChange={(e) => onFieldChange(e)}
               />
             </Grid>
@@ -341,32 +358,11 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
         <Grid item xs={2}>
           <MDButton
             onClick={onGenerateClicked}
-            color="secondary"
-            variant="contained"
-            size="small"
           >
             Generate
           </MDButton>
         </Grid>
-        <Grid item xs={12}>
-          <DataGrid
-            onCellClick={onCellClick}
-            rows={formUser.roles}
-            columns={groupRoleTableLayout.columns}
-            rowHeight={30}
-            columnHeaderHeight={30}
-            disableRowSelectionOnClick
-            autoHeight
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: 5,
-                },
-              },
-            }}
-            pageSizeOptions={[5]}
-          />
-        </Grid>
+
         <Grid item xs={12}>
           <MDTypography variant="h6" fontWeight="medium">
             Add Group/Role
@@ -380,11 +376,9 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
               id="group-select-filled"
               value={groupId}
               onChange={onGroupChanged}
-              variant="outlined"
               InputProps={{
                 classes: { root: "select-input-styles" },
               }}
-              size="large"
             >
               <MenuItem value="0">
                 <em>None</em>
@@ -407,11 +401,9 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
               id="role-select-filled"
               value={roleId}
               onChange={onRoleChanged}
-              variant="outlined"
               InputProps={{
                 classes: { root: "select-input-styles" },
               }}
-              size="large"
             >
               <MenuItem value="0">
                 <em>None</em>
@@ -430,9 +422,6 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
           {groupId > 0 && roleId > 0 && (
             <MDButton
               onClick={onAddGroupRoleClicked}
-              color="secondary"
-              variant="contained"
-              size="small"
             >
               Add
             </MDButton>
@@ -440,9 +429,24 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
         </Grid>
 
         <Grid item xs={12}>
-          <OLabAlert color="info">{alertMessage}</OLabAlert>
+          <DataGrid
+            onCellClick={onCellClick}
+            rows={formUser.roles}
+            columns={groupRoleTableLayout.columns}
+            rowHeight={30}
+            columnHeaderHeight={30}
+            disableRowSelectionOnClick
+            autoHeight
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                },
+              },
+            }}
+            pageSizeOptions={[5]}
+          />
         </Grid>
-
         <Grid item xs={12}>
           <Grid
             container
@@ -455,9 +459,6 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
               {formUser.id > 0 && (
                 <Tooltip title="Clone Current User">
                   <MDButton
-                    color="secondary"
-                    variant="contained"
-                    size="small"
                     onClick={onCloneClicked}
                   >
                     Clone
@@ -469,9 +470,6 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
                 <>
                   <Tooltip title="Save User">
                     <MDButton
-                      color="secondary"
-                      variant="contained"
-                      size="small"
                       onClick={onSaveClicked}
                     >
                       Save
@@ -480,9 +478,6 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
                   &nbsp;
                   <Tooltip title="Revert User">
                     <MDButton
-                      color="secondary"
-                      variant="contained"
-                      size="small"
                       onClick={onRevertClicked}
                     >
                       Revert
@@ -494,9 +489,6 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
                 &nbsp;
                 <Tooltip title="Clear User Form">
                   <MDButton
-                    color="secondary"
-                    variant="contained"
-                    size="small"
                     onClick={onClearClicked}
                   >
                     Clear

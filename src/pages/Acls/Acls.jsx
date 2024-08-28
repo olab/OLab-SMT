@@ -343,10 +343,7 @@ export const AclPage = () => {
                       {aclSelectionIds.length > 0 && (
                         <Tooltip title="(Un)delete Selected ACLs">
                           <MDButton
-                            color="secondary"
-                            variant="contained"
-                            size="small"
-                            onClick={onDeleteAclClicked}
+                               onClick={onDeleteAclClicked}
                           >
                             Delete
                           </MDButton>
@@ -355,9 +352,6 @@ export const AclPage = () => {
                       &nbsp;
                       <Tooltip title="Save ACL Table">
                         <MDButton
-                          color="secondary"
-                          variant="contained"
-                          size="small"
                           onClick={onSaveAclClicked}
                         >
                           Save
@@ -366,9 +360,6 @@ export const AclPage = () => {
                       &nbsp;
                       <Tooltip title="Clear ACL Table">
                         <MDButton
-                          color="secondary"
-                          variant="contained"
-                          size="small"
                           onClick={onClearAclClicked}
                         >
                           Clear

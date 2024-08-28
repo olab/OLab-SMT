@@ -47,15 +47,12 @@ const ConfirmDialog = (props) => {
         <DialogActions>
           <MDButton
             onClick={onCancelClicked}
-            color="secondary"
-            variant="contained"
           >
             Cancel
           </MDButton>
           <MDButton
             onClick={onConfirmClicked}
             color="primary"
-            variant="contained"
           >
             Confirm
           </MDButton>

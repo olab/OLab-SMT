@@ -84,7 +84,7 @@ export default styled(Button)(({ theme, ownerState }) => {
       },
 
       "&:focus:not(:hover)": {
-        backgroundColor: focusedBackgroundValue,
+        backgroundColor: backgroundValue,
         boxShadow: palette[color]
           ? boxShadow([0, 0], [0, 3.2], palette[color].main, 0.5)
           : boxShadow([0, 0], [0, 3.2], white.main, 0.5),
