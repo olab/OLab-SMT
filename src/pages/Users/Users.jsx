@@ -104,15 +104,15 @@ export default function UserPage() {
     setStatusMessage("Users deleted");
   };
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <center>
-          <CircularProgress color="inherit" />
-        </center>
-      </DashboardLayout>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <DashboardLayout>
+  //       <center>
+  //         <CircularProgress color="inherit" />
+  //       </center>
+  //     </DashboardLayout>
+  //   );
+  // }
 
   // fires if user detail page changed something that
   // requires updating the user list
@@ -176,6 +176,7 @@ export default function UserPage() {
                   rowHeight={30}
                   columnHeaderHeight={30}
                   autoHeight
+                  loading={loading}
                 />
                 {selection.length > 0 && (
                   <MDBox pt={3} lineHeight={0}>
