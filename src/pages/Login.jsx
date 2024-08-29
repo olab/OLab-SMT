@@ -12,6 +12,8 @@ import OLabLogoIcon from "../shared/olab4_logo.svg";
 import styled from "styled-components";
 import { useState } from "react";
 
+import OLabAlert from "@/components/OLabAlert";
+
 export const Logo = styled.div`
   text-decoration: none;
   display: flex;
@@ -41,7 +43,6 @@ export default function LoginPage() {
         email: data.get("email"),
         password: data.get("password"),
       });
-
     } catch (error) {
       setError(error.message);
     }
@@ -101,13 +102,16 @@ export default function LoginPage() {
         </Box>
 
         {error != null && (
-          <Alert 
-            variant="filled" 
+          <OLabAlert
             severity="error"
-            onClose={() => { setError(null); }}>{error}</Alert>
+            onClose={() => {
+              setError(null);
+            }}
+          >
+            {error}
+          </OLabAlert>
         )}
-
       </Box>
     </Container>
   );
-};
+}

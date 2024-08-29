@@ -4,7 +4,6 @@ import colors from "@/assets/theme/base/colors";
 import typography from "@/assets/theme/base/typography";
 
 const { secondary } = colors;
-const { size, fontWeightRegular } = typography;
 
 
 const snackbar = {

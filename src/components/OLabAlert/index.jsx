@@ -1,17 +1,13 @@
+import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { Fragment } from "react";
 
-function OLabAlert({ onClose, children}) {
-
+function OLabAlert({ onClose, children, ...rest }) {
   const progressAction = (
     <Fragment>
-      <IconButton
-        size="small"
-        aria-label="close"
-        onClick={onClose}
-      >
+      <IconButton size="small" aria-label="close" onClick={onClose}>
         <CloseIcon fontSize="small" />
       </IconButton>
     </Fragment>
@@ -21,10 +17,17 @@ function OLabAlert({ onClose, children}) {
     <Snackbar
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       open={children != null}
-      onClose={onClose}
-      message={children}
       action={progressAction}
-    />
+      {...rest}
+    >
+      <Alert
+        variant="filled"
+        {...rest}
+        onClose={onClose}        
+      >
+        {children}
+      </Alert>
+    </Snackbar>
   );
 }
 

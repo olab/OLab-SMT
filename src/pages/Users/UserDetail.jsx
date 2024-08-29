@@ -249,13 +249,16 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
     return retVal;
   };
 
-  const onStatusCloseClicked = () => {
-    setStatusMessage(null);
-  };
-
   return (
     <form onSubmit={onSubmit}>
-      <OLabAlert onClose={onStatusCloseClicked}>{statusMessage}</OLabAlert>
+      <OLabAlert
+        severity="info"
+        onClose={() => {
+          setStatusMessage(null);
+        }}
+      >
+        {statusMessage}
+      </OLabAlert>
 
       <MDTypography variant="h6" fontWeight="medium">
         User Detail

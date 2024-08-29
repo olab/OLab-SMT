@@ -1,6 +1,5 @@
 // @mui material components
 import Card from "@mui/material/Card";
-import CircularProgress from "@mui/material/CircularProgress";
 
 // Material Dashboard 2 PRO React components
 import MDBox from "@/components/MDBox";
@@ -134,13 +133,16 @@ export default function UserPage() {
     Log("user list updated from user detail change");
   };
 
-  const onStatusCloseClicked = () => {
-    setStatusMessage(null);
-  }
-
   return (
     <DashboardLayout>
-      <OLabAlert onClose={onStatusCloseClicked}>{statusMessage}</OLabAlert>
+      <OLabAlert
+        severity="info"
+        onClose={() => {
+          setStatusMessage(null);
+        }}
+      >
+        {statusMessage}
+      </OLabAlert>
       {confirmDialog != null && (
         <ConfirmDialog
           title={confirmDialog.title}
@@ -187,9 +189,7 @@ export default function UserPage() {
                       justifyContent="center"
                     >
                       <Grid item xs={12}>
-                        <MDButton
-                          onClick={onDeleteUserClicked}
-                        >
+                        <MDButton onClick={onDeleteUserClicked}>
                           Delete
                         </MDButton>
                       </Grid>
@@ -225,17 +225,9 @@ export default function UserPage() {
             >
               <Grid item xs={12}>
                 <>
-                  <MDButton
-                    onClick={onAddClicked}
-                  >
-                    Import
-                  </MDButton>
+                  <MDButton onClick={onAddClicked}>Import</MDButton>
                   &nbsp;
-                  <MDButton
-                    onClick={onAddClicked}
-                  >
-                    Export
-                  </MDButton>
+                  <MDButton onClick={onAddClicked}>Export</MDButton>
                 </>
               </Grid>
             </Grid>
@@ -244,4 +236,4 @@ export default function UserPage() {
       </Card>
     </DashboardLayout>
   );
-};
+}
