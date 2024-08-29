@@ -27,7 +27,7 @@ export const Logo = styled.div`
   }
 `;
 
-export const LoginPage = () => {
+export default function LoginPage() {
   const { login, user } = useAuth();
 
   // Search input value state

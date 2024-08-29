@@ -30,7 +30,7 @@ import {
   putAcl,
 } from "../../services/api";
 
-export const AclPage = () => {
+export default function AclPage() {
   const [aclSelectionIds, setAclSelection] = useState([]);
   const [aclTableColumns, setAclTableColumns] = useState(
     aclTableLayout.columns

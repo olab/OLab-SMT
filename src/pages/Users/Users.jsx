@@ -24,7 +24,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 import { UserDetail } from "./UserDetail";
 
-export const UserPage = () => {
+export default function UserPage() {
   const [selectedUser, setSelectedUser] = useState({
     ...defaultUser,
     verifypassword: defaultUser.password,
