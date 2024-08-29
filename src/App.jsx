@@ -1,3 +1,4 @@
+import React, { Suspense, lazy } from 'react';
 import {
   Route,
   createBrowserRouter,
@@ -5,9 +6,12 @@ import {
   defer
 } from "react-router-dom";
 
-import { LoginPage } from "./pages/Login";
-import { UserPage } from "./pages/Users/Users";
-import { AclPage } from "./pages/Acls/Acls";
+// import { LoginPage } from "./pages/Login";
+const LoginPage = lazy(() => import('./pages/Login'));
+// import { UserPage } from "./pages/Users/Users";
+const UserPage = lazy(() => import('./pages/Users/Users'));
+// import { AclPage } from "./pages/Acls/Acls";
+const AclPage = lazy(() => import('./pages/Acls/Acls'));
 import { HomePage } from "./pages/Home";
 import { GroupsRolesPage } from "./pages/GroupsRoles";
 import { SettingsPage } from "./pages/Settings";
