@@ -1,6 +1,5 @@
 // @mui material components
 import Card from "@mui/material/Card";
-import CircularProgress from "@mui/material/CircularProgress";
 
 // Material Dashboard 2 PRO React components
 import MDBox from "@/components/MDBox";
@@ -17,7 +16,7 @@ import Grid from "@mui/material/Grid";
 import { useState, useEffect } from "react";
 
 // Data
-import userTableLayout from "./userTableLayout";
+import userTableLayout from "./layouts/userTableLayout";
 import defaultUser from "./defaultUser";
 import { getUsers, getGroups, getRoles, deleteUser } from "../../services/api";
 import { useAuth } from "../../hooks/useAuth";

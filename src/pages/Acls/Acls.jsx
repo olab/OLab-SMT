@@ -311,7 +311,7 @@ export default function AclPage() {
           onCreateAclClicked={onCreateAclClicked}
         />
       </MDBox>
-
+      <br />
       <MDBox p={0} pb={0}>
         <Grid container spacing={0}>
           <Grid item xs={12}>
@@ -342,28 +342,18 @@ export default function AclPage() {
                     <Grid item xs={12}>
                       {aclSelectionIds.length > 0 && (
                         <Tooltip title="(Un)delete Selected ACLs">
-                          <MDButton
-                               onClick={onDeleteAclClicked}
-                          >
+                          <MDButton onClick={onDeleteAclClicked}>
                             Delete
                           </MDButton>
                         </Tooltip>
                       )}
                       &nbsp;
                       <Tooltip title="Save ACL Table">
-                        <MDButton
-                          onClick={onSaveAclClicked}
-                        >
-                          Save
-                        </MDButton>
+                        <MDButton onClick={onSaveAclClicked}>Save</MDButton>
                       </Tooltip>
                       &nbsp;
                       <Tooltip title="Clear ACL Table">
-                        <MDButton
-                          onClick={onClearAclClicked}
-                        >
-                          Clear
-                        </MDButton>
+                        <MDButton onClick={onClearAclClicked}>Clear</MDButton>
                       </Tooltip>
                     </Grid>
                   </Grid>
@@ -375,4 +365,4 @@ export default function AclPage() {
       </MDBox>
     </DashboardLayout>
   );
-};
+}
