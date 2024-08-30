@@ -10,9 +10,9 @@ import {
   Typography,
 } from "@mui/material";
 import MDButton from "@/components/MDButton";
-import { Close } from "@mui/icons-material";
-import { useState, useEffect } from "react";
-import { ThemeProvider } from "@mui/material/styles";
+import Close from "@mui/icons-material/Close";
+import { useState } from "react";
+import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import theme from "@/assets/theme";
 
 const ConfirmDialog = (props) => {

@@ -14,7 +14,7 @@ Coded by www.creative-tim.com
 */
 
 // @mui material components
-import { createTheme } from "@mui/material/styles";
+import createTheme from "@mui/material/styles/createTheme";
 
 // Material Dashboard 2 PRO React base styles
 import borders from "@/assets/theme/base/borders";

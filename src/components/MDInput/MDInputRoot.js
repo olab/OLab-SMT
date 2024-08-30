@@ -15,7 +15,7 @@ Coded by www.creative-tim.com
 
 // @mui material components
 import TextField from "@mui/material/TextField";
-import { styled } from "@mui/material/styles";
+import styled from "@mui/material/styles/styled";
 
 import "./style.css";
 

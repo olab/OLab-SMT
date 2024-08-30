@@ -14,7 +14,7 @@ Coded by www.creative-tim.com
 */
 
 // @mui material components
-import { styled } from "@mui/material/styles";
+import styled from "@mui/material/styles/styled";
 
 // Material Dashboard 2 PRO React components
 import MDButton from "@/components/MDButton";
