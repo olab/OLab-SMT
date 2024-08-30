@@ -12,7 +12,15 @@ export default defineConfig(({ command, mode }) => {
   return {
    base: `${env.VITE_APP_BASEPATH}`,
     build: {
-      sourcemap: true
+      sourcemap: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            react: ['react', 'react-dom', 'react-router-dom'],
+            material: ['@mui/material', '@mui/icons-material']
+          }
+        }
+      }      
     },
     plugins: [react()],
     resolve: {
