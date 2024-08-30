@@ -12,11 +12,11 @@ import MDTypography from "@/components/MDTypography";
 import OLabAlert from "@/components/OLabAlert";
 
 // Data
-import { useAuth } from "../../hooks/useAuth";
-import { postUser, putUser } from "../../services/api";
-import { Log, LogEnable, LogError, LogInfo } from "../../utils/Logger";
-import defaultUser from "./defaultUser";
-import groupRoleTableLayout from "./layouts/groupRoleTableLayout";
+import { useAuth } from "../../../hooks/useAuth";
+import { postUser, putUser } from "../../../services/api";
+import { Log, LogEnable, LogError, LogInfo } from "../../../utils/Logger";
+import defaultUser from "../defaultUser";
+import groupRoleTableLayout from "../layouts/groupRoleTableLayout";
 
 // this is set in the form when there
 // is a selected user.  something to
@@ -29,7 +29,10 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
     ...defaultUser,
     verifypassword: defaultUser.password,
   });
-  const [statusMessage, setStatusMessage] = useState(null);
+  const [statusObject, setStatusObject] = useState({
+    severity: null,
+    message: null,
+  });
   const [originalUser, setOriginalUser] = useState(formUser);
   const [groupId, setGroupId] = useState(0);
   const [nextIndex, setNextIndex] = useState(-1);
@@ -73,6 +76,28 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
     return groupRole;
   };
 
+  const setStatus = (severity = null, message = null) => {
+    if (severity == null && message == null) {
+      setStatusObject({ severity: "", message: message });
+    } else {
+      setStatusObject({ severity: severity, message: message });
+    }
+  };
+
+  const generatePassword = () => {
+    let length = 12,
+      charset =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz",
+      charsetArr = charset.split(" ");
+    let retVal = "";
+    charsetArr.forEach((chars) => {
+      for (let i = 0, n = chars.length; i < length / charsetArr.length; ++i) {
+        retVal += chars.charAt(Math.floor(Math.random() * n));
+      }
+    });
+    return retVal;
+  };
+
   const onFieldChange = (ev) => {
     setFormUser({
       ...formUser,
@@ -89,8 +114,22 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
     setRoleId(ev.target.value);
   };
 
-  const onSubmit = (data) => {
-    alert(JSON.stringify(data));
+  const onSubmit = (e) => {
+    const { userName, nickName, email, password, verifypassword } = formUser;
+
+    if (
+      userName == "" ||
+      nickName == "" ||
+      email == "" ||
+      password == "" ||
+      password != verifypassword
+    ) {
+      setStatus("error", `Correct form errors before saving`);
+    } else {
+      onSaveClicked();
+    }
+
+    e.preventDefault();
   };
 
   const onAddGroupRoleClicked = () => {
@@ -105,7 +144,7 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
     );
 
     if (existingRole.length > 0) {
-      setStatusMessage("Group/Role already exists");
+      setStatus("error", `Group/Role already exists`);
       return;
     }
 
@@ -206,16 +245,14 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
       putUser(user.authInfo.token, apiUser).then((response) => {
         setOriginalUser(formUser);
         setIsChanged(false);
-        setStatusMessage(`User '${formUser.nickName}' saved`);
-
+        setStatus("success", `User '${formUser.nickName}' saved`);
         onUserChanged(formUser);
       });
     } else {
       postUser(user.authInfo.token, apiUser).then((response) => {
         setOriginalUser(formUser);
         setIsChanged(false);
-        setStatusMessage(`User '${formUser.nickName}' created`);
-
+        setStatus("success", `User '${formUser.nickName}' created`);
         onUserChanged(formUser);
       });
     }
@@ -235,29 +272,15 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
     setIsChanged(true);
   };
 
-  const generatePassword = () => {
-    let length = 12,
-      charset =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz",
-      charsetArr = charset.split(" ");
-    let retVal = "";
-    charsetArr.forEach((chars) => {
-      for (let i = 0, n = chars.length; i < length / charsetArr.length; ++i) {
-        retVal += chars.charAt(Math.floor(Math.random() * n));
-      }
-    });
-    return retVal;
-  };
-
   return (
     <form onSubmit={onSubmit}>
       <OLabAlert
-        severity="info"
+        severity={statusObject.severity}
         onClose={() => {
-          setStatusMessage(null);
+          setStatus();
         }}
       >
-        {statusMessage}
+        {statusObject.message}
       </OLabAlert>
 
       <MDTypography variant="h6" fontWeight="medium">
@@ -459,7 +482,7 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
               {isChanged && (
                 <>
                   <Tooltip title="Save User">
-                    <MDButton onClick={onSaveClicked}>Save</MDButton>
+                    <MDButton type="submit">Save</MDButton>
                   </Tooltip>
                   &nbsp;
                   <Tooltip title="Revert User">

@@ -23,7 +23,7 @@ function OLabAlert({ onClose, children, ...rest }) {
       <Alert
         variant="filled"
         {...rest}
-        onClose={onClose}        
+        onClose={onClose}                
       >
         {children}
       </Alert>
