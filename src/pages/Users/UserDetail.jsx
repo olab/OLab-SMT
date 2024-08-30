@@ -16,7 +16,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { postUser, putUser } from "../../services/api";
 import { Log, LogEnable, LogError, LogInfo } from "../../utils/Logger";
 import defaultUser from "./defaultUser";
-import groupRoleTableLayout from "./groupRoleTableLayout";
+import groupRoleTableLayout from "./layouts/groupRoleTableLayout";
 
 // this is set in the form when there
 // is a selected user.  something to

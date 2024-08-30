@@ -1,5 +1,4 @@
 import DeleteIcon from '@mui/icons-material/Delete';
-import DeleteGroupRole from "./DeleteGroupRole";
 
 const groupRoleTableLayout = {
   columns: [
