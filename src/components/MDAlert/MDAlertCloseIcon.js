@@ -14,7 +14,7 @@ Coded by www.creative-tim.com
 */
 
 // @mui material components
-import styled from "@mui/material/styles/styled";
+import { styled } from "@mui/material/styles";
 
 export default styled("span")(({ theme }) => {
   const { palette, typography, functions } = theme;

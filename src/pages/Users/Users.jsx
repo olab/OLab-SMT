@@ -100,7 +100,7 @@ export default function UserPage() {
 
     setTableData(newRows);
     apiRef.current.forceUpdate();
-    setStatusMessage("Users deleted");
+    setStatusMessage("User(s) deleted");
   };
 
   // if (loading) {
