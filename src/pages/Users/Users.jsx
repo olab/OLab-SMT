@@ -1,5 +1,7 @@
 // @mui material components
 import Card from "@mui/material/Card";
+import Tooltip from "@mui/material/Tooltip";
+import { FileUploader } from "react-drag-drop-files";
 
 // Material Dashboard 2 PRO React components
 import MDBox from "@/components/MDBox";
@@ -18,10 +20,18 @@ import { useState, useEffect } from "react";
 // Data
 import userTableLayout from "./layouts/userTableLayout";
 import defaultUser from "./defaultUser";
-import { getUsers, getGroups, getRoles, deleteUser } from "../../services/api";
+import {
+  getUsers,
+  getGroups,
+  getRoles,
+  deleteUser,
+  importUsers,
+} from "../../services/api";
 import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 import { UserDetail } from "./components/UserDetail";
+
+const fileTypes = ["XLSX"];
 
 export default function UserPage() {
   const [selectedUser, setSelectedUser] = useState({
@@ -54,10 +64,6 @@ export default function UserPage() {
       });
     });
   }, []);
-
-  const onAddClicked = () => {
-    setSelectedUser(defaultUser);
-  };
 
   const onRowClick = (table) => {
     setSelectedUser({
@@ -103,15 +109,17 @@ export default function UserPage() {
     setStatusMessage("User(s) deleted");
   };
 
-  // if (loading) {
-  //   return (
-  //     <DashboardLayout>
-  //       <center>
-  //         <CircularProgress color="inherit" />
-  //       </center>
-  //     </DashboardLayout>
-  //   );
-  // }
+  const onExportClicked = () => {};
+  const onFileSelected = (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    importUsers(user.authInfo.token, formData).then((response) => {
+      let newTableData = [...response.data, ...tableData];
+      setTableData(newTableData);
+      setStatusMessage(`${response.data.length} User(s) Uploaded`);
+    });
+  };
 
   // fires if user detail page changed something that
   // requires updating the user list
@@ -180,22 +188,36 @@ export default function UserPage() {
                   autoHeight
                   loading={loading}
                 />
-                {selection.length > 0 && (
-                  <MDBox pt={3} lineHeight={0}>
-                    <Grid
-                      container
-                      spacing={5}
-                      direction="column"
-                      justifyContent="center"
-                    >
-                      <Grid item xs={12}>
-                        <MDButton onClick={onDeleteUserClicked}>
-                          Delete
-                        </MDButton>
-                      </Grid>
+                <MDBox pt={3} lineHeight={0}>
+                  <Grid container spacing={5} justifyContent="center">
+                    {selection.length > 0 && (
+                      <>
+                        <Grid item>
+                          <Tooltip title="Delete Selected Users">
+                            <MDButton onClick={onDeleteUserClicked}>
+                              Delete
+                            </MDButton>
+                          </Tooltip>
+                        </Grid>
+                        <Grid item>
+                          <Tooltip title="Export Selected Users">
+                            <MDButton onClick={onExportClicked}>
+                              Export
+                            </MDButton>
+                          </Tooltip>
+                        </Grid>
+                      </>
+                    )}
+                    <Grid item>
+                      <FileUploader
+                        handleChange={onFileSelected}
+                        name="file"
+                        types={["XLSX"]}
+                        label="Upload XLSX File"
+                      />
                     </Grid>
-                  </MDBox>
-                )}
+                  </Grid>
+                </MDBox>
               </MDBox>
             </Card>
           </Grid>
@@ -213,27 +235,6 @@ export default function UserPage() {
           </Grid>
         </Grid>
       </MDBox>
-      &nbsp;
-      <Card>
-        <MDBox p={3} lineHeight={0}>
-          <Grid item xs={12}>
-            <Grid
-              container
-              spacing={0}
-              direction="column"
-              justifyContent="center"
-            >
-              <Grid item xs={12}>
-                <>
-                  <MDButton onClick={onAddClicked}>Import</MDButton>
-                  &nbsp;
-                  <MDButton onClick={onAddClicked}>Export</MDButton>
-                </>
-              </Grid>
-            </Grid>
-          </Grid>
-        </MDBox>
-      </Card>
     </DashboardLayout>
   );
 }

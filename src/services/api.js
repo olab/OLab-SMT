@@ -28,8 +28,13 @@ async function internetJsonFetch(
   };
 
   if (payload) {
-    settings.body = JSON.stringify(payload);
-    // log.debug(`URL: ${url} payload: ${settings.body})`);
+    if (headers["Content-Type"] == "application/json") {
+      settings.body = JSON.stringify(payload);
+    }
+    else if ( headers["Content-Type"] == "multipart/form-data") {
+      delete headers["Content-Type"];
+      settings.body = payload;
+    }
   }
 
   while (tries++ < retryCount) {
@@ -165,7 +170,7 @@ async function deleteUser(token, ids) {
 
   let body = [];
   for (const id of ids) {
-    body.push({id: id});
+    body.push({ id: id });
   }
 
   let url = `${config.API_URL}/auth/deleteuser`;
@@ -217,6 +222,21 @@ async function postAcl(
   return acl;
 }
 
+async function importUsers(
+  token,
+  formData) {
+
+  let url = `${config.API_URL}/auth/importusers`;
+  const data = await internetJsonFetch("POST", url, formData, {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'multipart/form-data',
+  });
+
+  return data;
+}
+
+
+
 export {
   deleteAcl,
   deleteUser,
@@ -231,4 +251,5 @@ export {
   postUser,
   putAcl,
   putUser,
+  importUsers
 };
