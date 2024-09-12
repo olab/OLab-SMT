@@ -25,11 +25,10 @@ import groupRoleTableLayout from "../layouts/groupRoleTableLayout";
 const DefaultUserPassword = "******";
 
 export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
-
-  if ( selectedUser == null ) {
+  if (selectedUser == null) {
     selectedUser = defaultUser;
   }
-  
+
   const [formUser, setFormUser] = useState({
     ...defaultUser,
     verifypassword: defaultUser.password,
@@ -386,7 +385,9 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
           </>
         )}
         <Grid item xs={2}>
-          <MDButton onClick={onGenerateClicked}>Generate</MDButton>
+          <Tooltip title="Generate New Password">
+            <MDButton onClick={onGenerateClicked}>Generate</MDButton>
+          </Tooltip>
         </Grid>
 
         <Grid item xs={12}>
@@ -469,6 +470,16 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
             pageSizeOptions={[5]}
           />
         </Grid>
+        {Object.hasOwn(formUser, "message") && (
+          <Grid item xs={12}>
+            <MDInput
+              sx={{ width: "100%" }}
+              id="importStatus"
+              value={formUser.message}
+              label="Import Status"
+            />
+          </Grid>
+        )}
         <Grid item xs={12}>
           <Grid
             container

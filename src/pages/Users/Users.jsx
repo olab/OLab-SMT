@@ -7,11 +7,12 @@ import { FileUploader } from "react-drag-drop-files";
 
 // Material Dashboard 2 PRO React components
 import MDBox from "@/components/MDBox";
+import MDButton from "@/components/MDButton";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import OLabAlert from "@/components/OLabAlert";
 import OLabUsers from "@/components/OLabUsers";
+import Tooltip from "@mui/material/Tooltip";
 
-// Material Dashboard 2 PRO React examples
 import DashboardLayout from "@/components/DashboardLayout";
 import Grid from "@mui/material/Grid";
 import { useState, useEffect } from "react";
@@ -43,7 +44,8 @@ export default function UserPage() {
   const [statusMessage, setStatusMessage] = useState(null);
   const [tableData, setTableData] = useState([]);
   const [postImportReview, setPostImportReview] = useState(true);
-  const [tableTitle, setTableTitle] = useState('Users');
+
+  const [tableTitle, setTableTitle] = useState("Users");
 
   const { user } = useAuth();
 
@@ -65,6 +67,8 @@ export default function UserPage() {
   }, []);
 
   const onRowClick = (table) => {
+    Log(`onRowClick`);
+
     setSelectedUser({
       ...table.row,
       password: "*******",
@@ -72,8 +76,8 @@ export default function UserPage() {
     });
   };
 
-  const deleteSelectedIds = (selectedIds) => {
-    Log(`deleteSelectedIds ${JSON.stringify(selectedIds)}`);
+  const onDeleteRowsById = (selectedIds) => {
+    Log(`onDeleteRowsById ${JSON.stringify(selectedIds)}`);
 
     deleteUser(user.authInfo.token, selectedIds).then((response) => {
       Log(
@@ -90,23 +94,29 @@ export default function UserPage() {
     const newRows = tableData.filter((user) => !selectedIds.includes(user.id));
 
     setTableData(newRows);
-    setSelectedUser(null);
+    // setSelectedUser(null);
     setStatusMessage("User(s) deleted");
   };
 
-  const onExportClicked = () => {};
+  const onExportClicked = () => {
+    Log(`onExportClicked`);
+  };
 
   const onImportFile = (file) => {
+    Log(`onImportFile`);
+
     const formData = new FormData();
     formData.append("file", file);
 
     importUsers(user.authInfo.token, formData).then((response) => {
       let newTableData = [];
-      if ( postImportReview ) {
+      if (postImportReview) {
         newTableData = [...response.data];
         setTableTitle("Imported Users");
-      }
-      else {
+        const newState = { ...buttons };
+        newState.reload.visible = true;
+        setButtons(newState);
+      } else {
         newTableData = [...response.data, ...tableData];
       }
       setTableData(newTableData);
@@ -117,6 +127,8 @@ export default function UserPage() {
   // fires if user detail page changed something that
   // requires updating the user list
   const onUserChanged = (user) => {
+    Log(`onUserChanged`);
+
     let newTableData = [...tableData];
 
     let targetIndex = -1;
@@ -136,8 +148,23 @@ export default function UserPage() {
 
   const onSelectionChanged = (rowIds) => {
     Log(`onSelectionChanged ${JSON.stringify(rowIds)}`);
+    toggleButtonVisibility("export", rowIds.length > 0);
+  };
+
+  const onReloadClicked = () => {
+    Log(`onReloadClicked`);
+    setLoading(true);
+    getUsers(user.authInfo.token).then((response) => {
+      setTableData(response.data);
+      setTableTitle("Users");
+      setLoading(false);
+      toggleButtonVisibility("reload", false);
+    });
+  };
+
+  const toggleButtonVisibility = (name, visibility) => {
     const newState = { ...buttons };
-    newState.export.visible = rowIds.length > 0;
+    newState[name].visible = visibility;
     setButtons(newState);
   };
 
@@ -147,6 +174,12 @@ export default function UserPage() {
       tooltip: "Export Selected Users",
       onClick: onExportClicked,
       label: "Export",
+    },
+    reload: {
+      visible: false,
+      tooltip: "Reload Full User List",
+      onClick: onReloadClicked,
+      label: "Reload",
     },
   };
 
@@ -179,19 +212,23 @@ export default function UserPage() {
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <Card>
-              <MDBox p={3} lineHeight={0}>
-                <OLabUsers
-                  buttons={buttons}
-                  data={tableData}
-                  loading={loading}
-                  onDeleteRows={deleteSelectedIds}
-                  onRowClicked={onRowClick}
-                  onSelectionChanged={onSelectionChanged}
-                  setConfirmDialog={setConfirmDialog}
-                  setStatusMessage={setStatusMessage}
-                  title={tableTitle}
-                />
-              </MDBox>
+              <Grid container spacing={2} justifyContent="center">
+                <Grid item xs={12}>
+                  <MDBox p={3} lineHeight={0}>
+                    <OLabUsers
+                      buttons={buttons}
+                      data={tableData}
+                      loading={loading}
+                      onDeleteRows={onDeleteRowsById}
+                      onRowClicked={onRowClick}
+                      onSelectionChanged={onSelectionChanged}
+                      setConfirmDialog={setConfirmDialog}
+                      setStatusMessage={setStatusMessage}
+                      title={tableTitle}
+                    />
+                  </MDBox>
+                </Grid>
+              </Grid>
             </Card>
           </Grid>
           <Grid item xs={6}>
@@ -220,11 +257,13 @@ export default function UserPage() {
                       />
                       <FormControlLabel
                         control={
-                          <Checkbox
-                            checked={postImportReview}
-                            onChange={onReviewUsersChanged}
-                            inputProps={{ "aria-label": "controlled" }}
-                          />
+                          <Tooltip title="Show Only Changes After Import">
+                            <Checkbox
+                              checked={postImportReview}
+                              onChange={onReviewUsersChanged}
+                              inputProps={{ "aria-label": "controlled" }}
+                            />
+                          </Tooltip>
                         }
                         label="Review after import"
                       />
