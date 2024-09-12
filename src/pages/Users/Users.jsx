@@ -1,17 +1,15 @@
 // @mui material components
 import Card from "@mui/material/Card";
-import Tooltip from "@mui/material/Tooltip";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 import { FileUploader } from "react-drag-drop-files";
 
 // Material Dashboard 2 PRO React components
 import MDBox from "@/components/MDBox";
-import MDTypography from "@/components/MDTypography";
 import ConfirmDialog from "@/components/ConfirmDialog";
-import MDButton from "@/components/MDButton";
 import OLabAlert from "@/components/OLabAlert";
 import OLabUsers from "@/components/OLabUsers";
-
-import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 
 // Material Dashboard 2 PRO React examples
 import DashboardLayout from "@/components/DashboardLayout";
@@ -19,7 +17,6 @@ import Grid from "@mui/material/Grid";
 import { useState, useEffect } from "react";
 
 // Data
-import userTableLayout from "./layouts/userTableLayout";
 import defaultUser from "./defaultUser";
 import {
   getUsers,
@@ -45,6 +42,9 @@ export default function UserPage() {
   const [roles, setRoles] = useState([]);
   const [statusMessage, setStatusMessage] = useState(null);
   const [tableData, setTableData] = useState([]);
+  const [postImportReview, setPostImportReview] = useState(true);
+  const [tableTitle, setTableTitle] = useState('Users');
+
   const { user } = useAuth();
 
   LogEnable();
@@ -95,12 +95,20 @@ export default function UserPage() {
   };
 
   const onExportClicked = () => {};
-  const onFileSelected = (file) => {
+
+  const onImportFile = (file) => {
     const formData = new FormData();
     formData.append("file", file);
 
     importUsers(user.authInfo.token, formData).then((response) => {
-      let newTableData = [...response.data, ...tableData];
+      let newTableData = [];
+      if ( postImportReview ) {
+        newTableData = [...response.data];
+        setTableTitle("Imported Users");
+      }
+      else {
+        newTableData = [...response.data, ...tableData];
+      }
       setTableData(newTableData);
       setStatusMessage(`${response.data.length} User(s) Uploaded`);
     });
@@ -144,6 +152,10 @@ export default function UserPage() {
 
   const [buttons, setButtons] = useState(userButtons);
 
+  const onReviewUsersChanged = (e) => {
+    setPostImportReview(e.target.checked);
+  };
+
   return (
     <DashboardLayout>
       <OLabAlert
@@ -177,20 +189,8 @@ export default function UserPage() {
                   onSelectionChanged={onSelectionChanged}
                   setConfirmDialog={setConfirmDialog}
                   setStatusMessage={setStatusMessage}
-                  title={`Users`}
+                  title={tableTitle}
                 />
-                <MDBox pt={3} lineHeight={0}>
-                  <Grid container spacing={5} justifyContent="center">
-                    <Grid item>
-                      <FileUploader
-                        handleChange={onFileSelected}
-                        name="file"
-                        types={["XLSX"]}
-                        label="Upload XLSX File"
-                      />
-                    </Grid>
-                  </Grid>
-                </MDBox>
               </MDBox>
             </Card>
           </Grid>
@@ -203,6 +203,34 @@ export default function UserPage() {
                   groups={groups}
                   roles={roles}
                 />
+              </MDBox>
+            </Card>
+          </Grid>
+          <Grid item xs={12}>
+            <Card>
+              <MDBox p={3} lineHeight={0}>
+                <Grid container spacing={5} justifyContent="center">
+                  <Grid item>
+                    <FormGroup>
+                      <FileUploader
+                        handleChange={onImportFile}
+                        name="file"
+                        types={["XLSX"]}
+                        label="Upload XLSX File"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={postImportReview}
+                            onChange={onReviewUsersChanged}
+                            inputProps={{ "aria-label": "controlled" }}
+                          />
+                        }
+                        label="Review after import"
+                      />
+                    </FormGroup>
+                  </Grid>
+                </Grid>
               </MDBox>
             </Card>
           </Grid>

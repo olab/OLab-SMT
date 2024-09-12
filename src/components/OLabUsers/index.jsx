@@ -21,16 +21,12 @@ function OLabUsers({
   ...rest
 }) {
   const [actions, setActions] = useState(buttons);
-  const [selectedRow, setSelectedRow] = useState(null);
-  const [tableData, setTableData] = useState(data);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [tableLoading, setTableLoading] = useState(loading);
 
   const apiRef = useGridApiRef();
 
   const onTableRowClick = (table) => {
     Log(`onTableRowClick ${JSON.stringify(table.row)}`);
-    setSelectedRow(table.row);
     if (onRowClicked != null) {
       onRowClicked(table);
     }    
