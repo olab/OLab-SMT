@@ -9,6 +9,7 @@ import MDTypography from "@/components/MDTypography";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import MDButton from "@/components/MDButton";
 import OLabAlert from "@/components/OLabAlert";
+import OLabUsers from "@/components/OLabUsers";
 
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 
@@ -42,11 +43,9 @@ export default function UserPage() {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [roles, setRoles] = useState([]);
-  const [selection, setSelection] = useState([]);
   const [statusMessage, setStatusMessage] = useState(null);
   const [tableData, setTableData] = useState([]);
   const { user } = useAuth();
-  const apiRef = useGridApiRef();
 
   LogEnable();
 
@@ -73,26 +72,12 @@ export default function UserPage() {
     });
   };
 
-  const onDeleteUserClicked = () => {
-    Log("delete clicked");
-    Log(JSON.stringify(selection));
-    setConfirmDialog({
-      title: "Delete Confirmation",
-      message: `Delete ${selection.length} users?`,
-      onCancelClicked: () => {
-        setConfirmDialog(null);
-      },
-      onConfirmClicked: () => {
-        setConfirmDialog(null);
-        deleteSelectedUsers();
-      },
-    });
-  };
+  const deleteSelectedIds = (selectedIds) => {
+    Log(`deleteSelectedIds ${JSON.stringify(selectedIds)}`);
 
-  const deleteSelectedUsers = () => {
-    deleteUser(user.authInfo.token, selection).then((response) => {
+    deleteUser(user.authInfo.token, selectedIds).then((response) => {
       Log(
-        `deleted ${selection.length} users.  ${JSON.stringify(
+        `deleted ${selectedIds.length} users.  ${JSON.stringify(
           response,
           null,
           1
@@ -102,10 +87,10 @@ export default function UserPage() {
 
     // get non-deleted users from table
     // and use for new table contents
-    const newRows = tableData.filter((user) => !selection.includes(user.id));
+    const newRows = tableData.filter((user) => !selectedIds.includes(user.id));
 
     setTableData(newRows);
-    apiRef.current.forceUpdate();
+    setSelectedUser(null);
     setStatusMessage("User(s) deleted");
   };
 
@@ -141,6 +126,24 @@ export default function UserPage() {
     Log("user list updated from user detail change");
   };
 
+  const onSelectionChanged = (rowIds) => {
+    Log(`onSelectionChanged ${JSON.stringify(rowIds)}`);
+    const newState = { ...buttons };
+    newState.export.visible = rowIds.length > 0;
+    setButtons(newState);
+  };
+
+  const userButtons = {
+    export: {
+      visible: false,
+      tooltip: "Export Selected Users",
+      onClick: onExportClicked,
+      label: "Export",
+    },
+  };
+
+  const [buttons, setButtons] = useState(userButtons);
+
   return (
     <DashboardLayout>
       <OLabAlert
@@ -159,55 +162,25 @@ export default function UserPage() {
           handleOk={confirmDialog.onConfirmClicked}
         />
       )}
+
       <MDBox pt={0} pb={0}>
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <Card>
               <MDBox p={3} lineHeight={0}>
-                <MDTypography variant="h6" fontWeight="medium">
-                  Users
-                </MDTypography>
-                <DataGrid
-                  apiRef={apiRef}
-                  rows={tableData}
-                  columns={userTableLayout.columns}
-                  onRowSelectionModelChange={setSelection}
-                  initialState={{
-                    pagination: {
-                      paginationModel: {
-                        pageSize: 15,
-                      },
-                    },
-                  }}
-                  onRowClick={onRowClick}
-                  pageSizeOptions={[5, 10, 15, 20]}
-                  checkboxSelection
-                  disableRowSelectionOnClick
-                  rowHeight={30}
-                  columnHeaderHeight={30}
-                  autoHeight
+                <OLabUsers
+                  buttons={buttons}
+                  data={tableData}
                   loading={loading}
+                  onDeleteRows={deleteSelectedIds}
+                  onRowClicked={onRowClick}
+                  onSelectionChanged={onSelectionChanged}
+                  setConfirmDialog={setConfirmDialog}
+                  setStatusMessage={setStatusMessage}
+                  title={`Users`}
                 />
                 <MDBox pt={3} lineHeight={0}>
                   <Grid container spacing={5} justifyContent="center">
-                    {selection.length > 0 && (
-                      <>
-                        <Grid item>
-                          <Tooltip title="Delete Selected Users">
-                            <MDButton onClick={onDeleteUserClicked}>
-                              Delete
-                            </MDButton>
-                          </Tooltip>
-                        </Grid>
-                        <Grid item>
-                          <Tooltip title="Export Selected Users">
-                            <MDButton onClick={onExportClicked}>
-                              Export
-                            </MDButton>
-                          </Tooltip>
-                        </Grid>
-                      </>
-                    )}
                     <Grid item>
                       <FileUploader
                         handleChange={onFileSelected}

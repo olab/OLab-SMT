@@ -25,6 +25,11 @@ import groupRoleTableLayout from "../layouts/groupRoleTableLayout";
 const DefaultUserPassword = "******";
 
 export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
+
+  if ( selectedUser == null ) {
+    selectedUser = defaultUser;
+  }
+  
   const [formUser, setFormUser] = useState({
     ...defaultUser,
     verifypassword: defaultUser.password,
