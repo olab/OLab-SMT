@@ -71,8 +71,8 @@ export default function UserPage() {
 
     setSelectedUser({
       ...table.row,
-      password: "*******",
-      verifypassword: "*******",
+      password: "*****",
+      verifypassword: "*****",
     });
   };
 

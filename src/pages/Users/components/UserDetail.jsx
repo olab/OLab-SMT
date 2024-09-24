@@ -22,7 +22,7 @@ import groupRoleTableLayout from "../layouts/groupRoleTableLayout";
 // is a selected user.  something to
 // compare against to test if user
 // changes it
-const DefaultUserPassword = "******";
+const DefaultUserPassword = "*****";
 
 export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
   if (selectedUser == null) {
@@ -203,16 +203,26 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
   };
 
   const onCloneClicked = () => {
-    const newPassword = generatePassword();
+    // const newPassword = generatePassword();
+
+    let newUserName = formUser.userName;  
+
+    // increment any user name trailing number
+    // and increment by one if one is found
+    let userNumber = String(1).padStart(3, '0');
+    let matches = formUser.userName.match(/\d+$/);
+    if (matches) {
+      userNumber = parseInt(matches[0], 10) + 1;
+      userNumber = String(userNumber).padStart(3, '0');
+      newUserName = formUser.userName.replace(matches[0], "");
+    }
 
     let cloneUser = {
       ...formUser,
       id: 0,
-      userName: "",
-      nickName: "",
-      email: "",
-      password: newPassword,
-      verifypassword: newPassword,
+      userName: `${newUserName}${userNumber}`,
+      password: DefaultUserPassword,
+      verifypassword: DefaultUserPassword,
     };
 
     setShowPassword(true);
@@ -222,16 +232,13 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
 
   const onSaveClicked = () => {
     var apiUser = {
-      Id: formUser.id,
-      UserName: formUser.userName,
-      Email: formUser.email,
-      NickName: formUser.nickName,
+      ...formUser,
       GroupRoles: [],
     };
 
     // add the password only if it has been edited
     if (formUser.password != DefaultUserPassword) {
-      apiUser.Password = formUser.password;
+      apiUser.password = formUser.password;
     }
 
     var roleParts = [];
