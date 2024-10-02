@@ -125,64 +125,37 @@ export const MapsNodesQuery = ({
   };
 
   return (
-    <Card>
-      <Grid container spacing={0}>
-        <Grid item xs={6}>
-          <MDBox p={3} pt={0} lineHeight={0}>
-            <MDTypography variant="h6" fontWeight="medium">
-              Maps
-            </MDTypography>
-            <DataGrid
-              apiRef={apiRef}
-              rows={mapTableData}
-              columns={mapTableLayout.columns}
-              onRowSelectionModelChange={onMapSelectionChanged}
-              checkboxSelection
-              loading={mapTableLoading}
-              {...tableSettings}
-            />
-          </MDBox>
-        </Grid>
-        <Grid item xs={6}>
-          <MDBox p={3} pt={0} lineHeight={0}>
-            <MDTypography variant="h6" fontWeight="medium">
-              Nodes
-            </MDTypography>
-            <DataGrid
-              rows={nodeTableData}
-              columns={nodeTableLayout.columns}
-              onRowSelectionModelChange={onNodeSelectionChanged}
-              checkboxSelection
-              {...tableSettings}
-            />
-          </MDBox>
-        </Grid>
-        <Grid item xs={12}>
-          <MDBox pb={3} lineHeight={0}>
-            <Grid
-              container
-              spacing={0}
-              direction="column"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Grid item xs={12}>
-                <Tooltip title="Query ACLs using Query Form">
-                  <MDButton onClick={onLoadAclClicked}>Query ACLs</MDButton>
-                </Tooltip>
-                &nbsp;
-                <Tooltip title="Create ACLs from Query Form">
-                  <MDButton onClick={onCreateAclClicked}>Create ACLs</MDButton>
-                </Tooltip>
-                &nbsp;
-                <Tooltip title="Reset Query Form">
-                  <MDButton onClick={onResetQueryFormClicked}>Reset</MDButton>
-                </Tooltip>
-              </Grid>
-            </Grid>
-          </MDBox>
-        </Grid>
+    <Grid container spacing={0}>
+      <Grid item xs={6}>
+        <MDBox p={3} pt={0} lineHeight={0}>
+          <MDTypography variant="h6" fontWeight="medium">
+            Maps
+          </MDTypography>
+          <DataGrid
+            apiRef={apiRef}
+            rows={mapTableData}
+            columns={mapTableLayout.columns}
+            onRowSelectionModelChange={onMapSelectionChanged}
+            checkboxSelection
+            loading={mapTableLoading}
+            {...tableSettings}
+          />
+        </MDBox>
       </Grid>
-    </Card>
+      <Grid item xs={6}>
+        <MDBox p={3} pt={0} lineHeight={0}>
+          <MDTypography variant="h6" fontWeight="medium">
+            Nodes
+          </MDTypography>
+          <DataGrid
+            rows={nodeTableData}
+            columns={nodeTableLayout.columns}
+            onRowSelectionModelChange={onNodeSelectionChanged}
+            checkboxSelection
+            {...tableSettings}
+          />
+        </MDBox>
+      </Grid>
+    </Grid>
   );
 };

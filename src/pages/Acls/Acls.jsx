@@ -4,6 +4,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
+
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import { useState, useEffect } from "react";
 
@@ -380,8 +381,32 @@ export default function AclPage() {
               onStateChange={onStateChange}
               onLoadAclClicked={onLoadAclClicked}
               onCreateAclClicked={onCreateAclClicked}
+              title={"Applications"}
             />
           </CustomTabPanel>
+          <MDBox p={0} pb={3}>
+            <Grid
+              container
+              spacing={0}
+              direction="column"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Grid item xs={12}>
+                <Tooltip title="Query ACLs using Query Form">
+                  <MDButton onClick={onLoadAclClicked}>Query ACLs</MDButton>
+                </Tooltip>
+                &nbsp;
+                <Tooltip title="Create ACLs from Query Form">
+                  <MDButton onClick={onCreateAclClicked}>Create ACLs</MDButton>
+                </Tooltip>
+                &nbsp;
+                <Tooltip title="Reset Query Form">
+                  <MDButton onClick={onCreateAclClicked}>Reset</MDButton>
+                </Tooltip>
+              </Grid>
+            </Grid>
+          </MDBox>
         </Card>
       </MDBox>
       <br />
