@@ -1,6 +1,9 @@
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import Tooltip from "@mui/material/Tooltip";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Box from "@mui/material/Box";
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import { useState, useEffect } from "react";
 
@@ -10,7 +13,9 @@ import DashboardLayout from "@/components/DashboardLayout";
 import MDButton from "@/components/MDButton";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
-import { AclQuery } from "./components/AclQuery";
+import { MapsNodesQuery } from "./components/MapsNodesQuery";
+import { ApplicationsQuery } from "./components/ApplicationsQuery";
+import { GroupRoleSelector } from "./components/GroupRoleSelector";
 
 import mapTableLayout from "./layouts/mapTableLayout";
 import nodeTableLayout from "./layouts/nodeTableLayout";
@@ -24,11 +29,43 @@ import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 import {
   deleteAcl,
   getAcls,
+  getApplications,
   getGroups,
   getRoles,
   postAcl,
   putAcl,
 } from "../../services/api";
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
+
+function CustomTabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <>{children}</>}
+    </div>
+  );
+}
+
+const initialState = {
+  groupId: -1,
+  roleId: -1,
+  selectedMapIds: [],
+  selectedNodeIds: [],
+  selectedApplicationIds: [],
+};
 
 export default function AclPage() {
   const [aclSelectionIds, setAclSelection] = useState([]);
@@ -49,6 +86,10 @@ export default function AclPage() {
   const [roles, setRoles] = useState([]);
   const [roleId, setRoleId] = useState(-1);
   const [nextIndex, setNextIndex] = useState(-1);
+
+  const [activeTab, setActiveTab] = useState(0);
+  const [queryState, setQueryState] = useState(initialState);
+
   const apiRef = useGridApiRef();
 
   const { user } = useAuth();
@@ -290,6 +331,10 @@ export default function AclPage() {
     return params.row.groupId != null && params.row.roleId != null;
   };
 
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
+
   return (
     <DashboardLayout>
       {confirmDialog != null && (
@@ -301,15 +346,43 @@ export default function AclPage() {
         />
       )}
       <MDBox p={0} pb={0}>
-        <AclQuery
-          groups={groups}
-          roles={roles}
-          setGroupId={setGroupId}
-          setRoleId={setRoleId}
-          onStateChange={onStateChange}
-          onLoadAclClicked={onLoadAclClicked}
-          onCreateAclClicked={onCreateAclClicked}
-        />
+        <Card>
+          <Tabs
+            value={activeTab}
+            onChange={handleTabChange}
+            aria-label="ACL Tabs"
+          >
+            <Tab label="Applications" {...a11yProps(0)} />
+            <Tab label="Maps/Nodes" {...a11yProps(1)} />
+          </Tabs>
+          <MDBox p={3} pb={0} lineHeight={0}>
+            <MDTypography variant="h6" fontWeight="medium">
+              Query Form
+            </MDTypography>
+          </MDBox>
+          <GroupRoleSelector
+            groups={groups}
+            roles={roles}
+            onStateChange={onStateChange}
+          />
+          <CustomTabPanel value={activeTab} index={1}>
+            <MapsNodesQuery
+              groups={groups}
+              roles={roles}
+              onStateChange={onStateChange}
+              onLoadAclClicked={onLoadAclClicked}
+              onCreateAclClicked={onCreateAclClicked}
+            />
+          </CustomTabPanel>
+          <CustomTabPanel value={activeTab} index={0}>
+            <ApplicationsQuery
+              currentState={queryState}
+              onStateChange={onStateChange}
+              onLoadAclClicked={onLoadAclClicked}
+              onCreateAclClicked={onCreateAclClicked}
+            />
+          </CustomTabPanel>
+        </Card>
       </MDBox>
       <br />
       <MDBox p={0} pb={0}>

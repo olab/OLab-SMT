@@ -3,6 +3,7 @@ import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import Tooltip from "@mui/material/Tooltip";
+
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import { useState, useEffect } from "react";
 
@@ -27,7 +28,7 @@ const initialState = {
   selectedNodeIds: [],
 };
 
-export const AclQuery = ({
+export const MapsNodesQuery = ({
   groups,
   onStateChange,
   onLoadAclClicked,
@@ -87,7 +88,6 @@ export const AclQuery = ({
         });
       }
       setNodeTableLoading(false);
-
     }
 
     setMapSelection(ids);
@@ -127,79 +127,6 @@ export const AclQuery = ({
   return (
     <Card>
       <Grid container spacing={0}>
-        <Grid item xs={12}>
-          <MDBox p={3} pb={0} lineHeight={0}>
-            <MDTypography variant="h6" fontWeight="medium">
-              Query Form
-            </MDTypography>
-          </MDBox>
-        </Grid>
-        <Grid item xs={12}>
-          <MDBox p={3} lineHeight={0}>
-            <Grid container spacing={3}>
-              <Grid item xs={6}>
-                <FormControl variant="filled" sx={{ width: "100%" }}>
-                  <MDInput
-                    select
-                    label="Group"
-                    name="groupId"
-                    id="group-select-filled"
-                    value={queryState.groupId}
-                    onChange={onFieldChanged}
-                    InputProps={{
-                      classes: { root: "select-input-styles" },
-                    }}
-                    size="large"
-                  >
-                    <MenuItem value="-1">
-                      <em>-- Select --</em>
-                    </MenuItem>
-                    <MenuItem value="0">
-                      <em>*</em>
-                    </MenuItem>
-                    {groups.map((item) => {
-                      return (
-                        <MenuItem key={item.id} value={item.id}>
-                          {item.name}
-                        </MenuItem>
-                      );
-                    })}
-                  </MDInput>
-                </FormControl>
-              </Grid>
-              <Grid item xs={6}>
-                <FormControl sx={{ width: "100%" }} variant="filled">
-                  <MDInput
-                    select
-                    label="Role"
-                    name="roleId"
-                    id="role-select-filled"
-                    value={queryState.roleId}
-                    onChange={onFieldChanged}
-                    InputProps={{
-                      classes: { root: "select-input-styles" },
-                    }}
-                    size="large"
-                  >
-                    <MenuItem value="-1">
-                      <em>-- Select --</em>
-                    </MenuItem>
-                    <MenuItem value="0">
-                      <em>*</em>
-                    </MenuItem>
-                    {roles.map((item) => {
-                      return (
-                        <MenuItem key={item.id} value={item.id}>
-                          {item.name}
-                        </MenuItem>
-                      );
-                    })}
-                  </MDInput>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </MDBox>
-        </Grid>
         <Grid item xs={6}>
           <MDBox p={3} pt={0} lineHeight={0}>
             <MDTypography variant="h6" fontWeight="medium">
@@ -241,27 +168,15 @@ export const AclQuery = ({
             >
               <Grid item xs={12}>
                 <Tooltip title="Query ACLs using Query Form">
-                  <MDButton
-                    onClick={onLoadAclClicked}
-                  >
-                    Query ACLs
-                  </MDButton>
+                  <MDButton onClick={onLoadAclClicked}>Query ACLs</MDButton>
                 </Tooltip>
                 &nbsp;
                 <Tooltip title="Create ACLs from Query Form">
-                  <MDButton
-                    onClick={onCreateAclClicked}
-                  >
-                    Create ACLs
-                  </MDButton>
+                  <MDButton onClick={onCreateAclClicked}>Create ACLs</MDButton>
                 </Tooltip>
                 &nbsp;
                 <Tooltip title="Reset Query Form">
-                  <MDButton
-                    onClick={onResetQueryFormClicked}
-                  >
-                    Reset
-                  </MDButton>
+                  <MDButton onClick={onResetQueryFormClicked}>Reset</MDButton>
                 </Tooltip>
               </Grid>
             </Grid>

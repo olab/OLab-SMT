@@ -11,12 +11,6 @@ import theme from "@/assets/theme";
 
 import { router } from "./App";
 
-// const theme = createTheme({
-//   palette: {
-//     primary: { main: "#3a34d2" },
-//   },
-// });
-
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider theme={theme}>

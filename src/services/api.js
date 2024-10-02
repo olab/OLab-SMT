@@ -235,12 +235,20 @@ async function importUsers(
   return data;
 }
 
+async function getApplications(token) {
+  let url = `${config.API_URL}/applications`;
+  const data = await internetJsonFetch("GET", url, null, {
+    Authorization: `Bearer ${token}`,
+  });
 
+  return data;
+}
 
 export {
   deleteAcl,
   deleteUser,
   getAcls,
+  getApplications,
   getGroups,
   getMaps,
   getNodes,
