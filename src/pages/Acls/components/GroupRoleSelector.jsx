@@ -14,7 +14,7 @@ import MDTypography from "@/components/MDTypography";
 
 import mapTableLayout from "../layouts/mapTableLayout";
 import nodeTableLayout from "../layouts/nodeTableLayout";
-import tableLayout from "../layouts/tableLayout";
+import tableSettings from "../layouts/tableSettings";
 import { useAuth } from "../../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../../utils/Logger";
 

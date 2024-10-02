@@ -14,7 +14,7 @@ import MDTypography from "@/components/MDTypography";
 
 import mapTableLayout from "../layouts/mapTableLayout";
 import nodeTableLayout from "../layouts/nodeTableLayout";
-import tableLayout from "../layouts/tableLayout";
+import tableSettings from "../layouts/tableSettings";
 import { useAuth } from "../../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../../utils/Logger";
 
@@ -139,7 +139,7 @@ export const MapsNodesQuery = ({
               onRowSelectionModelChange={onMapSelectionChanged}
               checkboxSelection
               loading={mapTableLoading}
-              {...tableLayout}
+              {...tableSettings}
             />
           </MDBox>
         </Grid>
@@ -153,7 +153,7 @@ export const MapsNodesQuery = ({
               columns={nodeTableLayout.columns}
               onRowSelectionModelChange={onNodeSelectionChanged}
               checkboxSelection
-              {...tableLayout}
+              {...tableSettings}
             />
           </MDBox>
         </Grid>

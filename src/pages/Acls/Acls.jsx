@@ -20,7 +20,7 @@ import { GroupRoleSelector } from "./components/GroupRoleSelector";
 import mapTableLayout from "./layouts/mapTableLayout";
 import nodeTableLayout from "./layouts/nodeTableLayout";
 import aclTableLayout from "./layouts/aclTableLayout";
-import tableLayout from "./layouts/tableLayout";
+import tableSettings from "./layouts/tableSettings";
 
 import { useAuth } from "../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
@@ -402,7 +402,7 @@ export default function AclPage() {
                   isRowSelectable={isAclRowSelectedable}
                   disableRowSelectionOnClick
                   loading={aclTableLoading}
-                  {...tableLayout}
+                  {...tableSettings}
                   rowHeight={30}
                 />
                 <MDBox pt={3} lineHeight={0}>

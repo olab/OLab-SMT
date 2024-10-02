@@ -1,4 +1,4 @@
-const tableLayout = {
+const tableSettings = {
   initialState: {
     pagination: {
       paginationModel: {
@@ -14,5 +14,5 @@ const tableLayout = {
   autoHeight: true
 };
 
-export default tableLayout;
+export default tableSettings;
 

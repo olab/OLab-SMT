@@ -13,7 +13,7 @@ import MDInput from "@/components/MDInput";
 import MDTypography from "@/components/MDTypography";
 
 import applicationTableLayout from "../layouts/applicationTableLayout";
-import tableLayout from "../layouts/tableLayout";
+import tableSettings from "../layouts/tableSettings";
 
 import { useAuth } from "../../../hooks/useAuth";
 import { Log, LogInfo, LogError, LogEnable } from "../../../utils/Logger";
@@ -68,7 +68,7 @@ export const ApplicationsQuery = ({
               onRowSelectionModelChange={onSelectionChanged}
               checkboxSelection
               loading={tableLoading}
-              {...tableLayout}
+              {...tableSettings}
             />
           </MDBox>
         </Grid>
