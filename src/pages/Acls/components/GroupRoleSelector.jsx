@@ -21,23 +21,25 @@ import { Log, LogInfo, LogError, LogEnable } from "../../../utils/Logger";
 // Data
 import { getMaps, getNodes } from "../../../services/api";
 
-const initialState = {
-  groupId: -1,
-  roleId: -1,
-};
-
-export const GroupRoleSelector = ({ groups, onStateChange, roles }) => {
+export const GroupRoleSelector = ({ 
+  currentState, 
+  groups, 
+  onStateChange, 
+  roles 
+}) => {
   
-  const [queryState, setQueryState] = useState(initialState);
+  Log(`GroupRoleSelector: ${JSON.stringify(currentState, null, 1)}`);
+
+  const [queryState, setQueryState] = useState({ ...currentState });
+
+  useEffect(()=>{
+    setQueryState({...currentState});
+  }, [currentState?.groupId, currentState?.roleId]);
 
   const onFieldChanged = (ev) => {
-    let newState = { ...queryState, [ev.target.name]: ev.target.value };
-    setQueryState(newState);
-    onStateChange({
-      ...newState,
-      groupId: newState.groupId == -1 ? null : newState.groupId,
-      roleId: newState.roleId == -1 ? null : newState.roleId,
-    });
+    const tmp = { ...queryState, [ev.target.name]: ev.target.value };
+    onStateChange(tmp);
+    setQueryState(tmp);
   };
 
   return (

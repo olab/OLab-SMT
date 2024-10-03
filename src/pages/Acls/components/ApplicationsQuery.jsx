@@ -28,12 +28,14 @@ export const ApplicationsQuery = ({
   onStateChange,
   title,
 }) => {
+  Log(`ApplicationsQuery: ${JSON.stringify(currentState, null, 1)}`);
+
+  const [queryState, setQueryState] = useState(currentState);
   const [tableData, setTableData] = useState([]);
   const [tableLoading, setTableLoading] = useState(true);
-  const [queryState, setQueryState] = useState(currentState);
+  const [rowSelectionModel, setRowSelectionModel] = useState(currentState.selectedApplicationIds);
 
   const { user } = useAuth();
-  const apiRef = useGridApiRef();
 
   useEffect(() => {
     if (tableData.length == 0) {
@@ -44,13 +46,9 @@ export const ApplicationsQuery = ({
     }
   }, []);
 
-  const setSelection = (ids) => {
-    onStateChange({ ...queryState, selectedApplicationIds: ids });
-  };
-
-  const onSelectionChanged = (ids) => {
-    Log(`onSelectionChanged ${ids}`);
-    setSelection(ids);
+  const onTableSectionChanged = (ids) => {
+    Log(`onSelectionChanged '${ids}'`);
+    setRowSelectionModel(ids);
   };
 
   return (
@@ -61,10 +59,10 @@ export const ApplicationsQuery = ({
             {title}
           </MDTypography>
           <DataGrid
-            apiRef={apiRef}
             rows={tableData}
             columns={applicationTableLayout.columns}
-            onRowSelectionModelChange={onSelectionChanged}
+            onRowSelectionModelChange={onTableSectionChanged}
+            rowSelectionModel={rowSelectionModel}
             checkboxSelection
             loading={tableLoading}
             {...tableSettings}

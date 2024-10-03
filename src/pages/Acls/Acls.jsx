@@ -60,7 +60,7 @@ function CustomTabPanel(props) {
   );
 }
 
-const initialState = {
+const initialQueryState = {
   groupId: -1,
   roleId: -1,
   selectedMapIds: [],
@@ -76,24 +76,20 @@ export default function AclPage() {
   const [aclTableRows, setAclTableRows] = useState([]);
 
   const [groups, setGroups] = useState([]);
-  const [groupId, setGroupId] = useState(-1);
+  const [roles, setRoles] = useState([]);
+
   const [aclTableLoading, setAclTableLoading] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState(null);
-
-  const [selectedMapIds, setMapSelection] = useState([]);
-  const [mapTableData, setMapTableData] = useState(mapTableLayout);
-  const [selectedNodeIds, setNodeSelection] = useState([]);
-  const [nodeTableData, setNodeTableData] = useState(nodeTableLayout);
-  const [roles, setRoles] = useState([]);
-  const [roleId, setRoleId] = useState(-1);
   const [nextIndex, setNextIndex] = useState(-1);
 
   const [activeTab, setActiveTab] = useState(0);
-  const [queryState, setQueryState] = useState(initialState);
+  const [queryState, setQueryState] = useState(initialQueryState);
 
   const apiRef = useGridApiRef();
 
   const { user } = useAuth();
+
+  LogEnable();
 
   useEffect(() => {
     let newAclTableColumns = [...aclTableColumns];
@@ -121,20 +117,25 @@ export default function AclPage() {
     });
   }, []);
 
-  const refreshAclData = (mapIds = [], nodeIds = []) => {
+  const refreshAclData = () => {
     setAclTableLoading(true);
 
-    Log(`mapIds = ${mapIds}, nodeIds = ${nodeIds}`);
+    try {
+      Log(`refreshAclData queryState: ${JSON.stringify(queryState, null, 1)}`);
 
-    getAcls(
-      user.authInfo.token,
-      groupId < 0 ? null : groupId,
-      roleId < 0 ? null : roleId,
-      mapIds,
-      nodeIds
-    ).then((response) => {
-      setAclTableRows(response.data);
-    });
+      getAcls(
+        user.authInfo.token,
+        queryState.groupId < 0 ? null : queryState.groupId,
+        queryState.roleId < 0 ? null : queryState.roleId,
+        queryState.selectedMapIds,
+        queryState.selectedNodeIds,
+        queryState.selectedApplicationIds
+      ).then((response) => {
+        setAclTableRows(response.data);
+      });
+    } catch (error) {
+      Log(`refreshAclData error: ${error.message}`);
+    }
 
     setAclTableLoading(false);
   };
@@ -145,7 +146,7 @@ export default function AclPage() {
   };
 
   const onLoadAclClicked = () => {
-    refreshAclData(selectedMapIds, selectedNodeIds);
+    refreshAclData();
   };
 
   const onSaveAclClicked = () => {
@@ -252,19 +253,23 @@ export default function AclPage() {
     );
   };
 
+  const onResetClicked = () => {
+    onStateChange(null);
+  };
+
   const onCreateAclClicked = () => {
+    const {
+      groupId,
+      roleId,
+      selectedMapIds,
+      selectedNodeIds,
+      selectedApplicationIds,
+    } = queryState;
+
     const selectedGroup = groups.filter((group) => group.id == groupId);
     const selectedRole = roles.filter((role) => role.id == roleId);
-    const selectedMaps = mapTableData.rows.filter((map) =>
-      selectedMapIds.includes(map.id)
-    );
-    const selectedNodes = nodeTableData.rows.filter((node) =>
-      selectedNodeIds.includes(node.id)
-    );
 
     Log(`${JSON.stringify(selectedGroup)} ${JSON.stringify(selectedRole)}`);
-    Log(` ${JSON.stringify(selectedMaps)}`);
-    Log(` ${JSON.stringify(selectedNodes)}`);
 
     let newAclRows = [...aclTableRows];
     let index = nextIndex;
@@ -313,19 +318,19 @@ export default function AclPage() {
     <ConfirmDialog data={confirmDialog} />;
   }
 
-  const onStateChange = (state) => {
+  const onStateChange = (state = null) => {
     Log(`onStateChange: ${JSON.stringify(state, null, 1)}`);
 
-    if (state.groupId != groupId) {
-      setGroupId(state.groupId);
-    }
+    if (state == null) {
+      setQueryState({...initialQueryState});
+    } else {
+      let newQueryState = {
+        ...queryState,
+        ...state,
+      };
 
-    if (state.roleId != roleId) {
-      setRoleId(state.roleId);
+      setQueryState(newQueryState);
     }
-
-    setNodeSelection(state.selectedNodeIds);
-    setMapSelection(state.selectedMapIds);
   };
 
   const isAclRowSelectedable = (params) => {
@@ -362,12 +367,14 @@ export default function AclPage() {
             </MDTypography>
           </MDBox>
           <GroupRoleSelector
+            currentState={queryState}
             groups={groups}
             roles={roles}
             onStateChange={onStateChange}
           />
           <CustomTabPanel value={activeTab} index={1}>
             <MapsNodesQuery
+              currentState={queryState}
               groups={groups}
               roles={roles}
               onStateChange={onStateChange}
@@ -402,7 +409,7 @@ export default function AclPage() {
                 </Tooltip>
                 &nbsp;
                 <Tooltip title="Reset Query Form">
-                  <MDButton onClick={onCreateAclClicked}>Reset</MDButton>
+                  <MDButton onClick={onResetClicked}>Reset</MDButton>
                 </Tooltip>
               </Grid>
             </Grid>

@@ -186,7 +186,8 @@ async function getAcls(
   groupId,
   roleId,
   mapIds,
-  nodeIds) {
+  nodeIds,
+  appIds) {
 
   let url = `${config.API_URL}/acls`;
   const data = await internetJsonFetch("POST", url, {
@@ -194,6 +195,7 @@ async function getAcls(
     roleId: roleId,
     mapIds: mapIds,
     nodeIds: nodeIds,
+    appIds: appIds
   }, {
     Authorization: `Bearer ${token}`,
   });

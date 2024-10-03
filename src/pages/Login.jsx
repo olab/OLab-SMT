@@ -7,6 +7,7 @@ import {
   Typography,
   Container,
 } from "@mui/material";
+import ProgressSpinner from "../components/ProgressSpinner";
 import { useAuth } from "../hooks/useAuth";
 import OLabLogoIcon from "../shared/olab4_logo.svg";
 import styled from "styled-components";
@@ -32,11 +33,12 @@ export const Logo = styled.div`
 export default function LoginPage() {
   const { login, user } = useAuth();
 
-  // Search input value state
+  const [isWorking, setIsWorking] = useState(false);
   const [error, setError] = useState(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsWorking(true);
     const data = new FormData(event.currentTarget);
     try {
       let loginResult = await login({
@@ -46,6 +48,7 @@ export default function LoginPage() {
     } catch (error) {
       setError(error.message);
     }
+    setIsWorking(false);
   };
 
   return (
@@ -91,14 +94,26 @@ export default function LoginPage() {
             id="password"
             autoComplete="current-password"
           />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
-            Sign In
-          </Button>
+          {isWorking && (
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              <ProgressSpinner />
+            </Button>
+          )}          
+          {!isWorking && (
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign In
+            </Button>
+          )}
         </Box>
 
         {error != null && (

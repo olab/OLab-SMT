@@ -21,14 +21,8 @@ import { Log, LogInfo, LogError, LogEnable } from "../../../utils/Logger";
 // Data
 import { getMaps, getNodes } from "../../../services/api";
 
-const initialState = {
-  groupId: -1,
-  roleId: -1,
-  selectedMapIds: [],
-  selectedNodeIds: [],
-};
-
 export const MapsNodesQuery = ({
+  currentState,
   groups,
   onStateChange,
   onLoadAclClicked,
@@ -36,15 +30,15 @@ export const MapsNodesQuery = ({
   roles,
 }) => {
   const [mapTableData, setMapTableData] = useState([]);
-  const [nodeTableData, setNodeTableData] = useState([]);
-  const [queryState, setQueryState] = useState(initialState);
   const [mapTableLoading, setMapTableLoading] = useState(true);
+  const [nodeTableData, setNodeTableData] = useState([]);
   const [nodeTableLoading, setNodeTableLoading] = useState(false);
+  const [queryState, setQueryState] = useState(currentState);
 
   const { user } = useAuth();
 
   const apiRef = useGridApiRef();
-
+ 
   useEffect(() => {
     if (mapTableData.length == 0) {
       getMaps(user.authInfo.token).then((response) => {
@@ -110,19 +104,16 @@ export const MapsNodesQuery = ({
     });
   };
 
-  const onResetQueryFormClicked = () => {
-    // reset the map selections manually
-    // since settings the model doesn't
-    // appear to work
-    apiRef.current.setRowSelectionModel([]);
-
-    setQueryState({ ...initialState });
-    onStateChange({
-      ...initialState,
-      groupId: null,
-      roleId: null,
-    });
+  const resetQueryState = () => {
+    if (queryState.selectedMapIds.length == 0) {
+      // reset the map selections manually
+      // since settings the model doesn't
+      // appear to work
+      apiRef?.current?.setRowSelectionModel([]);
+    }
   };
+
+  resetQueryState();
 
   return (
     <Grid container spacing={0}>
