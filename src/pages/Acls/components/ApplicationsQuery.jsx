@@ -1,24 +1,14 @@
-import Card from "@mui/material/Card";
-import FormControl from "@mui/material/FormControl";
-import Grid from "@mui/material/Grid";
-import MenuItem from "@mui/material/MenuItem";
-import Tooltip from "@mui/material/Tooltip";
-
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
+import { getApplications } from "../../../services/api";
+import { Log, LogInfo, LogError, LogEnable } from "../../../utils/Logger";
+import { useAuth } from "../../../hooks/useAuth";
 import { useState, useEffect } from "react";
 
-import MDBox from "@/components/MDBox";
-import MDButton from "@/components/MDButton";
-import MDInput from "@/components/MDInput";
-import MDTypography from "@/components/MDTypography";
-
 import applicationTableLayout from "../layouts/applicationTableLayout";
+import Grid from "@mui/material/Grid";
+import MDBox from "@/components/MDBox";
+import MDTypography from "@/components/MDTypography";
 import tableSettings from "../layouts/tableSettings";
-
-import { useAuth } from "../../../hooks/useAuth";
-import { Log, LogInfo, LogError, LogEnable } from "../../../utils/Logger";
-
-import { getApplications } from "../../../services/api";
 
 export const ApplicationsQuery = ({
   currentState,
@@ -34,7 +24,6 @@ export const ApplicationsQuery = ({
   const [tableData, setTableData] = useState([]);
   const [tableLoading, setTableLoading] = useState(true);
   const [rowSelectionModel, setRowSelectionModel] = useState(currentState.selectedApplicationIds);
-
   const { user } = useAuth();
 
   useEffect(() => {
@@ -49,6 +38,7 @@ export const ApplicationsQuery = ({
   const onTableSectionChanged = (ids) => {
     Log(`onSelectionChanged '${ids}'`);
     setRowSelectionModel(ids);
+    onStateChange({ ...queryState, selectedApplicationIds: ids });
   };
 
   return (
