@@ -8,6 +8,7 @@
     "build.debug": "vite build --mode development",
     "build.release": "vite build --mode production",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "build:azure": "env-cmd -f .env.azure npm run-script build",    
     "preview": "vite preview"
   },
   "dependencies": {
