@@ -12,8 +12,16 @@ export default defineConfig(({ command, mode }) => {
   return {
    base: `${env.VITE_APP_BASEPATH}`,
     build: {
+      outDir: './build',
+      emptyOutDir: true, // also necessary      
       sourcemap: true,
       rollupOptions: {
+        onLog(level, log, handler) {
+          if (log.cause && log.cause.message === `Can't resolve original location of error.`) {
+            return
+          }
+          handler(level, log)
+        },        
         output: {
           manualChunks: {
             react: ['react', 'react-dom', 'react-router-dom'],
