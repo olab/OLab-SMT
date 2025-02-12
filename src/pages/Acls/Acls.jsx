@@ -359,6 +359,7 @@ export default function AclPage() {
             aria-label="ACL Tabs"
           >
             <Tab label="Applications" {...a11yProps(0)} />
+            <Tab label="Maps/Nodes" {...a11yProps(1)} />
           </Tabs>
           <MDBox p={3} pb={0} lineHeight={0}>
             <MDTypography variant="h6" fontWeight="medium">

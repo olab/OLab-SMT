@@ -29,16 +29,20 @@ export const MapsNodesQuery = ({
   onCreateAclClicked,
   roles,
 }) => {
+  Log(`MapsNodesQuery: ${JSON.stringify(currentState, null, 1)}`);
+
+  const [queryState, setQueryState] = useState(currentState);
+
   const [mapTableData, setMapTableData] = useState([]);
   const [mapTableLoading, setMapTableLoading] = useState(true);
+  const [mapRowSelectionModel, setMapRowSelectionModel] = useState(currentState.selectedMapsIds);
+
   const [nodeTableData, setNodeTableData] = useState([]);
   const [nodeTableLoading, setNodeTableLoading] = useState(false);
-  const [queryState, setQueryState] = useState(currentState);
+  const [nodeRowSelectionModel, setNodeRowSelectionModel] = useState(currentState.selectedNodeIds);
 
   const { user } = useAuth();
 
-  const apiRef = useGridApiRef();
- 
   useEffect(() => {
     if (mapTableData.length == 0) {
       getMaps(user.authInfo.token).then((response) => {
@@ -46,25 +50,11 @@ export const MapsNodesQuery = ({
         setMapTableLoading(false);
       });
     }
-  }, []);
 
-  const onFieldChanged = (ev) => {
-    let newState = { ...queryState, [ev.target.name]: ev.target.value };
-    setQueryState(newState);
-    onStateChange({
-      ...newState,
-      groupId: newState.groupId == -1 ? null : newState.groupId,
-      roleId: newState.roleId == -1 ? null : newState.roleId,
-    });
-  };
+    setMapRowSelectionModel(currentState.selectedMapIds);
+    setNodeRowSelectionModel(currentState.selectedNodeIds);
 
-  const setMapSelection = (ids) => {
-    setQueryState({ ...queryState, selectedMapIds: ids });
-  };
-
-  const setNodeSelection = (ids) => {
-    setQueryState({ ...queryState, selectedNodeIds: ids });
-  };
+  }, [currentState.selectedMapsIds, currentState.selectedNodeIds]);
 
   const onMapSelectionChanged = (ids) => {
     Log(`onMapSelectionChanged ${ids}`);
@@ -80,40 +70,19 @@ export const MapsNodesQuery = ({
           mapNodes = mapNodes.concat(response.data);
           setNodeTableData(mapNodes);
         });
-      }
+      }      
       setNodeTableLoading(false);
     }
 
-    setMapSelection(ids);
-    onStateChange({
-      ...queryState,
-      groupId: queryState.groupId == -1 ? null : queryState.groupId,
-      roleId: queryState.roleId == -1 ? null : queryState.roleId,
-      selectedMapIds: ids,
-    });
+    setMapRowSelectionModel(ids);
+    onStateChange({ selectedMapIds: ids });
   };
 
   const onNodeSelectionChanged = (ids) => {
     Log(`onNodeSelectionChanged ${ids}`);
-    setNodeSelection(ids);
-    onStateChange({
-      ...queryState,
-      groupId: queryState.groupId == -1 ? null : queryState.groupId,
-      roleId: queryState.roleId == -1 ? null : queryState.roleId,
-      selectedNodeIds: ids,
-    });
+    setNodeRowSelectionModel(ids);
+    onStateChange({ selectedNodeIds: ids });
   };
-
-  const resetQueryState = () => {
-    if (queryState.selectedMapIds.length == 0) {
-      // reset the map selections manually
-      // since settings the model doesn't
-      // appear to work
-      apiRef?.current?.setRowSelectionModel([]);
-    }
-  };
-
-  resetQueryState();
 
   return (
     <Grid container spacing={0}>
@@ -123,10 +92,10 @@ export const MapsNodesQuery = ({
             Maps
           </MDTypography>
           <DataGrid
-            apiRef={apiRef}
             rows={mapTableData}
             columns={mapTableLayout.columns}
             onRowSelectionModelChange={onMapSelectionChanged}
+            rowSelectionModel={mapRowSelectionModel}
             checkboxSelection
             loading={mapTableLoading}
             {...tableSettings}
@@ -142,6 +111,7 @@ export const MapsNodesQuery = ({
             rows={nodeTableData}
             columns={nodeTableLayout.columns}
             onRowSelectionModelChange={onNodeSelectionChanged}
+            rowSelectionModel={nodeRowSelectionModel}
             checkboxSelection
             {...tableSettings}
           />

@@ -21,26 +21,28 @@ export const ApplicationsQuery = ({
   Log(`ApplicationsQuery: ${JSON.stringify(currentState, null, 1)}`);
 
   const [queryState, setQueryState] = useState(currentState);
-  const [tableData, setTableData] = useState([]);
-  const [tableLoading, setTableLoading] = useState(true);
-  const [rowSelectionModel, setRowSelectionModel] = useState(currentState.selectedApplicationIds);
+  const [appTableData, setAppTableData] = useState([]);
+  const [appTableLoading, setAppTableLoading] = useState(true);
+  const [appRowSelectionModel, setAppRowSelectionModel] = useState(currentState.selectedApplicationIds);
+
   const { user } = useAuth();
 
   useEffect(() => {
-    if (tableData.length == 0) {
+    if (appTableData.length == 0) {
       getApplications(user.authInfo.token).then((response) => {
-        setTableData(response.data);
-        setTableLoading(false);
+        setAppTableData(response.data);
+        setAppTableLoading(false);
       });
     }
 
-    setRowSelectionModel(currentState.selectedApplicationIds);
+    setAppRowSelectionModel(currentState.selectedApplicationIds);
 
   }, [currentState.selectedApplicationIds]);
 
-  const onTableSectionChanged = (ids) => {
+  const onAppSectionChanged = (ids) => {
     Log(`onSelectionChanged '${ids}'`);
-    setRowSelectionModel(ids);
+    
+    setAppRowSelectionModel(ids);
     onStateChange({ selectedApplicationIds: ids });
   };
 
@@ -52,12 +54,12 @@ export const ApplicationsQuery = ({
             {title}
           </MDTypography>
           <DataGrid
-            rows={tableData}
+            rows={appTableData}
             columns={applicationTableLayout.columns}
-            onRowSelectionModelChange={onTableSectionChanged}
-            rowSelectionModel={rowSelectionModel}
+            onRowSelectionModelChange={onAppSectionChanged}
+            rowSelectionModel={appRowSelectionModel}
             checkboxSelection
-            loading={tableLoading}
+            loading={appTableLoading}
             {...tableSettings}
           />
         </MDBox>
