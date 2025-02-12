@@ -40,7 +40,7 @@ export const GroupRoleSelector = ({
 
     Log(`onFieldChanged: ${ev.target.name} = ${ev.target.value}`);
     
-    const tmp = { ...queryState, [ev.target.name]: ev.target.value };
+    const tmp = { [ev.target.name]: ev.target.value };
     setQueryState(tmp);
     onStateChange(tmp);
   };

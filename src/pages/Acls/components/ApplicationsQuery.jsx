@@ -38,7 +38,7 @@ export const ApplicationsQuery = ({
   const onTableSectionChanged = (ids) => {
     Log(`onSelectionChanged '${ids}'`);
     setRowSelectionModel(ids);
-    onStateChange({ ...queryState, selectedApplicationIds: ids });
+    onStateChange({ selectedApplicationIds: ids });
   };
 
   return (
