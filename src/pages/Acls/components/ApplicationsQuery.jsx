@@ -33,7 +33,10 @@ export const ApplicationsQuery = ({
         setTableLoading(false);
       });
     }
-  }, []);
+
+    setRowSelectionModel(currentState.selectedApplicationIds);
+
+  }, [currentState.selectedApplicationIds]);
 
   const onTableSectionChanged = (ids) => {
     Log(`onSelectionChanged '${ids}'`);
