@@ -29,7 +29,7 @@ import { Log, LogInfo, LogError, LogEnable } from "../../utils/Logger";
 // Data
 import {
   deleteAcl,
-  getAcls,
+  queryAcls,
   getApplications,
   getGroups,
   getRoles,
@@ -123,7 +123,7 @@ export default function AclPage() {
     try {
       Log(`refreshAclData queryState: ${JSON.stringify(queryState, null, 1)}`);
 
-      getAcls(
+      queryAcls(
         user.authInfo.token,
         queryState.groupId < 0 ? null : queryState.groupId,
         queryState.roleId < 0 ? null : queryState.roleId,
@@ -131,7 +131,12 @@ export default function AclPage() {
         queryState.selectedNodeIds,
         queryState.selectedApplicationIds
       ).then((response) => {
-        setAclTableRows(response.data);
+        var objectTypes = [ "Apps" ];
+        if ( activeTab == 1 ) {
+          objectTypes = [ "Maps", "Nodes" ];
+        }        
+        var filteredAcls = response.data.filter( acl => objectTypes.includes( acl.objectType ) );
+        setAclTableRows(filteredAcls);
       });
     } catch (error) {
       Log(`refreshAclData error: ${error.message}`);
@@ -145,7 +150,7 @@ export default function AclPage() {
     setAclSelection(selectedAclIds);
   };
 
-  const onLoadAclClicked = () => {
+  const onQueryAclClicked = () => {
     refreshAclData();
   };
 
@@ -378,7 +383,7 @@ export default function AclPage() {
               groups={groups}
               roles={roles}
               onStateChange={onStateChange}
-              onLoadAclClicked={onLoadAclClicked}
+              onLoadAclClicked={onQueryAclClicked}
               onCreateAclClicked={onCreateAclClicked}
             />
           </CustomTabPanel>
@@ -386,7 +391,7 @@ export default function AclPage() {
             <ApplicationsQuery
               currentState={queryState}
               onStateChange={onStateChange}
-              onLoadAclClicked={onLoadAclClicked}
+              onLoadAclClicked={onQueryAclClicked}
               onCreateAclClicked={onCreateAclClicked}
               title={"Applications"}
             />
@@ -401,7 +406,7 @@ export default function AclPage() {
             >
               <Grid item xs={12}>
                 <Tooltip title="Query ACLs using Query Form">
-                  <MDButton onClick={onLoadAclClicked}>Query ACLs</MDButton>
+                  <MDButton onClick={onQueryAclClicked}>Query ACLs</MDButton>
                 </Tooltip>
                 &nbsp;
                 <Tooltip title="Create ACLs from Query Form">

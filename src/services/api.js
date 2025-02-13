@@ -181,7 +181,7 @@ async function deleteUser(token, ids) {
   return data;
 }
 
-async function getAcls(
+async function queryAcls(
   token,
   groupId,
   roleId,
@@ -207,21 +207,39 @@ async function putAcl(
   token,
   acl
 ) {
-  return acl;
+  let url = `${config.API_URL}/acl`;
+  const data = await internetJsonFetch("PUT", url, formData, {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'multipart/form-data',
+  });
+
+  return data;
 }
 
 async function deleteAcl(
   token,
   acl
 ) {
-  return acl;
+  let url = `${config.API_URL}/acl`;
+  const data = await internetJsonFetch("DELETE", url, formData, {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'multipart/form-data',
+  });
+
+  return data;
 }
 
 async function postAcl(
   token,
   acl
 ) {
-  return acl;
+  let url = `${config.API_URL}/acl`;
+  const data = await internetJsonFetch("POST", url, formData, {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'multipart/form-data',
+  });
+
+  return data;
 }
 
 async function importUsers(
@@ -249,7 +267,7 @@ async function getApplications(token) {
 export {
   deleteAcl,
   deleteUser,
-  getAcls,
+  queryAcls,
   getApplications,
   getGroups,
   getMaps,
