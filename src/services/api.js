@@ -209,8 +209,7 @@ async function putAcl(
 ) {
   let url = `${config.API_URL}/acl`;
   const data = await internetJsonFetch("PUT", url, formData, {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`
   });
 
   return data;
@@ -221,9 +220,8 @@ async function deleteAcl(
   acl
 ) {
   let url = `${config.API_URL}/acl`;
-  const data = await internetJsonFetch("DELETE", url, formData, {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'multipart/form-data',
+  const data = await internetJsonFetch("DELETE", url, acl, {
+    Authorization: `Bearer ${token}`
   });
 
   return data;
@@ -234,9 +232,8 @@ async function postAcl(
   acl
 ) {
   let url = `${config.API_URL}/acl`;
-  const data = await internetJsonFetch("POST", url, formData, {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'multipart/form-data',
+  const data = await internetJsonFetch("POST", url, acl, {
+    Authorization: `Bearer ${token}`
   });
 
   return data;
