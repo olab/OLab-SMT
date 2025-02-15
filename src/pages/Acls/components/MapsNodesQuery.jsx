@@ -54,7 +54,7 @@ export const MapsNodesQuery = ({
     setMapRowSelectionModel(currentState.selectedMapIds);
     setNodeRowSelectionModel(currentState.selectedNodeIds);
 
-  }, [currentState.selectedMapsIds, currentState.selectedNodeIds]);
+  }, [currentState]);
 
   const onMapSelectionChanged = (ids) => {
     Log(`onMapSelectionChanged ${ids}`);
