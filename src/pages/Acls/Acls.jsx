@@ -171,6 +171,7 @@ export default function AclPage() {
   const saveChangedAcls = () => {
     for (const aclTableRow of aclTableRows) {
       if (aclTableRow.id < 0) {
+        aclTableRow.id = null;
         postAcl(user.authInfo.token, aclTableRow).then((response) => {
           Log(`acl id: ${aclTableRow.id} added`);
         });
