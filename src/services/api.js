@@ -219,7 +219,7 @@ async function deleteAcl(
   token,
   acl
 ) {
-  let url = `${config.API_URL}/acl`;
+  let url = `${config.API_URL}/acl/${acl.id}`;
   const data = await internetJsonFetch("DELETE", url, acl, {
     Authorization: `Bearer ${token}`
   });
