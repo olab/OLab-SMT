@@ -223,6 +223,7 @@ export default function AclPage() {
     setAclTableRows(
       aclTableRows.map((row) => {
         if (row.id === cell.row.id) {
+          row[cell.field] = !row[cell.field];
           return { ...row, status: 2 };
         } else {
           return row;
@@ -339,9 +340,9 @@ export default function AclPage() {
     }
   };
 
-  const isAclRowSelectedable = (params) => {
-    return params.row.groupId != null && params.row.roleId != null;
-  };
+  // const isAclRowSelectedable = (params) => {
+  //   return params.row.groupId != null && params.row.roleId != null;
+  // };
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -437,7 +438,7 @@ export default function AclPage() {
                   rows={aclTableRows}
                   columns={aclTableColumns}
                   onRowSelectionModelChange={onAclSelectionChanged}
-                  isRowSelectable={isAclRowSelectedable}
+                  // isRowSelectable={isAclRowSelectedable}
                   disableRowSelectionOnClick
                   loading={aclTableLoading}
                   {...tableSettings}

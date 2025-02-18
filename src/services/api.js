@@ -208,7 +208,7 @@ async function putAcl(
   acl
 ) {
   let url = `${config.API_URL}/acl`;
-  const data = await internetJsonFetch("PUT", url, formData, {
+  const data = await internetJsonFetch("PUT", url, acl, {
     Authorization: `Bearer ${token}`
   });
 
