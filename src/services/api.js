@@ -59,6 +59,11 @@ async function internetJsonFetch(
         return data;
       }
 
+      if (data.error_code === 404) {
+        LogError(`URL '${url}': not found ${JSON.stringify(data)}`);
+        return data;
+      }
+
       if (data.error_code === 500) {
         LogError(`URL '${url}': server error ${JSON.stringify(data)}`);
         return data;
