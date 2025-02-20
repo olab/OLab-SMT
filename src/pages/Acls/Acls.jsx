@@ -199,17 +199,22 @@ export default function AclPage() {
   };
 
   const onClearAclClicked = () => {
-    setConfirmDialog({
-      title: "Confirmation",
-      message: `Clear ACL Table?`,
-      onCancelClicked: () => {
-        setConfirmDialog(null);
-      },
-      onConfirmClicked: () => {
-        setConfirmDialog(null);
-        setAclTableRows([]);
-      },
-    });
+    let changedAcls = aclTableRows.filter((aclTableRow) => aclTableRow['status'] != null);
+    if (changedAcls.length == 0) {
+      setAclTableRows([]);
+    } else {
+      setConfirmDialog({
+        title: "Confirmation",
+        message: `Clear ACL Table?`,
+        onCancelClicked: () => {
+          setConfirmDialog(null);
+        },
+        onConfirmClicked: () => {
+          setConfirmDialog(null);
+          setAclTableRows([]);
+        },
+      });
+    }
   };
 
   const onCellClick = (cell) => {
@@ -274,38 +279,42 @@ export default function AclPage() {
 
     Log(`${JSON.stringify(selectedGroup)} ${JSON.stringify(selectedRole)}`);
 
-    if ( selectedGroup.length == 0 ) {
+    if (selectedGroup.length == 0) {
       selectedGroup = { id: null, name: "*" };
     }
 
-    if ( selectedRole.length == 0 ) {
+    if (selectedRole.length == 0) {
       selectedRole = { id: null, name: "*" };
     }
 
     let newAclRows = [];
 
     if (activeTab == 0) {
-      newAclRows = [ ...aclTableRows, ...onCreateAclClickedApplication(selectedGroup, selectedRole) ];
+      newAclRows = [
+        ...aclTableRows,
+        ...onCreateAclClickedApplication(selectedGroup, selectedRole),
+      ];
     } else if (activeTab == 1) {
-      newAclRows = [ ...aclTableRows, ...onCreateAclClickedMapNode(selectedGroup, selectedRole) ];
+      newAclRows = [
+        ...aclTableRows,
+        ...onCreateAclClickedMapNode(selectedGroup, selectedRole),
+      ];
     }
 
     setAclTableRows(newAclRows);
   };
 
   const onCreateAclClickedApplication = (group, role) => {
-
     const { selectedApplicationIds } = queryState;
 
-    let index = nextIndex;    
+    let index = nextIndex;
     let newSelectedApplicationIds = [];
     let newAclRows = [];
-    
+
     // handle no appalication selected, meaning 'all'
-    if ( selectedApplicationIds.length == 0 ) {
-      newSelectedApplicationIds.push( null );
-    }
-    else {
+    if (selectedApplicationIds.length == 0) {
+      newSelectedApplicationIds.push(null);
+    } else {
       newSelectedApplicationIds = selectedApplicationIds;
     }
 
@@ -320,10 +329,10 @@ export default function AclPage() {
         objectIndex: selectedApplicationId,
         roleId: role.id,
         groupName: group.name,
-        roleName: role.name
+        roleName: role.name,
       };
 
-      newAclRows.push(newRecord);    
+      newAclRows.push(newRecord);
     }
 
     setNextIndex(index);
@@ -331,49 +340,60 @@ export default function AclPage() {
   };
 
   const onCreateAclClickedMapNode = (group, role) => {
-
     const { selectedMapIds, selectedNodeIds } = queryState;
 
-    let index = nextIndex;    
+    let newSelectedMapIds = [];
+    let newSelectedNodeIds = [];
+
+    if (selectedMapIds.length == 0 && selectedNodeIds.length == 0) {
+      newSelectedMapIds.push(null);
+      newSelectedNodeIds.push(null);
+    } else if (selectedMapIds.length > 0 && selectedNodeIds.length > 0) {
+      newSelectedMapIds = [];
+      newSelectedNodeIds = selectedNodeIds;
+    } else {
+      newSelectedMapIds = selectedMapIds;
+      newSelectedNodeIds = selectedNodeIds;
+    }
+
+    let index = nextIndex;
     let newAclRows = [];
 
-    if (selectedNodeIds.length > 0) {
-      for (const selectedNodeId of selectedNodeIds) {
-        const newRecord = {
-          execute: false,
-          read: false,
-          write: false,
-          objectType: "Nodes",
-          id: index--,
-          groupId: group.id,
-          objectIndex: selectedNodeId,
-          roleId: role.id,
-          groupName: group.name,
-          roleName: role.name
-        };
+    for (const selectedNodeId of newSelectedNodeIds) {
+      const newRecord = {
+        execute: false,
+        read: false,
+        write: false,
+        objectType: "Nodes",
+        id: index--,
+        groupId: group.id,
+        objectIndex: selectedNodeId,
+        roleId: role.id,
+        groupName: group.name,
+        roleName: role.name,
+      };
 
-        newAclRows.push(newRecord);
-      }
-    } else if (selectedMapIds.length > 0) {
-      for (const selectedMapId of selectedMapIds) {
-        const newRecord = {
-          execute: false,
-          read: false,
-          write: false,
-          objectType: "Maps",
-          id: index--,
-          groupId: group.id,
-          objectIndex: selectedMapId,
-          roleId: role.id,
-          groupName: group.name,
-          roleName: role.name
-        };
+      newAclRows.push(newRecord);
+    }
 
-        newAclRows.push(newRecord);
-      }
-    }    
+    for (const selectedMapId of newSelectedMapIds) {
+      const newRecord = {
+        execute: false,
+        read: false,
+        write: false,
+        objectType: "Maps",
+        id: index--,
+        groupId: group.id,
+        objectIndex: selectedMapId,
+        roleId: role.id,
+        groupName: group.name,
+        roleName: role.name,
+      };
 
-    setNextIndex(index);  
+      newAclRows.push(newRecord);
+    }
+
+    setNextIndex(index);
     return newAclRows;
   };
 
@@ -391,10 +411,6 @@ export default function AclPage() {
       setQueryState(newQueryState);
     }
   };
-
-  // const isAclRowSelectedable = (params) => {
-  //   return params.row.groupId != null && params.row.roleId != null;
-  // };
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -534,4 +550,3 @@ export default function AclPage() {
     </DashboardLayout>
   );
 }
-
