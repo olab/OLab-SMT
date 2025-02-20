@@ -131,11 +131,13 @@ export default function AclPage() {
         queryState.selectedNodeIds,
         queryState.selectedApplicationIds
       ).then((response) => {
-        var objectTypes = [ "Apps" ];
-        if ( activeTab == 1 ) {
-          objectTypes = [ "Maps", "Nodes" ];
-        }        
-        var filteredAcls = response.data.filter( acl => objectTypes.includes( acl.objectType ) );
+        var objectTypes = ["Apps"];
+        if (activeTab == 1) {
+          objectTypes = ["Maps", "Nodes"];
+        }
+        var filteredAcls = response.data.filter((acl) =>
+          objectTypes.includes(acl.objectType)
+        );
         setAclTableRows(filteredAcls);
       });
     } catch (error) {
@@ -265,21 +267,75 @@ export default function AclPage() {
   };
 
   const onCreateAclClicked = () => {
-    const {
-      groupId,
-      roleId,
-      selectedMapIds,
-      selectedNodeIds,
-      selectedApplicationIds,
-    } = queryState;
+    const { groupId, roleId } = queryState;
 
-    const selectedGroup = groups.filter((group) => group.id == groupId);
-    const selectedRole = roles.filter((role) => role.id == roleId);
+    let selectedGroup = groups.filter((group) => group.id == Number(groupId));
+    let selectedRole = roles.filter((role) => role.id == Number(roleId));
 
     Log(`${JSON.stringify(selectedGroup)} ${JSON.stringify(selectedRole)}`);
 
-    let newAclRows = [...aclTableRows];
-    let index = nextIndex;
+    if ( selectedGroup.length == 0 ) {
+      selectedGroup = { id: null, name: "*" };
+    }
+
+    if ( selectedRole.length == 0 ) {
+      selectedRole = { id: null, name: "*" };
+    }
+
+    let newAclRows = [];
+
+    if (activeTab == 0) {
+      newAclRows = [ ...aclTableRows, ...onCreateAclClickedApplication(selectedGroup, selectedRole) ];
+    } else if (activeTab == 1) {
+      newAclRows = [ ...aclTableRows, ...onCreateAclClickedMapNode(selectedGroup, selectedRole) ];
+    }
+
+    setAclTableRows(newAclRows);
+  };
+
+  const onCreateAclClickedApplication = (group, role) => {
+
+    const { selectedApplicationIds } = queryState;
+
+    let index = nextIndex;    
+    let newSelectedApplicationIds = [];
+    let newAclRows = [];
+    
+    // handle no appalication selected, meaning 'all'
+    if ( selectedApplicationIds.length == 0 ) {
+      newSelectedApplicationIds.push( null );
+    }
+    else {
+      newSelectedApplicationIds = selectedApplicationIds;
+    }
+
+    for (const selectedApplicationId of newSelectedApplicationIds) {
+      const newRecord = {
+        execute: false,
+        read: false,
+        write: false,
+        objectType: "Apps",
+        id: index--,
+        groupId: group.id,
+        objectIndex: selectedApplicationId,
+        roleId: role.id,
+        groupName: group.name,
+        roleName: role.name
+      };
+
+      newAclRows.push(newRecord);    
+    }
+
+    setNextIndex(index);
+    return newAclRows;
+  };
+
+  const onCreateAclClickedMapNode = (group, role) => {
+
+    const { selectedMapIds, selectedNodeIds } = queryState;
+
+    let index = nextIndex;    
+    let newAclRows = [];
 
     if (selectedNodeIds.length > 0) {
       for (const selectedNodeId of selectedNodeIds) {
@@ -289,11 +345,11 @@ export default function AclPage() {
           write: false,
           objectType: "Nodes",
           id: index--,
-          groupId: selectedGroup.length == 0 ? 0 : selectedGroup[0].id,
+          groupId: group.id,
           objectIndex: selectedNodeId,
-          roleId: selectedRole.length == 0 ? 0 : selectedRole[0].id,
-          groupName: selectedGroup.length == 0 ? "*" : selectedGroup[0].name,
-          roleName: selectedRole.length == 0 ? "*" : selectedRole[0].name,
+          roleId: role.id,
+          groupName: group.name,
+          roleName: role.name
         };
 
         newAclRows.push(newRecord);
@@ -306,30 +362,26 @@ export default function AclPage() {
           write: false,
           objectType: "Maps",
           id: index--,
-          groupId: selectedGroup.length == 0 ? 0 : selectedGroup[0].id,
+          groupId: group.id,
           objectIndex: selectedMapId,
-          roleId: selectedRole.length == 0 ? 0 : selectedRole[0].id,
-          groupName: selectedGroup.length == 0 ? "*" : selectedGroup[0].name,
-          roleName: selectedRole.length == 0 ? "*" : selectedRole[0].name,
+          roleId: role.id,
+          groupName: group.name,
+          roleName: role.name
         };
 
         newAclRows.push(newRecord);
       }
-    }
+    }    
 
-    setNextIndex(index);
-    setAclTableRows(newAclRows);
+    setNextIndex(index);  
+    return newAclRows;
   };
-
-  if (confirmDialog != null) {
-    <ConfirmDialog data={confirmDialog} />;
-  }
 
   const onStateChange = (state = null) => {
     Log(`onStateChange: ${JSON.stringify(state, null, 1)}`);
 
     if (state == null) {
-      setQueryState({...initialQueryState});
+      setQueryState({ ...initialQueryState });
     } else {
       let newQueryState = {
         ...queryState,
@@ -347,6 +399,10 @@ export default function AclPage() {
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
+
+  if (confirmDialog != null) {
+    <ConfirmDialog data={confirmDialog} />;
+  }
 
   return (
     <DashboardLayout>
