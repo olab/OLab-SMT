@@ -276,16 +276,16 @@ export default function AclPage() {
   const onCreateAclClicked = () => {
     const { groupId, roleId } = queryState;
 
-    let selectedGroup = groups.filter((group) => group.id == Number(groupId));
-    let selectedRole = roles.filter((role) => role.id == Number(roleId));
+    let selectedGroup = groups.find((group) => group.id == Number(groupId));
+    let selectedRole = roles.find((role) => role.id == Number(roleId));
 
     Log(`${JSON.stringify(selectedGroup)} ${JSON.stringify(selectedRole)}`);
 
-    if (selectedGroup.length == 0) {
+    if (selectedGroup == null) {
       selectedGroup = { id: null, name: "*" };
     }
 
-    if (selectedRole.length == 0) {
+    if (selectedRole == null) {
       selectedRole = { id: null, name: "*" };
     }
 
