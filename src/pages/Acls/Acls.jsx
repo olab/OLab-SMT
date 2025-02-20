@@ -172,7 +172,7 @@ export default function AclPage() {
 
   const saveChangedAcls = () => {
     for (const aclTableRow of aclTableRows) {
-      if (aclTableRow.id < 0) {
+      if (aclTableRow.status == 1) {
         aclTableRow.id = null;
         postAcl(user.authInfo.token, aclTableRow).then((response) => {
           Log(`acl id: ${aclTableRow.id} added`);
@@ -199,7 +199,9 @@ export default function AclPage() {
   };
 
   const onClearAclClicked = () => {
-    let changedAcls = aclTableRows.filter((aclTableRow) => aclTableRow['status'] != null);
+    let changedAcls = aclTableRows.filter(
+      (aclTableRow) => aclTableRow["status"] != null
+    );
     if (changedAcls.length == 0) {
       setAclTableRows([]);
     } else {
@@ -330,6 +332,7 @@ export default function AclPage() {
         roleId: role.id,
         groupName: group.name,
         roleName: role.name,
+        status: 1,
       };
 
       newAclRows.push(newRecord);
@@ -371,6 +374,7 @@ export default function AclPage() {
         roleId: role.id,
         groupName: group.name,
         roleName: role.name,
+        status: 1,
       };
 
       newAclRows.push(newRecord);
@@ -388,6 +392,7 @@ export default function AclPage() {
         roleId: role.id,
         groupName: group.name,
         roleName: role.name,
+        status: 1,
       };
 
       newAclRows.push(newRecord);
