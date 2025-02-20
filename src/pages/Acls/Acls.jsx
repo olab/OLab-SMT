@@ -313,7 +313,7 @@ export default function AclPage() {
     let newSelectedApplicationIds = [];
     let newAclRows = [];
 
-    // handle no appalication selected, meaning 'all'
+    // handle no app selected, meaning 'all'
     if (selectedApplicationIds.length == 0) {
       newSelectedApplicationIds.push(null);
     } else {
@@ -348,6 +348,7 @@ export default function AclPage() {
     let newSelectedMapIds = [];
     let newSelectedNodeIds = [];
 
+    // handle no map/node selected, meaning 'all'
     if (selectedMapIds.length == 0 && selectedNodeIds.length == 0) {
       newSelectedMapIds.push(null);
       newSelectedNodeIds.push(null);
