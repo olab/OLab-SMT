@@ -33,7 +33,7 @@ export default defineConfig(({ command, mode }) => {
     },
     plugins: [
       react(),
-      basicSsl()
+      // basicSsl()
     ],
     resolve: {
       alias: [

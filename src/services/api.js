@@ -188,6 +188,7 @@ async function deleteUser(token, ids) {
 
 async function queryAcls(
   token,
+  type,
   groupId,
   roleId,
   mapIds,

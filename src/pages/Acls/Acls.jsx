@@ -69,6 +69,10 @@ const initialQueryState = {
 };
 
 export default function AclPage() {
+  const EditedRow = 2;
+  const DeletedRow = 3;
+  const CreatedRow = 1;
+
   const [aclSelectionIds, setAclSelection] = useState([]);
   const [aclTableColumns, setAclTableColumns] = useState(
     aclTableLayout.columns
@@ -123,22 +127,25 @@ export default function AclPage() {
     try {
       Log(`refreshAclData queryState: ${JSON.stringify(queryState, null, 1)}`);
 
+      var type = "Apps";
+      if (activeTab == 1) {
+        if (queryState.selectedNodeIds != null) {
+          type = "Nodes";
+        } else {
+          type = "Maps";
+        }
+      }
+
       queryAcls(
         user.authInfo.token,
+        type,
         queryState.groupId < 0 ? null : queryState.groupId,
         queryState.roleId < 0 ? null : queryState.roleId,
         queryState.selectedMapIds,
         queryState.selectedNodeIds,
         queryState.selectedApplicationIds
       ).then((response) => {
-        var objectTypes = ["Apps"];
-        if (activeTab == 1) {
-          objectTypes = ["Maps", "Nodes"];
-        }
-        var filteredAcls = response.data.filter((acl) =>
-          objectTypes.includes(acl.objectType)
-        );
-        setAclTableRows(filteredAcls);
+        setAclTableRows(response.data);
       });
     } catch (error) {
       Log(`refreshAclData error: ${error.message}`);
@@ -172,7 +179,7 @@ export default function AclPage() {
 
   const saveChangedAcls = () => {
     for (const aclTableRow of aclTableRows) {
-      if (aclTableRow.status == 1) {
+      if (aclTableRow.status == CreatedRow) {
         aclTableRow.id = null;
         postAcl(user.authInfo.token, aclTableRow).then((response) => {
           Log(`acl id: ${aclTableRow.id} added`);
@@ -180,14 +187,14 @@ export default function AclPage() {
         continue;
       }
 
-      if (aclTableRow.status == 2) {
+      if (aclTableRow.status == EditedRow) {
         putAcl(user.authInfo.token, aclTableRow).then((response) => {
           Log(`acl id: ${aclTableRow.id} edited`);
         });
         continue;
       }
 
-      if (aclTableRow.status == 3) {
+      if (aclTableRow.status == DeletedRow) {
         deleteAcl(user.authInfo.token, aclTableRow).then((response) => {
           Log(`acl id: ${aclTableRow.id} delete`);
         });
@@ -202,6 +209,7 @@ export default function AclPage() {
     let changedAcls = aclTableRows.filter(
       (aclTableRow) => aclTableRow["status"] != null
     );
+
     if (changedAcls.length == 0) {
       setAclTableRows([]);
     } else {
@@ -233,7 +241,7 @@ export default function AclPage() {
       aclTableRows.map((row) => {
         if (row.id === cell.row.id) {
           row[cell.field] = !row[cell.field];
-          return { ...row, status: 2 };
+          return { ...row, status: EditedRow };
         } else {
           return row;
         }
@@ -258,10 +266,10 @@ export default function AclPage() {
       aclTableRows.map((row) => {
         if (aclSelectionIds.includes(row.id)) {
           // undelete, if already marked deleted
-          if (row.status == 3) {
+          if (row.status == DeletedRow) {
             return { ...row, status: null };
           }
-          return { ...row, status: 3 };
+          return { ...row, status: DeletedRow };
         } else {
           return row;
         }
@@ -332,7 +340,7 @@ export default function AclPage() {
         roleId: role.id,
         groupName: group.name,
         roleName: role.name,
-        status: 1,
+        status: CreatedRow,
       };
 
       newAclRows.push(newRecord);
