@@ -127,18 +127,25 @@ export default function AclPage() {
     try {
       Log(`refreshAclData queryState: ${JSON.stringify(queryState, null, 1)}`);
 
-      var type = "Apps";
-      if (activeTab == 1) {
+      var types = [];
+      if (activeTab == 0) {
+        types.push("Apps");
+      } else if (activeTab == 1) {
         if (queryState.selectedNodeIds != null) {
-          type = "Nodes";
-        } else {
-          type = "Maps";
+          types.push("Nodes");          
+        }
+        else if (queryState.selectedMapIds != null) {
+          types.push("Maps");          
+        }
+        else {
+          types.push("Nodes");          
+          types.push("Maps");          
         }
       }
 
       queryAcls(
         user.authInfo.token,
-        type,
+        types.join(","),
         queryState.groupId < 0 ? null : queryState.groupId,
         queryState.roleId < 0 ? null : queryState.roleId,
         queryState.selectedMapIds,
