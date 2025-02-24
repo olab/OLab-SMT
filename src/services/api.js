@@ -197,6 +197,7 @@ async function queryAcls(
 
   let url = `${config.API_URL}/acls`;
   const data = await internetJsonFetch("POST", url, {
+    type: type,
     groupId: groupId,
     roleId: roleId,
     mapIds: mapIds,
