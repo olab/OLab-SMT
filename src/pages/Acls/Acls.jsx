@@ -131,10 +131,10 @@ export default function AclPage() {
       if (activeTab == 0) {
         types.push("Apps");
       } else if (activeTab == 1) {
-        if (queryState.selectedNodeIds != null) {
+        if (queryState.selectedNodeIdslength > 0 ) {
           types.push("Nodes");          
         }
-        else if (queryState.selectedMapIds != null) {
+        else if (queryState.selectedMapIds > 0 ) {
           types.push("Maps");          
         }
         else {
