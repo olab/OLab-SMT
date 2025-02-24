@@ -188,7 +188,7 @@ async function deleteUser(token, ids) {
 
 async function queryAcls(
   token,
-  types,
+  objectTypes,
   groupId,
   roleId,
   mapIds,
@@ -197,7 +197,7 @@ async function queryAcls(
 
   let url = `${config.API_URL}/acls`;
   const data = await internetJsonFetch("POST", url, {
-    type: types,
+    types: objectTypes,
     groupId: groupId,
     roleId: roleId,
     mapIds: mapIds,
