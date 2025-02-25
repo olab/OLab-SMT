@@ -42,22 +42,15 @@ const aclTableLayout = {
     {
       field: "read",
       headerAlign: "center",
-      headerName: "R",
-      flex: 0.25,
+      headerName: "Read",
+      flex: 0.75,
       renderCell: AclCheckBoxCell,
     },
     {
       headerAlign: "center",
       field: "write",
-      headerName: "W",
-      flex: 0.25,
-      renderCell: AclCheckBoxCell,
-    },
-    {
-      headerAlign: "center",
-      field: "execute",
-      headerName: "X",
-      flex: 0.25,
+      headerName: "Write",
+      flex: 0.75,
       renderCell: AclCheckBoxCell,
     }
   ],
