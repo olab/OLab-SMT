@@ -60,7 +60,7 @@ function OLabUsers({
   return (
     <>
       <MDTypography variant="h6" fontWeight="medium">
-        {title}
+        &nbsp;
       </MDTypography>
       <DataGrid
         apiRef={apiRef}

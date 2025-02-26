@@ -4,10 +4,11 @@ import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { FileUploader } from "react-drag-drop-files";
+import MDTypography from "@/components/MDTypography";
 
 // Material Dashboard 2 PRO React components
 import MDBox from "@/components/MDBox";
-import MDButton from "@/components/MDButton";
+import { GroupRoleSelector } from "../../components/GroupRoleSelector";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import OLabAlert from "@/components/OLabAlert";
 import OLabUsers from "@/components/OLabUsers";
@@ -32,6 +33,14 @@ import { UserDetail } from "./components/UserDetail";
 
 const fileTypes = ["XLSX"];
 
+const initialQueryState = {
+  groupId: 0,
+  roleId: 0,
+  selectedMapIds: [],
+  selectedNodeIds: [],
+  selectedApplicationIds: [],
+};
+
 export default function UserPage() {
   const [selectedUser, setSelectedUser] = useState({
     ...defaultUser,
@@ -46,18 +55,22 @@ export default function UserPage() {
   const [postImportReview, setPostImportReview] = useState(true);
 
   const [tableTitle, setTableTitle] = useState("Users");
+  const [queryState, setQueryState] = useState(initialQueryState);
+  const [users, setUsers] = useState([]);
 
   const { user } = useAuth();
+  
 
   LogEnable();
 
   useEffect(() => {
     getUsers(user.authInfo.token).then((response) => {
       setTableData(response.data);
+      setUsers(response.data);
 
       getGroups(user.authInfo.token).then((response) => {
         setGroups(response.data);
-
+        
         getRoles(user.authInfo.token).then((response) => {
           setRoles(response.data);
           setLoading(false);
@@ -65,6 +78,30 @@ export default function UserPage() {
       });
     });
   }, []);
+
+  const onStateChange = (state = null) => {
+    Log(`onStateChange: ${JSON.stringify(state, null, 1)}`);
+
+    if (state == null) {
+      setQueryState({ ...initialQueryState });
+    } else {
+      let newQueryState = {
+        ...queryState,
+        ...state,
+      };
+
+      setQueryState(newQueryState);
+
+      if (Number(newQueryState.groupId) == 0) {
+        setTableData(users);
+      } else {
+        const filteredUsers = users.filter((user) =>
+          user.roles.some((role) => role.groupId === newQueryState.groupId)
+        );
+        setTableData(filteredUsers);
+      }
+    }
+  };
 
   const onRowClick = (table) => {
     Log(`onRowClick`);
@@ -209,12 +246,21 @@ export default function UserPage() {
       )}
 
       <MDBox pt={0} pb={0}>
-        <Grid container spacing={2}>
+        <Grid container spacing={0}>
           <Grid item xs={6}>
             <Card>
-              <Grid container spacing={2} justifyContent="center">
-                <Grid item xs={12}>
-                  <MDBox p={3} lineHeight={0}>
+              <MDBox p={3} lineHeight={0}>
+                <Grid container spacing={0} justifyContent="center">
+                  <Grid item xs={12}>
+                    <MDTypography variant="h6" fontWeight="medium">
+                      Users
+                    </MDTypography>
+                    <GroupRoleSelector
+                      currentState={queryState}
+                      groups={groups}
+                      onStateChange={onStateChange}
+                    />
+                    <br />
                     <OLabUsers
                       buttons={buttons}
                       data={tableData}
@@ -226,9 +272,9 @@ export default function UserPage() {
                       setStatusMessage={setStatusMessage}
                       title={tableTitle}
                     />
-                  </MDBox>
+                  </Grid>
                 </Grid>
-              </Grid>
+              </MDBox>
             </Card>
           </Grid>
           <Grid item xs={6}>

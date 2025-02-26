@@ -16,7 +16,7 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 
 import { MapsNodesQuery } from "./components/MapsNodesQuery";
 import { ApplicationsQuery } from "./components/ApplicationsQuery";
-import { GroupRoleSelector } from "./components/GroupRoleSelector";
+import { GroupRoleSelector } from "../../components/GroupRoleSelector";
 
 import mapTableLayout from "./layouts/mapTableLayout";
 import nodeTableLayout from "./layouts/nodeTableLayout";
@@ -131,15 +131,13 @@ export default function AclPage() {
       if (activeTab == 0) {
         types.push("Apps");
       } else if (activeTab == 1) {
-        if (queryState.selectedNodeIdslength > 0 ) {
-          types.push("Nodes");          
-        }
-        else if (queryState.selectedMapIds > 0 ) {
-          types.push("Maps");          
-        }
-        else {
-          types.push("Nodes");          
-          types.push("Maps");          
+        if (queryState.selectedNodeIdslength > 0) {
+          types.push("Nodes");
+        } else if (queryState.selectedMapIds > 0) {
+          types.push("Maps");
+        } else {
+          types.push("Nodes");
+          types.push("Maps");
         }
       }
 
@@ -465,13 +463,14 @@ export default function AclPage() {
             <MDTypography variant="h6" fontWeight="medium">
               Query Form
             </MDTypography>
+
+            <GroupRoleSelector
+              currentState={queryState}
+              groups={groups}
+              roles={roles}
+              onStateChange={onStateChange}
+            />
           </MDBox>
-          <GroupRoleSelector
-            currentState={queryState}
-            groups={groups}
-            roles={roles}
-            onStateChange={onStateChange}
-          />
           <CustomTabPanel value={activeTab} index={1}>
             <MapsNodesQuery
               currentState={queryState}

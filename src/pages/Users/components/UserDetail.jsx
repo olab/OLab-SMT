@@ -205,15 +205,15 @@ export const UserDetail = ({ selectedUser, groups, roles, onUserChanged }) => {
   const onCloneClicked = () => {
     // const newPassword = generatePassword();
 
-    let newUserName = formUser.userName;  
+    let newUserName = formUser.userName;
 
     // increment any user name trailing number
     // and increment by one if one is found
-    let userNumber = String(1).padStart(3, '0');
+    let userNumber = String(1).padStart(3, "0");
     let matches = formUser.userName.match(/\d+$/);
     if (matches) {
       userNumber = parseInt(matches[0], 10) + 1;
-      userNumber = String(userNumber).padStart(3, '0');
+      userNumber = String(userNumber).padStart(3, "0");
       newUserName = formUser.userName.replace(matches[0], "");
     }
 
